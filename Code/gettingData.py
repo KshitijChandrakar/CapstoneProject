@@ -1,35 +1,26 @@
-# https://pypi.org/project/sdss/
-# We can also wget it wget --spider https://data.sdss.org/sas/dr17/eboss/photoObj/frames/301/2505/3/frame-r-002505-3-0038.fits.bz2
-# Documentation at https://www.sdss4.org/dr17/data_access/bulk/wget --spider https://data.sdss.org/sas/dr17/eboss/spectro/redux/v5_13_2/platelist.fits
+from astroquery.sdss import SDSS
+from astropy import coordinates as coords
+import matplotlib.pyplot as plt
 
-from sdss import Region
+# pos = coords.SkyCoord(ra=229.525576, dec=42.7458538, unit="deg", frame="icrs")
+pos = coords.SkyCoord.from_name("NGC 4826")
+xid = SDSS.query_region(pos, radius="3 arcmin")
+print(xid)
 
-ra = 179.689293428354
-dec = 0.454379056007667
+bands = ["u", "g", "r", "i", "z"]
+images = {band: SDSS.get_images(matches=xid, band=band) for band in bands}
+print(images)
 
-reg = Region(ra, dec, fov=0.033)
-reg.show()
 
-# %% 
-# needs a data folder in pwd
-# from sdss.photometry import frame_filename, obj_frame_url, \
-#      download_file, unzip, get_df, df_radec2pixel
-#
-# objid = 1237646587710014999
-#
-# zip_file = 'data/' + frame_filename(objid) + '.fits.bz2'
-# fits_file = zip_file[:-4]
-# jpg_file = fits_file.replace('-r-', '-irg-').replace('fits', 'jpg')
-#
-# zip_url = obj_frame_url(objid, 'r')
-# download_file(zip_url, 'data/')
-# unzip(zip_file)
-#
-# jpg_url = obj_frame_url(objid, 'irg', jpg=True)
-# download_file(jpg_url, 'data/')
-#
-# df = get_df(objid)
-# df = df_radec2pixel(df=df, fits_file=fits_file)
-#
-# df.to_csv('data/COMP.csv', index=False)
-#
+for i in range(len(images["u"])):
+    fig, axes = plt.subplots(1, len(bands), figsize=(15, 5))
+    fig.suptitle(f"SDSS Images - Object {i}", fontsize=16)
+    for idx, b in enumerate(bands):
+        image_data = images[b][i][0].data.copy()
+        image_data[image_data > 1] = 1
+        image_data[image_data < -1] = -1
+        axes[idx].imshow(image_data, cmap='gray')  # Optional: add colormap
+        axes[idx].set_title(f"Band {b}")
+        axes[idx].axis('off')  # Remove axis ticks for cleaner look
+    plt.tight_layout()
+    plt.show()
