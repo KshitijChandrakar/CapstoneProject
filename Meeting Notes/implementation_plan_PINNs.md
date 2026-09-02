@@ -2,6 +2,7 @@
 
 ## Overview
 
+
 This document lays out the **entire end-to-end workflow** for implementing a Physics-Informed Neural Network (PINN) that predicts unseen photometric bands from multi-band astronomical imaging (SDSS *ugriz*), including the anomaly detection application.
 
 ```mermaid
@@ -366,7 +367,10 @@ Output: [B, 1, 16, 16]          (patch-wise real/fake scores)
 
 This is the **core novelty** of your paper. The total loss is:
 
-$$\mathcal{L}_{\text{total}} = \lambda_{\text{adv}} \cdot \mathcal{L}_{\text{adv}} + \lambda_{\text{rec}} \cdot \mathcal{L}_{\text{rec}} + \lambda_{\text{SED}} \cdot \mathcal{L}_{\text{SED}} + \lambda_{\text{color}} \cdot \mathcal{L}_{\text{color}} + \lambda_{\text{flux}} \cdot \mathcal{L}_{\text{flux}}$$
+
+$$
+\mathcal{L}_{\text{total}} = \lambda_{\text{adv}} \cdot \mathcal{L}_{\text{adv}} + \lambda_{\text{rec}} \cdot \mathcal{L}_{\text{rec}} + \lambda_{\text{SED}} \cdot \mathcal{L}_{\text{SED}} + \lambda_{\text{color}} \cdot \mathcal{L}_{\text{color}} + \lambda_{\text{flux}} \cdot \mathcal{L}_{\text{flux}}
+$$
 
 #### Term 1: Adversarial Loss (standard cGAN)
 
