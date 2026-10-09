@@ -64,4 +64,7 @@ data = data.dropna(subset=["major_minor_axis_ratio"])
 
 # + Image Column
 
+import h5py
+
+
 data.to_csv(OutputMetadata, index=False)

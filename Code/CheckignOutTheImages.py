@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 training = h5py.File("data/GalaxyML/5x64x64_training_with_morphology.hdf5", "r")
-data = pd.read_csv("data/GalaxyML/preprocessedMetadata.csv")
+data = pd.read_csv("data/preprocessedMetadata.csv")
 
 
 # %%
