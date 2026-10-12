@@ -89,6 +89,19 @@ python scripts/06_band_correlations.py
 One streaming pass, no training. Outputs `band_correlations.json`,
 `band_correlations.md` and three figures into `results/`.
 
+### 4d. Pixel-to-pixel band cross-correlation (also quick)
+
+The last thing the team asked for — how a pixel in one band affects the pixels
+*around* it in another band, which reveals whether the bands have different
+PSFs:
+
+```powershell
+python scripts/07_pixel_cross_correlation.py
+```
+
+One streaming pass, no training. Outputs `pixel_cross_correlation.json`,
+`pixel_cross_correlation.md` and two figures into `results/`.
+
 ### 5. Send back
 
 Zip and send **`results/`** — the metrics JSON, the table, and the figures.
