@@ -54,7 +54,9 @@ from src.evaluation.photometry import circular_aperture_mask
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-DEFAULT_EDGES = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.25, 1.5, 2.0, 4.0]
+#: Must match 05 and 07, so the three outputs can be compared bin by bin.
+#: These sit on the predicted spectral-feature boundaries.
+DEFAULT_EDGES = [0.0, 0.36, 0.49, 0.78, 1.01, 1.22, 1.44, 2.0, 4.0]
 REGIONS = ("all", "aperture", "outskirts")
 NB = len(BANDS)
 

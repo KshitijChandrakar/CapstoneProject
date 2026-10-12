@@ -359,7 +359,11 @@ def write_tables(cfg, b0: dict, variants: list[dict], split: str) -> tuple[Path,
         vals = [(f"${m:.{nd}f}$" if s is None or not np.isfinite(s)
                  else f"${m:.{nd}f} \\pm {s:.{nd}f}$")
                 for (m, s), nd in zip(cells, DECIMALS)]
-        tex.append(f"    {label.replace('1x1', '$1\\times1$')} & {params} & "
+        # Hoisted out of the f-string: a backslash inside an f-string
+        # *expression* is a SyntaxError before Python 3.12 (PEP 701), and
+        # requirements.txt supports 3.10 upwards. Do not inline this again.
+        label_tex = label.replace("1x1", "$1\\times1$")
+        tex.append(f"    {label_tex} & {params} & "
                    + " & ".join(vals) + " \\\\")
     tex += ["    \\hline", "  \\end{tabular}", "\\end{table}", ""]
     tex_path = cfg.path("results_dir") / "results_table.tex"

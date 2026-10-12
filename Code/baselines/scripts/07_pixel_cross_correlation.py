@@ -53,6 +53,11 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 DEFAULT_EDGES = [0.0, 0.36, 0.49, 0.78, 1.01, 1.22, 1.44, 2.0, 4.0]
+
+#: Half-width of the estimator's own error, measured in
+#: tests/test_cross_correlation.py: a known 1.5 px blur comes back as
+#: 0.4-2.6 px. A spread between bands smaller than this cannot be ranked.
+ESTIMATOR_ACCURACY_PX = 1.1
 NB = len(BANDS)
 PAIRS = list(combinations_with_replacement(range(NB), 2))
 
@@ -94,10 +99,19 @@ def peak_and_width(corr: np.ndarray, max_lag: int) -> dict:
     total = float(w.sum())
     width = float(np.sqrt((w * r2).sum() / total)) if total > 0 else float("nan")
 
-    # Independent per-band read noise correlates only with itself, and only at
-    # exactly zero lag. It therefore adds a spike to an AUTO-correlation that no
-    # cross-correlation has, which biases any auto-vs-cross comparison. Dropping
-    # the single central pixel removes it; this is the width psf_excess uses.
+    # A zero-lag-excluded width, kept for diagnostics only.
+    #
+    # The idea was that independent per-band noise correlates only with itself,
+    # and only at exactly zero lag, so it spikes an AUTO-correlation in a way no
+    # cross-correlation sees and biases the auto-vs-cross comparison. Dropping
+    # the central pixel should have removed that.
+    #
+    # Measured, it does not: against the known 1.5 px blur injected by
+    # tests/test_cross_correlation.py this variant is LESS accurate than the
+    # plain width (mean error 0.85 px vs 0.53 px), and on real data the two
+    # agree to about 0.01 px. So psf_excess() deliberately uses `width_sq`,
+    # NOT these values. Do not 'fix' it to use them -- that was tried and it
+    # measured worse. These are retained only so the comparison can be redone.
     w0 = w.copy()
     w0[max_lag, max_lag] = 0.0
     total0 = float(w0.sum())
@@ -154,6 +168,61 @@ def psf_excess(entry: dict, base: str, target: str = "y") -> float:
         return float("nan")
     d = cross["width_sq"] - auto["width_sq"]
     return float(np.sign(d) * np.sqrt(abs(d)))
+
+
+def stability_report(results: list[dict]) -> dict:
+    """Judge each band pair by whether its PSF difference stays constant.
+
+    The difference between two fixed filters is an instrumental constant, so a
+    value that drifts or changes sign across redshift bins is telling you the
+    estimator has broken down for that pair -- not that the optics changed.
+
+    The derivation assumes AC(galaxy) is a common factor in the cross and auto
+    correlations. Galaxies are physically more extended in bluer bands, so that
+    assumption weakens as the wavelength gap grows, which is exactly where the
+    instability shows up.
+
+    A pair is reportable only if its spread across bins is smaller than the
+    estimator's own accuracy and its sign never flips.
+    """
+    out: dict = {"per_band": {}, "accuracy_px": ESTIMATOR_ACCURACY_PX}
+    for b in BANDS[:4]:
+        vals = [e["psf_excess_y_over"].get(b, float("nan")) for e in results]
+        vals = [v for v in vals if np.isfinite(v)]
+        if not vals:
+            continue
+        spread = float(max(vals) - min(vals))
+        sign_flips = any(v < 0 for v in vals) and any(v > 0 for v in vals)
+        reportable = bool(spread <= ESTIMATOR_ACCURACY_PX and not sign_flips)
+        out["per_band"][b] = {
+            "mean": float(np.mean(vals)),
+            "min": float(min(vals)),
+            "max": float(max(vals)),
+            "spread_px": spread,
+            "sign_flips_across_bins": sign_flips,
+            "n_bins": len(vals),
+            "reportable": reportable,
+            "why_not": "" if reportable else (
+                "sign flips across bins" if sign_flips
+                else f"spread {spread:.2f} px exceeds the estimator's own "
+                     f"accuracy of {ESTIMATOR_ACCURACY_PX:.2f} px"
+            ),
+        }
+    good = [b for b, v in out["per_band"].items() if v["reportable"]]
+    out["reportable_bands"] = good
+    n_neg = sum(
+        1 for e in results for b in BANDS[:4]
+        if np.isfinite(e["psf_excess_y_over"].get(b, float("nan")))
+        and e["psf_excess_y_over"][b] < 0
+    )
+    n_tot = sum(
+        1 for e in results for b in BANDS[:4]
+        if np.isfinite(e["psf_excess_y_over"].get(b, float("nan")))
+    )
+    out["n_negative_entries"] = n_neg
+    out["n_entries"] = n_tot
+    out["y_blurrier_than_every_band"] = bool(n_neg == 0)
+    return out
 
 
 def main() -> int:
@@ -256,6 +325,7 @@ def main() -> int:
     out = {
         "split": args.split, "bands": list(BANDS), "max_lag": args.max_lag,
         "bins": results,
+        "validity": stability_report(results),
         "method": (
             "per galaxy: mean-subtract each band, zero-pad to 2x, accumulate "
             "cross-power spectra over the bin, invert once. Zero-padding makes "
@@ -307,12 +377,42 @@ def print_summary(results: list[dict]) -> None:
         label = f"{e['z_low']:.2f}-{e['z_high']:.2f}"
         print(f"{label:>12}{e['n_galaxies']:>8,}"
               + "".join(f"{ex.get(b, float('nan')):>10.2f}" for b in BANDS[:4]))
-    print("\n  Positive = y is blurrier than that band, so that much of y's")
-    print("  structure cannot be produced by rescaling it. B0/B1 are then limited")
-    print("  by optics rather than parameter count -> a spatial model is needed.")
-    print("\n  CAVEAT: against a known injected blur of 1.50 px this estimator")
-    print("  returns ~0.8-1.8 px. Trust the sign and the ranking; treat the")
-    print("  magnitude as a lower bound, not a calibrated PSF width.")
+    stab = stability_report(results)
+    print("\n" + "-" * 74)
+    print("VALIDITY: a PSF difference between two fixed filters is an")
+    print("instrumental constant, so it must NOT vary with redshift. Drift or a")
+    print("sign flip across bins means the estimator has failed for that pair.")
+    print("-" * 74)
+    print(f"{'pair':>8}{'mean':>8}{'min':>8}{'max':>8}{'spread':>9}  verdict")
+    for b, v in stab["per_band"].items():
+        verdict = "reportable" if v["reportable"] else f"UNRELIABLE - {v['why_not']}"
+        print(f"{b + '->y':>8}{v['mean']:>8.2f}{v['min']:>8.2f}{v['max']:>8.2f}"
+              f"{v['spread_px']:>9.2f}  {verdict}")
+
+    good = stab["reportable_bands"]
+    print()
+    if good:
+        for b in good:
+            v = stab["per_band"][b]
+            print(f"  DEFENSIBLE: y is blurrier than {b} by ~{v['mean']:.1f} px of")
+            print(f"  second-moment width, stable across all {v['n_bins']} bins.")
+    else:
+        print("  Nothing is stable enough across bins to report.")
+    if len(good) < len(stab["per_band"]):
+        dropped = [b for b in stab["per_band"] if b not in good]
+        print(f"  DO NOT QUOTE: {', '.join(b + '->y' for b in dropped)} -- these drift")
+        print("  across bins, so the galaxy-profile cancellation has broken down.")
+        print("  Bluer bands are physically more extended, so AC(galaxy) is not the")
+        print("  common factor the derivation assumes, and the error grows with the")
+        print("  wavelength gap.")
+
+    if not stab["y_blurrier_than_every_band"]:
+        print(f"\n  NOTE: {stab['n_negative_entries']} of {stab['n_entries']} entries are")
+        print("  negative, so 'y is blurrier than every input band' is NOT supported.")
+
+    print(f"\n  The estimator's own accuracy is about +/-{ESTIMATOR_ACCURACY_PX} px")
+    print("  (a known 1.5 px blur returns 0.4-2.6). That is larger than the spread")
+    print("  between bands, so the four bands cannot be ranked by this metric.")
 
     print("\n" + "-" * 74)
     print("Registration check: peak lag of each band against y (should be 0,0)")
@@ -405,20 +505,28 @@ def make_plots(cfg, out: dict) -> list[Path]:
     ax1.set_title("How far each band's light spreads (PSF proxy)", fontsize=11)
     ax1.grid(alpha=0.3); ax1.legend(fontsize=9, ncol=2)
 
-    diff = [
-        e["pairs"].get("y-y", {}).get("width_px", np.nan)
-        - e["pairs"].get("z-z", {}).get("width_px", np.nan)
-        for e in binlist
-    ]
-    ax2.plot(mids, diff, "D-", color="#1b263b", lw=2.0, ms=6)
+    # Plot the galaxy-profile-cancelled estimate, not the raw width difference:
+    # the raw one is dominated by galaxy size and the console rightly calls it a
+    # weak indicator, so putting it under a strong claim was a contradiction.
+    stab = out.get("validity", {}).get("per_band", {})
+    for b in bands[:4]:
+        vals = [e["psf_excess_y_over"].get(b, np.nan) for e in binlist]
+        info = stab.get(b, {})
+        ok = info.get("reportable", False)
+        ax2.plot(mids, vals, "D-" if ok else "x:", color=colours[b],
+                 lw=2.0 if ok else 1.2, ms=6 if ok else 5,
+                 alpha=1.0 if ok else 0.45,
+                 label=f"{b}→y" + ("" if ok else "  (unstable — do not quote)"))
     ax2.axhline(0, color="k", lw=0.9, ls="--")
-    ax2.fill_between(mids, 0, diff, where=np.array(diff) > 0,
-                     color="#d1495b", alpha=0.18)
+    ax2.axhspan(-ESTIMATOR_ACCURACY_PX, ESTIMATOR_ACCURACY_PX,
+                color="#888888", alpha=0.12)
     ax2.set_xlabel("spectroscopic redshift")
-    ax2.set_ylabel("width(y) − width(z)   (px)")
-    ax2.set_title("Is y blurrier than z?\nabove zero = structure B0/B1 cannot "
-                  "reproduce by rescaling", fontsize=11)
+    ax2.set_ylabel("extra blur of y over that band  (px)")
+    ax2.set_title("Extra blur of y, galaxy profile cancelled\n"
+                  "a fixed-filter difference must be CONSTANT; drift means the "
+                  "estimator failed", fontsize=10.5)
     ax2.grid(alpha=0.3)
+    ax2.legend(fontsize=7.5)
     fig.suptitle("Spatial extent of each band, by redshift", fontsize=12)
     fig.tight_layout(rect=(0, 0, 1, 0.92))
     p = figdir / "band_psf_width_vs_redshift.png"

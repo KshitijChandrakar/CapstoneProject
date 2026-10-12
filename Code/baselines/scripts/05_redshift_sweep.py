@@ -154,6 +154,68 @@ def stream_aperture_fluxes(
 
 
 
+#: Above this redshift both the z and y filters sample rest-frame ultraviolet
+#: (~2200-2500 A), so those bins are a different regime and cannot serve as
+#: controls for the optical-feature windows. They are still measured and
+#: reported, just excluded from the control baseline.
+REGIME_LIMIT = 2.0
+
+#: Bootstrap resamples used for the confidence interval on each window's excess.
+N_BOOTSTRAP = 400
+
+
+def bootstrap_excess(
+    cells: dict,
+    rows: list[dict],
+    window_bin: int,
+    control_bins: list[int],
+    strata: list[float],
+    n_boot: int = N_BOOTSTRAP,
+    seed: int = 0,
+) -> tuple[float, float]:
+    """A 95% interval on one window's excess over its controls.
+
+    The NMAD of a bin-and-stratum cell is itself uncertain, roughly as
+    1/sqrt(2n) in relative terms for a normal sample. Each cell's ratio is
+    perturbed by that amount, the whole within-stratum normalisation and median
+    combination is redone, and the 2.5th/97.5th percentiles of the resulting
+    excess are returned. Without this the script asserted "SUPPORTED" from a
+    point estimate with no error bar, which the reviewer showed was not
+    defensible.
+    """
+    rng = np.random.default_rng(seed)
+    n_strata = len(strata) - 1
+    draws: list[float] = []
+
+    for _ in range(n_boot):
+        ratios: dict[int, list[float]] = {}
+        for si in range(n_strata):
+            present = sorted(bi for bi in range(len(rows)) if (bi, si) in cells)
+            if len(present) < 2:
+                continue
+            jittered = {}
+            for bi in present:
+                c = cells[(bi, si)]
+                rel = 1.0 / np.sqrt(2.0 * max(c["n"], 2))
+                jittered[bi] = c["nmad"] * (1.0 + rng.normal(0.0, rel))
+            ref = jittered[present[0]]
+            if ref <= 0:
+                continue
+            for bi in present:
+                ratios.setdefault(bi, []).append(jittered[bi] / ref)
+
+        if window_bin not in ratios:
+            continue
+        ctrl = [float(np.median(ratios[c])) for c in control_bins if c in ratios]
+        if not ctrl:
+            continue
+        draws.append(float(np.median(ratios[window_bin])) - float(np.mean(ctrl)))
+
+    if len(draws) < 20:
+        return (float("nan"), float("nan"))
+    return (float(np.percentile(draws, 2.5)), float(np.percentile(draws, 97.5)))
+
+
 def brightness_control(
     rows: list[dict],
     dmag_all: np.ndarray,
@@ -210,19 +272,40 @@ def brightness_control(
     else:
         worst_label, factor = "n/a", float("nan")
 
-    ctrl_vals = [controlled[bi] for bi, r in enumerate(rows)
-                 if r["window"] == "control" and bi in controlled]
-    ctrl_mean = float(np.mean(ctrl_vals)) if ctrl_vals else float("nan")
+    # Controls are restricted to z < REGIME_LIMIT. Above it both filters sample
+    # rest-frame UV, which is a different physical regime rather than a control
+    # for the optical windows; including it inflated the baseline and masked
+    # every window. Each window is then compared against its ADJACENT controls,
+    # which is more local and less sensitive to one odd bin.
+    eligible = [bi for bi, r in enumerate(rows)
+                if r["window"] == "control" and bi in controlled
+                and r["z_high"] <= REGIME_LIMIT]
+    ctrl_mean = float(np.mean([controlled[bi] for bi in eligible])) if eligible else float("nan")
+
     window_tests = []
     for bi, r in enumerate(rows):
         if r["window"] == "control" or bi not in controlled:
             continue
+        neighbours = [c for c in eligible if abs(c - bi) == 1] or eligible
+        local = float(np.mean([controlled[c] for c in neighbours])) if neighbours else float("nan")
+        boot = bootstrap_excess(cells, rows, bi, neighbours, strata)
         window_tests.append({
             "window": r["window"],
             "z_low": r["z_low"], "z_high": r["z_high"],
             "controlled_ratio": controlled[bi],
-            "control_bins_mean": ctrl_mean,
-            "controlled_excess": float(controlled[bi] - ctrl_mean),
+            "adjacent_control_bins": [
+                f"{rows[c]['z_low']:.2f}-{rows[c]['z_high']:.2f}" for c in neighbours
+            ],
+            "adjacent_control_mean": local,
+            "controlled_excess": float(controlled[bi] - local),
+            "excess_ci_low": boot[0],
+            "excess_ci_high": boot[1],
+            # A window only counts as supported if the interval clears zero.
+            "significant": bool(np.isfinite(boot[0]) and boot[0] > 0.0),
+            "all_control_bins_mean_including_high_z": float(
+                np.mean([controlled[bi2] for bi2, r2 in enumerate(rows)
+                         if r2["window"] == "control" and bi2 in controlled])
+            ) if any(r2["window"] == "control" for r2 in rows) else float("nan"),
         })
 
     return {
@@ -380,11 +463,21 @@ def main() -> int:
     if control["window_tests"]:
         print("\nPER-WINDOW VERDICT (controlled, vs the control bins either side)")
         for w in control["window_tests"]:
-            verdict = ("SUPPORTED" if w["controlled_excess"] > 0.15
-                       else "not supported" if w["controlled_excess"] < 0.05
-                       else "weak")
+            lo, hi = w["excess_ci_low"], w["excess_ci_high"]
+            if not np.isfinite(lo):
+                verdict = "no interval (too few galaxies)"
+            elif lo > 0.0:
+                verdict = "SUPPORTED"
+            elif hi > 0.0:
+                verdict = "not significant"
+            else:
+                verdict = "no effect"
+            ci = "   CI [n/a]" if not np.isfinite(lo) else f"   CI [{lo:+.2f}, {hi:+.2f}]"
             print(f"  {w['window']:<16} z={w['z_low']:.2f}-{w['z_high']:.2f}  "
-                  f"excess over controls {w['controlled_excess']:+.2f}  -> {verdict}")
+                  f"excess {w['controlled_excess']:+.2f}{ci}  -> {verdict}")
+        print(f"\n  Controls are the ADJACENT bins below z={REGIME_LIMIT:.0f}. Bins above")
+        print("  it are a different regime (both filters in rest-frame UV), so they")
+        print("  are measured but excluded from the baseline.")
 
     print("\nHOW TO READ THIS")
     print("  The raw factor conflates the SED changing between the filters with")
