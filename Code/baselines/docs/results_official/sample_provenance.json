@@ -1,0 +1,28 @@
+{
+  "sample": "sample_z0.2_2000.h5",
+  "n_sample": 2000,
+  "splits": {
+    "train": {
+      "n_matched": 2000,
+      "percent": 100.0,
+      "n_in_split": 204573
+    },
+    "val": {
+      "n_matched": 0,
+      "percent": 0.0,
+      "n_in_split": 40914
+    },
+    "test": {
+      "n_matched": 0,
+      "percent": 0.0,
+      "n_in_split": 40914
+    }
+  },
+  "n_matched_any": 2000,
+  "n_matched_multiple": 0,
+  "n_unmatched": 0,
+  "verdict": "drawn entirely from the TRAIN split",
+  "splits_used": [
+    "train"
+  ]
+}

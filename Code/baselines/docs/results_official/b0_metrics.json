@@ -1,0 +1,529 @@
+{
+  "model": {
+    "model": "B0_copy_z",
+    "n_parameters": 0,
+    "sign_used": 1,
+    "formula": "scale = 10**(+1 * 0.4 * median(m_z - m_y))",
+    "median_z_minus_y_mag": 0.17882156372070312,
+    "scale": 1.179040234316677,
+    "n_train_galaxies_used": 84911,
+    "n_train_galaxies_dropped_bad_mag": 0
+  },
+  "sign_verification": {
+    "empirical_median_flux_ratio_y_over_z": 1.16555277378376,
+    "scale_plus_sign": 1.179040234316677,
+    "scale_minus_sign": 0.8481474769854301,
+    "abs_error_plus": 0.01348746053291694,
+    "abs_error_minus": 0.31740529679832996,
+    "median_z_minus_y_mag": 0.17882156372070312,
+    "matches": "plus",
+    "n_galaxies_used": 4000,
+    "n_skipped_nonpositive_z_flux": 0
+  },
+  "roundtrip_check": {
+    "max_relative_error": 7.368575438704283e-08,
+    "passed": true
+  },
+  "splits": {
+    "val": {
+      "B0": {
+        "pixel": {
+          "mae": 0.3491001417001862,
+          "rmse": 0.9900661687405098,
+          "n_valid_pixels": 70230016,
+          "n_invalid_pixels": 0,
+          "psnr_mean": 37.46369436019929,
+          "psnr_std": 6.469759120730677,
+          "ssim_mean": 0.869516623406128,
+          "ssim_std": 0.20327581706144826,
+          "n_galaxies_scored": 17146,
+          "n_galaxies_skipped": 0,
+          "n_galaxies_with_filled_pixels_for_ssim": 0
+        },
+        "photometry": {
+          "aperture": {
+            "radius_px": 15.0,
+            "center": [
+              32.0,
+              32.0
+            ],
+            "n_pixels": 709
+          },
+          "nonpositive_flux_handling": "exclude",
+          "relative_flux_error": {
+            "median": 0.012433074351833263,
+            "nmad": 0.040511475687764226,
+            "mean": 0.025137398631860645,
+            "std": 0.40785556192604555,
+            "n": 17146
+          },
+          "delta_mag": {
+            "median": -0.013428159056143585,
+            "nmad": 0.04341363219093994,
+            "mean": -0.02300592571195519,
+            "std": 0.09334859696190513,
+            "n": 17140,
+            "outlier_percent": 0.5367561260210035,
+            "outlier_threshold": 0.5,
+            "zeropoint": 27.0,
+            "n_excluded_nonpositive_true_flux": 6,
+            "n_excluded_nonpositive_pred_flux": 0,
+            "n_excluded_total": 6
+          },
+          "colour_error_z_minus_y": {
+            "median": 0.013428159056143585,
+            "nmad": 0.04341363219093994,
+            "mean": 0.02300592571195519,
+            "std": 0.09334859696190513,
+            "n": 17140,
+            "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+            "n_nonpositive_z_flux": 0
+          },
+          "delta_mag_by_brightness": {
+            "split_on": "median true aperture flux",
+            "median_true_flux": 4036.5916911438107,
+            "faint_half": {
+              "median": -0.032282112601608404,
+              "nmad": 0.05899821837886658,
+              "mean": -0.044300394073623114,
+              "std": 0.12351641201094847,
+              "n": 8570
+            },
+            "bright_half": {
+              "median": -0.00458071860142617,
+              "nmad": 0.031614195564679023,
+              "mean": -0.0017114573502872606,
+              "std": 0.03556273763142928,
+              "n": 8570
+            }
+          }
+        },
+        "magnitude_handling_comparison": {
+          "exclude": {
+            "delta_mag": {
+              "median": -0.013428159056143585,
+              "nmad": 0.04341363219093994,
+              "mean": -0.02300592571195519,
+              "std": 0.09334859696190513,
+              "n": 17140,
+              "outlier_percent": 0.5367561260210035,
+              "outlier_threshold": 0.5,
+              "zeropoint": 27.0,
+              "n_excluded_nonpositive_true_flux": 6,
+              "n_excluded_nonpositive_pred_flux": 0,
+              "n_excluded_total": 6
+            },
+            "colour_error_z_minus_y": {
+              "median": 0.013428159056143585,
+              "nmad": 0.04341363219093994,
+              "mean": 0.02300592571195519,
+              "std": 0.09334859696190513,
+              "n": 17140,
+              "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+              "n_nonpositive_z_flux": 0
+            }
+          },
+          "clamp": {
+            "delta_mag": {
+              "median": -0.013436903815192025,
+              "nmad": 0.04342529272503571,
+              "mean": -0.05065492585009273,
+              "std": 1.4807516930367306,
+              "n": 17146,
+              "outlier_percent": 0.571561880321941,
+              "outlier_threshold": 0.5,
+              "zeropoint": 27.0,
+              "n_excluded_nonpositive_true_flux": 6,
+              "n_excluded_nonpositive_pred_flux": 0,
+              "n_excluded_total": 0
+            },
+            "colour_error_z_minus_y": {
+              "median": 0.013436903815192025,
+              "nmad": 0.04342529272503571,
+              "mean": 0.05065492585009273,
+              "std": 1.4807516930367306,
+              "n": 17146,
+              "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+              "n_nonpositive_z_flux": 0
+            }
+          }
+        },
+        "n_galaxies": 17146
+      },
+      "B0_sign-1": {
+        "pixel": {
+          "mae": 0.7125425719593833,
+          "rmse": 1.9619134607793007,
+          "n_valid_pixels": 70230016,
+          "n_invalid_pixels": 0,
+          "psnr_mean": 31.40532585471833,
+          "psnr_std": 3.7047757613537593,
+          "ssim_mean": 0.837683477870842,
+          "ssim_std": 0.19078056917854713,
+          "n_galaxies_scored": 17146,
+          "n_galaxies_skipped": 0,
+          "n_galaxies_with_filled_pixels_for_ssim": 0
+        },
+        "photometry": {
+          "aperture": {
+            "radius_px": 15.0,
+            "center": [
+              32.0,
+              32.0
+            ],
+            "n_pixels": 709
+          },
+          "nonpositive_flux_handling": "exclude",
+          "relative_flux_error": {
+            "median": -0.27170206960894894,
+            "nmad": 0.02914209768908151,
+            "mean": -0.26256316175147304,
+            "std": 0.2933925902521905,
+            "n": 17146
+          },
+          "delta_mag": {
+            "median": 0.34421496472725543,
+            "nmad": 0.043413634681729214,
+            "mean": 0.33463719633284844,
+            "std": 0.09334859697409567,
+            "n": 17140,
+            "outlier_percent": 0.5367561260210035,
+            "outlier_threshold": 0.5,
+            "zeropoint": 27.0,
+            "n_excluded_nonpositive_true_flux": 6,
+            "n_excluded_nonpositive_pred_flux": 0,
+            "n_excluded_total": 6
+          },
+          "colour_error_z_minus_y": {
+            "median": -0.34421496472725543,
+            "nmad": 0.043413634681729214,
+            "mean": -0.33463719633284844,
+            "std": 0.09334859697409567,
+            "n": 17140,
+            "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+            "n_nonpositive_z_flux": 0
+          },
+          "delta_mag_by_brightness": {
+            "split_on": "median true aperture flux",
+            "median_true_flux": 4036.5916911438107,
+            "faint_half": {
+              "median": 0.32536100904029475,
+              "nmad": 0.058998219886578336,
+              "mean": 0.3133427279719064,
+              "std": 0.12351641202116462,
+              "n": 8570
+            },
+            "bright_half": {
+              "median": 0.3530624022671205,
+              "nmad": 0.03161419566737202,
+              "mean": 0.3559316646937904,
+              "std": 0.03556273766081387,
+              "n": 8570
+            }
+          }
+        },
+        "magnitude_handling_comparison": {
+          "exclude": {
+            "delta_mag": {
+              "median": 0.34421496472725543,
+              "nmad": 0.043413634681729214,
+              "mean": 0.33463719633284844,
+              "std": 0.09334859697409567,
+              "n": 17140,
+              "outlier_percent": 0.5367561260210035,
+              "outlier_threshold": 0.5,
+              "zeropoint": 27.0,
+              "n_excluded_nonpositive_true_flux": 6,
+              "n_excluded_nonpositive_pred_flux": 0,
+              "n_excluded_total": 6
+            },
+            "colour_error_z_minus_y": {
+              "median": -0.34421496472725543,
+              "nmad": 0.043413634681729214,
+              "mean": -0.33463719633284844,
+              "std": 0.09334859697409567,
+              "n": 17140,
+              "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+              "n_nonpositive_z_flux": 0
+            }
+          },
+          "clamp": {
+            "delta_mag": {
+              "median": 0.3442062171502389,
+              "nmad": 0.04342529538462992,
+              "mean": 0.30698819619583045,
+              "std": 1.4807516929778384,
+              "n": 17146,
+              "outlier_percent": 0.571561880321941,
+              "outlier_threshold": 0.5,
+              "zeropoint": 27.0,
+              "n_excluded_nonpositive_true_flux": 6,
+              "n_excluded_nonpositive_pred_flux": 0,
+              "n_excluded_total": 0
+            },
+            "colour_error_z_minus_y": {
+              "median": -0.3442062171502389,
+              "nmad": 0.04342529538462992,
+              "mean": -0.30698819619583045,
+              "std": 1.4807516929778384,
+              "n": 17146,
+              "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+              "n_nonpositive_z_flux": 0
+            }
+          }
+        },
+        "n_galaxies": 17146
+      }
+    },
+    "test": {
+      "B0": {
+        "pixel": {
+          "mae": 0.3504983195201353,
+          "rmse": 1.056730648211974,
+          "n_valid_pixels": 69926912,
+          "n_invalid_pixels": 0,
+          "psnr_mean": 37.43087510991606,
+          "psnr_std": 6.456407623205324,
+          "ssim_mean": 0.8693912254762088,
+          "ssim_std": 0.203599079150144,
+          "n_galaxies_scored": 17072,
+          "n_galaxies_skipped": 0,
+          "n_galaxies_with_filled_pixels_for_ssim": 0
+        },
+        "photometry": {
+          "aperture": {
+            "radius_px": 15.0,
+            "center": [
+              32.0,
+              32.0
+            ],
+            "n_pixels": 709
+          },
+          "nonpositive_flux_handling": "exclude",
+          "relative_flux_error": {
+            "median": 0.011913268767295319,
+            "nmad": 0.0402185020372208,
+            "mean": 0.025566242452033178,
+            "std": 0.30864006288333923,
+            "n": 17072
+          },
+          "delta_mag": {
+            "median": -0.012871200499134261,
+            "nmad": 0.043137340685472245,
+            "mean": -0.02290909002119071,
+            "std": 0.09297129341572381,
+            "n": 17061,
+            "outlier_percent": 0.5040736181935408,
+            "outlier_threshold": 0.5,
+            "zeropoint": 27.0,
+            "n_excluded_nonpositive_true_flux": 11,
+            "n_excluded_nonpositive_pred_flux": 0,
+            "n_excluded_total": 11
+          },
+          "colour_error_z_minus_y": {
+            "median": 0.012871200499134261,
+            "nmad": 0.043137340685472245,
+            "mean": 0.02290909002119071,
+            "std": 0.09297129341572381,
+            "n": 17061,
+            "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+            "n_nonpositive_z_flux": 0
+          },
+          "delta_mag_by_brightness": {
+            "split_on": "median true aperture flux",
+            "median_true_flux": 4024.4992852807045,
+            "faint_half": {
+              "median": -0.030833175867282847,
+              "nmad": 0.0600299903409894,
+              "mean": -0.04429112780644103,
+              "std": 0.1225826939909765,
+              "n": 8531
+            },
+            "bright_half": {
+              "median": -0.004524534039454409,
+              "nmad": 0.031518190950582316,
+              "mean": -0.0015245455492129182,
+              "std": 0.03668124547139209,
+              "n": 8530
+            }
+          }
+        },
+        "magnitude_handling_comparison": {
+          "exclude": {
+            "delta_mag": {
+              "median": -0.012871200499134261,
+              "nmad": 0.043137340685472245,
+              "mean": -0.02290909002119071,
+              "std": 0.09297129341572381,
+              "n": 17061,
+              "outlier_percent": 0.5040736181935408,
+              "outlier_threshold": 0.5,
+              "zeropoint": 27.0,
+              "n_excluded_nonpositive_true_flux": 11,
+              "n_excluded_nonpositive_pred_flux": 0,
+              "n_excluded_total": 11
+            },
+            "colour_error_z_minus_y": {
+              "median": 0.012871200499134261,
+              "nmad": 0.043137340685472245,
+              "mean": 0.02290909002119071,
+              "std": 0.09297129341572381,
+              "n": 17061,
+              "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+              "n_nonpositive_z_flux": 0
+            }
+          },
+          "clamp": {
+            "delta_mag": {
+              "median": -0.012923601242563976,
+              "nmad": 0.04319745562637073,
+              "mean": -0.07388711624807762,
+              "std": 2.0099826387656314,
+              "n": 17072,
+              "outlier_percent": 0.5681818181818182,
+              "outlier_threshold": 0.5,
+              "zeropoint": 27.0,
+              "n_excluded_nonpositive_true_flux": 11,
+              "n_excluded_nonpositive_pred_flux": 0,
+              "n_excluded_total": 0
+            },
+            "colour_error_z_minus_y": {
+              "median": 0.012923601242563976,
+              "nmad": 0.04319745562637073,
+              "mean": 0.07388711624807762,
+              "std": 2.0099826387656314,
+              "n": 17072,
+              "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+              "n_nonpositive_z_flux": 0
+            }
+          }
+        },
+        "n_galaxies": 17072
+      },
+      "B0_sign-1": {
+        "pixel": {
+          "mae": 0.7118025940842898,
+          "rmse": 2.009414892123487,
+          "n_valid_pixels": 69926912,
+          "n_invalid_pixels": 0,
+          "psnr_mean": 31.392704748476348,
+          "psnr_std": 3.6856206531265583,
+          "ssim_mean": 0.8373960629889347,
+          "ssim_std": 0.19104009179073897,
+          "n_galaxies_scored": 17072,
+          "n_galaxies_skipped": 0,
+          "n_galaxies_with_filled_pixels_for_ssim": 0
+        },
+        "photometry": {
+          "aperture": {
+            "radius_px": 15.0,
+            "center": [
+              32.0,
+              32.0
+            ],
+            "n_pixels": 709
+          },
+          "nonpositive_flux_handling": "exclude",
+          "relative_flux_error": {
+            "median": -0.2720759939431509,
+            "nmad": 0.028931345468942576,
+            "mean": -0.2622546711748282,
+            "std": 0.22202151004380657,
+            "n": 17072
+          },
+          "delta_mag": {
+            "median": 0.34477192118247757,
+            "nmad": 0.04313733541755527,
+            "mean": 0.33473403200387797,
+            "std": 0.09297129338856641,
+            "n": 17061,
+            "outlier_percent": 0.49821229705175546,
+            "outlier_threshold": 0.5,
+            "zeropoint": 27.0,
+            "n_excluded_nonpositive_true_flux": 11,
+            "n_excluded_nonpositive_pred_flux": 0,
+            "n_excluded_total": 11
+          },
+          "colour_error_z_minus_y": {
+            "median": -0.34477192118247757,
+            "nmad": 0.04313733541755527,
+            "mean": -0.33473403200387797,
+            "std": 0.09297129338856641,
+            "n": 17061,
+            "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+            "n_nonpositive_z_flux": 0
+          },
+          "delta_mag_by_brightness": {
+            "split_on": "median true aperture flux",
+            "median_true_flux": 4024.4992852807045,
+            "faint_half": {
+              "median": 0.32680994638242566,
+              "nmad": 0.0600299875997475,
+              "mean": 0.31335199418874937,
+              "std": 0.12258269394207724,
+              "n": 8531
+            },
+            "bright_half": {
+              "median": 0.353118585022278,
+              "nmad": 0.0315181913629029,
+              "mean": 0.35611857650573747,
+              "std": 0.03668124546231268,
+              "n": 8530
+            }
+          }
+        },
+        "magnitude_handling_comparison": {
+          "exclude": {
+            "delta_mag": {
+              "median": 0.34477192118247757,
+              "nmad": 0.04313733541755527,
+              "mean": 0.33473403200387797,
+              "std": 0.09297129338856641,
+              "n": 17061,
+              "outlier_percent": 0.49821229705175546,
+              "outlier_threshold": 0.5,
+              "zeropoint": 27.0,
+              "n_excluded_nonpositive_true_flux": 11,
+              "n_excluded_nonpositive_pred_flux": 0,
+              "n_excluded_total": 11
+            },
+            "colour_error_z_minus_y": {
+              "median": -0.34477192118247757,
+              "nmad": 0.04313733541755527,
+              "mean": -0.33473403200387797,
+              "std": 0.09297129338856641,
+              "n": 17061,
+              "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+              "n_nonpositive_z_flux": 0
+            }
+          },
+          "clamp": {
+            "delta_mag": {
+              "median": 0.3447195208023395,
+              "nmad": 0.04319745524560888,
+              "mean": 0.28375600577604004,
+              "std": 2.0099826388020667,
+              "n": 17072,
+              "outlier_percent": 0.5623242736644799,
+              "outlier_threshold": 0.5,
+              "zeropoint": 27.0,
+              "n_excluded_nonpositive_true_flux": 11,
+              "n_excluded_nonpositive_pred_flux": 0,
+              "n_excluded_total": 0
+            },
+            "colour_error_z_minus_y": {
+              "median": -0.3447195208023395,
+              "nmad": 0.04319745524560888,
+              "mean": -0.28375600577604004,
+              "std": 2.0099826388020667,
+              "n": 17072,
+              "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+              "n_nonpositive_z_flux": 0
+            }
+          }
+        },
+        "n_galaxies": 17072
+      }
+    }
+  }
+}

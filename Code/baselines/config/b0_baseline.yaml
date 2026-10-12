@@ -1,0 +1,25 @@
+# Baseline B0 -- copy the z band, rescaled by the median train z-y colour.
+# Zero learnable parameters.
+
+model:
+  name: "B0_copy_z"
+  n_parameters: 0
+
+scaling:
+  # scale = 10 ** (sign * 0.4 * median(m_z - m_y))   [train split only]
+  #
+  # The spec sheet and slide 7 both write sign = -1. That is the wrong sign:
+  # m = -2.5*log10(F), so F_y/F_z = 10**(+0.4*(m_z - m_y)).
+  # The team's own EDA agrees -- over all 204,573 training galaxies
+  # mean(m_z) = 19.325 and mean(m_y) = 19.154, so y is 0.171 mag BRIGHTER than
+  # z and the scale must come out greater than 1. Only +0.4 does that
+  # (1.171 vs 0.854).
+  #
+  # run_b0 measures the real median flux ratio from the images and prints it
+  # next to both candidates, so the choice is evidence, not assertion.
+  sign: +1
+  # Also evaluate the spec's sign, so the two can be compared in the report.
+  evaluate_both_signs: true
+
+evaluation:
+  splits: ["val", "test"]

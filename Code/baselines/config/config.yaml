@@ -1,0 +1,81 @@
+# Global configuration for the B0 / B1 baselines.
+# Everything that later models (B2, B3, P1-P3) should reuse lives here.
+
+project:
+  name: "hsc_band_prediction_z0_0.4"
+  experiment_phase: "baselines_b0_b1"
+
+paths:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  splits_dir: "data/splits"
+  checkpoints_dir: "results/checkpoints"
+  results_dir: "results/metrics"
+  figures_dir: "results/figures"
+
+# The three official GalaxiesML files, as downloaded from Zenodo.
+# https://zenodo.org/records/13878122
+raw_files:
+  train: "5x64x64_training_with_morphology.hdf5"
+  val: "5x64x64_validation_with_morphology.hdf5"
+  test: "5x64x64_testing_with_morphology.hdf5"
+
+dataset:
+  z_min: 0.0
+  z_max: 0.4
+  # GalaxiesML sets this True for every galaxy, so it removes nothing today.
+  # Kept because the spec requires it and a future data release may differ.
+  require_homogeneous_flag: true
+  image_size: 64
+  bands: ["g", "r", "i", "z", "y"]
+  input_bands: ["g", "r", "i", "z"]
+  target_band: "y"
+  aperture_radius: 15
+  # null = centre of the image, i.e. (32, 32) for 64x64 cutouts.
+  aperture_center: null
+  # Galaxy counts the spec expects after the redshift cut. Checked, not assumed.
+  expected_counts:
+    train: 84911
+    val: 17146
+    test: 17072
+  # Tolerance (fraction) before a count mismatch is reported as a problem.
+  count_tolerance: 0.02
+
+normalization:
+  # x_norm = (x - mean) / (std + eps). Global per band, TRAIN split only.
+  # NEVER per-image min-max: that destroys inter-galaxy colour and brightness.
+  eps: 1.0e-10
+  stats_filename: "global_stats.json"
+  # Galaxies read per chunk when streaming the statistics off disk.
+  chunk_size: 500
+
+seeds: [42, 123, 2026]
+
+dataloader:
+  batch_size: 64
+  # 0 is deliberate. On Windows each worker is a fresh spawned process that
+  # re-opens the HDF5 file; with persistent workers that reliably hangs between
+  # seeds, and for this workload the reads are not the bottleneck anyway.
+  num_workers: 0
+  pin_memory: true
+  # "auto" holds the images in RAM when the file is small enough (fast for a
+  # pilot), and falls back to lazy HDF5 reads for the ~7 GB z<0.4 train split.
+  # true / false force the choice.
+  in_memory: auto
+  max_in_memory_gb: 2.0
+
+photometry:
+  # HSC zero point. Residuals (delta m) do not depend on it.
+  zeropoint: 27.0
+  outlier_dmag_threshold: 0.5
+  nmad_factor: 1.4826
+  # How to handle apertures whose flux is <= 0 and therefore have no magnitude.
+  #   "exclude" -- drop them from the magnitude statistics and report the count.
+  #   "clamp"   -- the spec's max(flux, 1e-30), which turns them into ~75 mag
+  #                errors that say nothing about the model.
+  # Both are computed and reported; this picks the headline number.
+  nonpositive_flux_handling: "exclude"
+  clamp_floor: 1.0e-30
+
+hardware:
+  device: "auto"   # "auto" | "cpu" | "cuda"

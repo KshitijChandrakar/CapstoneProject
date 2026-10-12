@@ -1,1 +1,18 @@
 data/GalaxyML
+
+# Data files -- never commit these (GalaxiesML HDF5 is 16.9 GB)
+*.h5
+*.hdf5
+*.npz
+
+# Baseline outputs and local data -- never commit these
+Code/baselines/results/
+Code/baselines/results_pilot_*/
+Code/baselines/data/raw/
+Code/baselines/data/processed/
+Code/baselines/data/splits/
+Code/baselines/_fake_run/
+Code/baselines/_sanity_tmp/
+.venv/
+__pycache__/
+*.pyc

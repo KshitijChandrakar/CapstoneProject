@@ -1,0 +1,17 @@
+# Baselines B0 / B1 -- HSC y-band prediction.
+# Python 3.10-3.12 (PyTorch has no 3.13/3.14 wheels yet).
+#
+#   python -m venv .venv
+#   .venv\Scripts\activate          # Windows;  macOS/Linux: source .venv/bin/activate
+#   pip install -r requirements.txt
+#
+# Installs the CPU build of PyTorch, which is ample for B1's 5 parameters.
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+numpy>=1.24
+h5py>=3.8
+pyyaml>=6.0
+torch>=2.0
+scikit-image>=0.21      # PSNR / SSIM
+scipy>=1.10             # solved reference optimum (also a scikit-image dependency)
+matplotlib>=3.7

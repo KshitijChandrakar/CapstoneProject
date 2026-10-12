@@ -1,0 +1,36 @@
+# Baseline B1 -- pixelwise linear combination, a 1x1 convolution over g,r,i,z.
+# Exactly 5 learnable parameters (4 weights + 1 bias).
+
+model:
+  name: "B1_pixelwise_linear"
+  in_channels: 4
+  out_channels: 1
+  kernel_size: 1
+  bias: true
+  n_parameters: 5
+  # "default" = PyTorch's random Conv2d init. "zeros" = start from w=0, b=0.
+  init: "default"
+
+training:
+  loss: "l1"
+  optimizer: "adamw"
+  lr: 1.0e-3
+  weight_decay: 1.0e-5
+  epochs: 20
+  scheduler: "cosine"
+  # Stop if val loss has not improved for this many epochs. null disables it.
+  early_stopping_patience: null
+  # Keep the checkpoint with the best validation loss.
+  save_best_only: true
+
+evaluation:
+  splits: ["test"]
+
+diagnostics:
+  # B1 is linear with 5 parameters, so its optimum can be solved for directly.
+  # Reporting the distance from that optimum turns "did it converge?" into a
+  # measured number. Cheap, and it is the only honest way to answer "does z
+  # dominate?" from a trained model.
+  compute_reference_optimum: true
+  # Galaxies sampled to solve that reference optimum (it needs pixels in RAM).
+  reference_optimum_max_galaxies: 4000
