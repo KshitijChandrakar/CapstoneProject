@@ -279,8 +279,8 @@ def print_summary(results: list[dict]) -> None:
             continue
         part = np.asarray(blk["partial"])
         pear = np.asarray(blk["pearson"])
-        print(f"{f'{e[chr(122)+chr(95)+chr(108)+chr(111)+chr(119)]:.2f}-{e[chr(122)+chr(95)+chr(104)+chr(105)+chr(103)+chr(104)]:.2f}':>12}"
-              f"{e['n_galaxies']:>8,}"
+        label = f"{e['z_low']:.2f}-{e['z_high']:.2f}"
+        print(f"{label:>12}{e['n_galaxies']:>8,}"
               + "".join(f"{part[i, yi]:>9.3f}" for i in range(4))
               + f"{pear[BANDS.index('z'), yi]:>14.4f}")
 

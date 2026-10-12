@@ -36,9 +36,17 @@ The exception: B1's outlier rate (|Δm| > 0.5) is **1.22 %** against B0's
 | **z** | **+0.5497** | **+0.6388** |
 | bias | −0.0002 | +0.0402 |
 
-**Yes — and the ordering is exactly the spec's prediction:**
-`z > i > r > g` in standardised weight, matching the expectation from spectral
-proximity (z is the band nearest y in wavelength).
+**z dominates — but only that part of the prediction is robust.**
+
+In standardised weight the ordering is `z > i > r > g`, matching the spec's
+expectation from spectral proximity. But **r and i are close together**, and they
+swap depending on the estimator: the physical weights and the partial-correlation
+analysis in `06_band_correlations.py` both give `z > r > i > g`. Two of three
+estimators put r above i, and across redshift bins the two swap repeatedly,
+sometimes separated by as little as 0.01.
+
+So the defensible claim is **"z dominates"** — true for every estimator and in 8
+of 9 redshift bins — not the exact four-band sequence.
 
 The standardised weight is the right measure here: it is the change in y per
 one standard deviation of a band, so it is dimensionless and independent of how

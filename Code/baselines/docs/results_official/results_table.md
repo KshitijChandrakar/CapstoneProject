@@ -41,7 +41,9 @@ The physical weight answers a different question — how much y-flux per unit of
 - Ordering by **standardised** weight: **z > i > r > g**  ← compare with the spec's expected **z > i > r > g**
 - Ordering by physical weight: **z > r > i > g**
 
-**z dominates: True.** Matches the spec's expected ordering: **True**.
+**z dominates: True.** Matches the spec's expected ordering: **True** — but the exact sequence is not robust, see below.
+
+> **The exact ordering is not robust.** The middle two bands differ by only 0.1276 in standardised weight, and the physical weights order them the other way round (z > r > i > g). z's lead is solid; the r-versus-i order is not. Claim "z dominates" rather than the full four-band sequence.
 
 ### Did B1 converge?
 

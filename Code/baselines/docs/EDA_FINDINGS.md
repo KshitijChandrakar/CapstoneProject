@@ -23,9 +23,14 @@ built from the **127×127** training CSV, describes the same 204,573 galaxies as
 the 64×64 training file. (It has 204,572 rows because `PreprocessMetadata.py`
 drops one row with a missing `major_minor_axis_ratio`.)
 
-**The testing file has four extra columns** — `x_coord_x`, `x_coord_y`,
-`y_coord_x`, `y_coord_y` — that training and validation don't. Harmless for us,
-but worth knowing if anyone writes code expecting identical schemas.
+**Correction (2026-10-13).** An earlier version of this note claimed that
+`x_coord_x`, `x_coord_y`, `y_coord_x` and `y_coord_y` appear only in the testing
+file. **That is wrong** — all four are present in all three splits. The claim
+came from comparing the training notebook's 84-column table (which lists only
+1-D datasets) against the testing notebook's raw key listing (which lists
+everything). These four columns are 2-D, shape (N, 2), so they were silently
+dropped from one list and not the other. No conclusion should be drawn from
+that difference.
 
 ## 2. Data quality — the images and catalogue are clean
 

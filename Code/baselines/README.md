@@ -12,8 +12,10 @@
 >
 > - **B1 beats B0 on six of seven metrics** (MAE −6.5 %), but doubles the
 >   catastrophic-outlier rate.
-> - **z dominates, exactly as predicted:** standardised weights order
->   `z > i > r > g`.
+> - **z dominates.** Standardised weights order `z > i > r > g`, matching the
+>   spec — but only z's lead is robust. r and i sit close together and swap
+>   depending on the estimator (the physical weights and the partial-correlation
+>   analysis both give `z > r > i > g`). Claim "z dominates", not the sequence.
 > - **B0's formula sign in the spec is wrong.** Measured `F_y/F_z = 1.1656`;
 >   the `+` sign gives 1.1790 (error 0.013), the spec's `−` gives 0.8481
 >   (error 0.317).

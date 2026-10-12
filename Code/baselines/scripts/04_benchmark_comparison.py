@@ -84,12 +84,49 @@ def build_rows(b0: dict, variants: list[dict], split: str) -> list[tuple]:
     return rows
 
 
+
+def _ensure_orderings(b1: dict) -> None:
+    """Recompute band orderings from the reported weights, in place.
+
+    Keeps the table correct regardless of which version of 03_train_b1.py
+    produced the JSON, so fixing the table never requires retraining.
+    """
+    bands = b1["bands"]
+    expected = ["z", "i", "r", "g"]
+    w = b1["weights_over_seeds"]
+    order_std = sorted(bands, key=lambda b: w["standardised"][f"w_{b}"]["mean"],
+                       reverse=True)
+    order_phys = sorted(bands, key=lambda b: w["physical_flux_space"][f"w_{b}"]["mean"],
+                        reverse=True)
+    b1["standardised_ordering_mean"] = order_std
+    b1["physical_ordering_mean"] = order_phys
+    b1["expected_ordering"] = expected
+    b1["matches_expected_ordering"] = order_std == expected
+    b1["matches_expected_ordering_physical"] = order_phys == expected
+    b1["z_dominates"] = order_std[0] == "z"
+    b1["z_dominates_physical"] = order_phys[0] == "z"
+
+    # How close are the middle two? If r and i are nearly tied, the exact
+    # ordering is not a robust claim and the report must say so.
+    ranked = sorted((w["standardised"][f"w_{b}"]["mean"] for b in bands),
+                    reverse=True)
+    gap = abs(ranked[1] - ranked[2]) if len(ranked) > 2 else float("nan")
+    spread = max(w["standardised"][f"w_{b}"]["std"] for b in bands)
+    b1["middle_pair_gap_standardised"] = float(gap)
+    # Robust only if the gap is large next to seed noise AND the two spaces agree.
+    b1["ordering_is_robust"] = bool(gap > 3.0 * spread and order_std == order_phys)
+
+
 def write_tables(cfg, b0: dict, variants: list[dict], split: str) -> tuple[Path, Path]:
     rows = build_rows(b0, variants, split)
     # Quote the weights of the best-converged variant: an unconverged run's
     # weights are mostly its random initialisation.
     b1 = min(variants, key=lambda v: (v.get("convergence") or {})
              .get("distance_to_solved_optimum_mean", 1e9))
+    # Derive the orderings here rather than trusting whatever keys the training
+    # script happened to write. Older b1_metrics.json files predate these keys,
+    # and relying on them silently produced a blank ordering in the table.
+    _ensure_orderings(b1)
     ds = cfg.dataset
 
     md = ["| " + " | ".join(COLUMNS) + " |",
@@ -180,7 +217,17 @@ def write_tables(cfg, b0: dict, variants: list[dict], split: str) -> tuple[Path,
         "",
         f"**z dominates: {b1['z_dominates']}.** "
         f"Matches the spec's expected ordering: "
-        f"**{b1['matches_expected_ordering']}**.",
+        f"**{b1['matches_expected_ordering']}**"
+        + ("." if b1.get("ordering_is_robust", True)
+           else " — but the exact sequence is not robust, see below."),
+        "",
+        ("" if b1.get("ordering_is_robust", True) else
+         "> **The exact ordering is not robust.** The middle two bands differ by "
+         f"only {b1.get('middle_pair_gap_standardised', float('nan')):.4f} in "
+         "standardised weight, and the physical weights order them the other way "
+         f"round ({' > '.join(b1['physical_ordering_mean'])}). z's lead is solid; "
+         "the r-versus-i order is not. Claim \"z dominates\" rather than the "
+         "full four-band sequence."),
         "",
     ]
 

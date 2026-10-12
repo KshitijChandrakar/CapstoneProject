@@ -48,8 +48,17 @@ from src.evaluation.photometry import (
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-#: Default bins, chosen to straddle the predicted break points.
-DEFAULT_EDGES = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.25, 1.5, 2.0, 4.0]
+#: Default bins placed ON the predicted window boundaries, so each window gets
+#: its own bin with control bins either side. Even-width bins (0.2 etc.) are
+#: wider than the windows (0.13-0.22) and cannot isolate them, which makes the
+#: test inconclusive -- that was a real flaw in the first version of this script.
+DEFAULT_EDGES = [0.0, 0.36, 0.49, 0.78, 1.01, 1.22, 1.44, 2.0, 4.0]
+
+#: Apparent-magnitude strata used to control for brightness. Higher-redshift
+#: galaxies are much fainter (median m_z runs ~17.3 to ~21.8 across the range),
+#: and faint galaxies have noisier photometry whatever the filters are doing.
+#: Without this control the raw trend mostly measures brightness, not spectra.
+DEFAULT_MAG_STRATA = [16.0, 19.0, 20.0, 21.0, 22.0, 26.0]
 
 #: (label, rest wavelength A). Used to mark the predicted break windows.
 FEATURES = [
@@ -73,7 +82,23 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--min-per-bin", type=int, default=30,
                    help="skip bins with fewer galaxies than this")
     p.add_argument("--chunk", type=int, default=500)
+    p.add_argument("--mag-strata", type=float, nargs="+", default=DEFAULT_MAG_STRATA,
+                   help="apparent m_z edges for the brightness control")
+    p.add_argument("--min-per-cell", type=int, default=25,
+                   help="minimum galaxies in a (redshift, magnitude) cell")
     return p.parse_args()
+
+
+def window_label(lo: float, hi: float) -> str:
+    """Name the predicted break window a bin isolates, if any."""
+    hits = []
+    for w in feature_windows():
+        a, b = w["enters_z_band_at_z"], w["enters_y_band_at_z"]
+        # Does the bin overlap the window by most of the window's width?
+        overlap = max(0.0, min(hi, b) - max(lo, a))
+        if overlap > 0.5 * (b - a):
+            hits.append(w["feature"])
+    return " + ".join(hits) if hits else "control"
 
 
 def feature_windows() -> list[dict]:
@@ -128,6 +153,97 @@ def stream_aperture_fluxes(
     return fz, fy
 
 
+
+def brightness_control(
+    rows: list[dict],
+    dmag_all: np.ndarray,
+    bin_index: np.ndarray,
+    mz: np.ndarray,
+    strata: list[float],
+    min_per_cell: int,
+) -> dict:
+    """Recompute the redshift trend holding apparent brightness fixed.
+
+    For every (redshift bin, apparent-magnitude stratum) cell the delta-m NMAD
+    is measured. Within a stratum the galaxies have comparable brightness, so
+    comparing bins along a stratum isolates the spectral effect from the fact
+    that distant galaxies are faint.
+
+    The controlled factor is the median, across strata, of each bin's NMAD
+    divided by the lowest-redshift bin's NMAD in that same stratum.
+    """
+    cells: dict[tuple[int, int], dict] = {}
+    for bi in range(len(rows)):
+        in_bin = bin_index == bi
+        for si, (mlo, mhi) in enumerate(zip(strata[:-1], strata[1:])):
+            sel = in_bin & (mz >= mlo) & (mz < mhi) & np.isfinite(dmag_all)
+            if int(sel.sum()) < min_per_cell:
+                continue
+            d = dmag_all[sel]
+            cells[(bi, si)] = {
+                "n": int(sel.sum()),
+                "nmad": float(1.4826 * np.median(np.abs(d - np.median(d)))),
+                "median": float(np.median(d)),
+            }
+
+    per_bin_ratios: dict[int, list[float]] = {bi: [] for bi in range(len(rows))}
+    strata_used: set[int] = set()
+    for si in range(len(strata) - 1):
+        present = sorted(bi for bi in range(len(rows)) if (bi, si) in cells)
+        if len(present) < 2:
+            continue
+        ref = cells[(present[0], si)]["nmad"]
+        if ref <= 0:
+            continue
+        strata_used.add(si)
+        for bi in present:
+            per_bin_ratios[bi].append(cells[(bi, si)]["nmad"] / ref)
+
+    controlled = {bi: float(np.median(v)) for bi, v in per_bin_ratios.items() if v}
+    for bi, row in enumerate(rows):
+        row["controlled_ratio"] = controlled.get(bi, float("nan"))
+
+    if controlled:
+        worst_bi = max(controlled, key=lambda k: controlled[k])
+        worst_label = f"{rows[worst_bi]['z_low']:.2f}-{rows[worst_bi]['z_high']:.2f}"
+        factor = controlled[worst_bi]
+    else:
+        worst_label, factor = "n/a", float("nan")
+
+    ctrl_vals = [controlled[bi] for bi, r in enumerate(rows)
+                 if r["window"] == "control" and bi in controlled]
+    ctrl_mean = float(np.mean(ctrl_vals)) if ctrl_vals else float("nan")
+    window_tests = []
+    for bi, r in enumerate(rows):
+        if r["window"] == "control" or bi not in controlled:
+            continue
+        window_tests.append({
+            "window": r["window"],
+            "z_low": r["z_low"], "z_high": r["z_high"],
+            "controlled_ratio": controlled[bi],
+            "control_bins_mean": ctrl_mean,
+            "controlled_excess": float(controlled[bi] - ctrl_mean),
+        })
+
+    return {
+        "magnitude_strata": strata,
+        "min_per_cell": min_per_cell,
+        "cells": {f"{bi}:{si}": v for (bi, si), v in cells.items()},
+        "controlled_ratio_per_bin": controlled,
+        "controlled_degradation_factor": factor,
+        "worst_bin_label": worst_label,
+        "n_strata_used": len(strata_used),
+        "n_cells_used": len(cells),
+        "control_bins_mean_ratio": ctrl_mean,
+        "window_tests": window_tests,
+        "note": (
+            "Ratios are within-stratum, relative to the lowest-redshift bin of "
+            "the same stratum, then median-combined across strata. This removes "
+            "the apparent-brightness trend that dominates the raw numbers."
+        ),
+    }
+
+
 def main() -> int:
     args = parse_args()
     cfg = load_config(args.config)
@@ -166,10 +282,13 @@ def main() -> int:
 
     edges = sorted(args.edges)
     rows: list[dict] = []
+    # Per-galaxy delta-m, filled bin by bin, for the brightness control below.
+    dmag_all = np.full(ev["n"], np.nan)
+    bin_index = np.full(ev["n"], -1, dtype=np.int64)
 
     print(f"\n{'bin':>14}{'n_train':>9}{'n_eval':>8}{'med(z-y)':>10}"
-          f"{'scale':>8}{'dm med':>9}{'dm NMAD':>9}{'outl%':>7}")
-    print("-" * 74)
+          f"{'scale':>8}{'dm med':>9}{'dm NMAD':>9}{'outl%':>7}{'med m_z':>9}  window")
+    print("-" * 96)
 
     for lo, hi in zip(edges[:-1], edges[1:]):
         tr_sel = (train["z"] >= lo) & (train["z"] < hi) \
@@ -194,9 +313,15 @@ def main() -> int:
         finite = dmag[np.isfinite(dmag)]
         outl = float(np.mean(np.abs(finite) > thresh) * 100.0) if finite.size else float("nan")
 
+        dmag_all[ev_sel] = dmag
+        bin_index[ev_sel] = len(rows)
+        mz_bin = ev["mz"][ev_sel]
         rows.append({
             "z_low": lo, "z_high": hi,
             "z_mid": 0.5 * (lo + hi),
+            "window": window_label(lo, hi),
+            "median_m_z_eval": float(np.median(mz_bin[np.isfinite(mz_bin)]))
+            if np.isfinite(mz_bin).any() else float("nan"),
             "n_train": int(tr_sel.sum()),
             "n_eval": int(ev_sel.sum()),
             "median_z_minus_y_mag": med_colour,
@@ -216,27 +341,55 @@ def main() -> int:
 
         print(f"{f'{lo:.2f}-{hi:.2f}':>14}{int(tr_sel.sum()):>9}"
               f"{int(ev_sel.sum()):>8}{med_colour:>10.4f}{scale:>8.4f}"
-              f"{st['median']:>+9.4f}{st['nmad']:>9.4f}{outl:>7.2f}")
+              f"{st['median']:>+9.4f}{st['nmad']:>9.4f}{outl:>7.2f}"
+              f"{rows[-1]['median_m_z_eval']:>9.2f}  {rows[-1]['window']}")
 
     if not rows:
         print("\nERROR: no bin had enough galaxies.")
         return 2
 
+    # -- brightness control -------------------------------------------------
+    # Higher-redshift galaxies are much fainter, and faint photometry is noisier
+    # whatever the filters are doing. Comparing bins without holding apparent
+    # brightness fixed mostly measures brightness, not spectra.
+    strata = sorted(args.mag_strata)
+    control = brightness_control(rows, dmag_all, bin_index, ev["mz"], strata,
+                                 args.min_per_cell)
+
     # -- verdict -----------------------------------------------------------
     base = rows[0]
     worst = max(rows, key=lambda r: r["dmag_nmad"])
     ratio = worst["dmag_nmad"] / base["dmag_nmad"] if base["dmag_nmad"] else float("nan")
+    ctrl_ratio = control["controlled_degradation_factor"]
 
     print("\n" + "=" * 74)
-    print(f"lowest bin  z={base['z_low']:.2f}-{base['z_high']:.2f}: "
-          f"dm NMAD {base['dmag_nmad']:.4f}")
-    print(f"worst bin   z={worst['z_low']:.2f}-{worst['z_high']:.2f}: "
-          f"dm NMAD {worst['dmag_nmad']:.4f}   ({ratio:.1f}x worse)")
-    if ratio > 1.5:
-        print("\n-> 'y is a scaled copy of z' DEGRADES with redshift. The single-scale")
-        print("   assumption is specific to low z and cannot be assumed generally.")
+    print("RAW (not controlled for brightness)")
+    print(f"  lowest bin z={base['z_low']:.2f}-{base['z_high']:.2f}: "
+          f"dm NMAD {base['dmag_nmad']:.4f}  (median m_z {base['median_m_z_eval']:.2f})")
+    print(f"  worst  bin z={worst['z_low']:.2f}-{worst['z_high']:.2f}: "
+          f"dm NMAD {worst['dmag_nmad']:.4f}  (median m_z {worst['median_m_z_eval']:.2f})"
+          f"   -> {ratio:.1f}x")
+    print("\nBRIGHTNESS-CONTROLLED (same apparent m_z, median across strata)")
+    if np.isfinite(ctrl_ratio):
+        print(f"  worst bin z={control['worst_bin_label']}: {ctrl_ratio:.1f}x")
+        print(f"  strata used: {control['n_strata_used']}  "
+              f"({control['n_cells_used']} cells above {args.min_per_cell} galaxies)")
     else:
-        print("\n-> the single scale holds up across the range tested.")
+        print("  not enough galaxies per cell to control for brightness.")
+
+    if control["window_tests"]:
+        print("\nPER-WINDOW VERDICT (controlled, vs the control bins either side)")
+        for w in control["window_tests"]:
+            verdict = ("SUPPORTED" if w["controlled_excess"] > 0.15
+                       else "not supported" if w["controlled_excess"] < 0.05
+                       else "weak")
+            print(f"  {w['window']:<16} z={w['z_low']:.2f}-{w['z_high']:.2f}  "
+                  f"excess over controls {w['controlled_excess']:+.2f}  -> {verdict}")
+
+    print("\nHOW TO READ THIS")
+    print("  The raw factor conflates the SED changing between the filters with")
+    print("  galaxies simply getting fainter. Only the controlled numbers speak")
+    print("  to the spectral question. Quote those.")
     print("=" * 74)
 
     out = {
@@ -247,7 +400,9 @@ def main() -> int:
         "predicted_break_windows": feature_windows(),
         "lowest_bin_dmag_nmad": base["dmag_nmad"],
         "worst_bin_dmag_nmad": worst["dmag_nmad"],
-        "degradation_factor": ratio,
+        "degradation_factor_raw": ratio,
+        "brightness_control": control,
+        "degradation_factor_controlled": ctrl_ratio,
     }
     jp = cfg.path("results_dir") / "redshift_sweep.json"
     jp.write_text(json.dumps(out, indent=2), encoding="utf-8")
@@ -268,23 +423,53 @@ def write_markdown(cfg, out: dict) -> Path:
         f"**{out['evaluated_on']}** split. B0 has zero learnable parameters, so each "
         "bin gets its own median z−y colour and therefore its own scale.",
         "",
-        "| z range | n train | n eval | median(m_z − m_y) | B0 scale | Δm median | "
-        "Δm NMAD | Outlier % | z band rest | y band rest |",
-        "|---|---|---|---|---|---|---|---|---|---|",
+        "> **Read the controlled column, not the raw one.** Higher-redshift "
+        "galaxies are much fainter (median m_z runs from ~17 to ~22 across this "
+        "range), and faint photometry is noisier whatever the filters are doing. "
+        "The raw Δm NMAD therefore mostly tracks brightness. The *controlled* "
+        "ratio holds apparent magnitude fixed and is the only column that speaks "
+        "to the spectral question.",
+        "",
+        "| z range | window | n train | n eval | median m_z | median(m_z − m_y) | "
+        "B0 scale | Δm NMAD (raw) | ratio (controlled) | z band rest | y band rest |",
+        "|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for r in rows:
+        cr = r.get("controlled_ratio", float("nan"))
+        cr_txt = "—" if not np.isfinite(cr) else f"**{cr:.2f}×**"
         lines.append(
-            f"| {r['z_low']:.2f}–{r['z_high']:.2f} | {r['n_train']:,} | "
-            f"{r['n_eval']:,} | {r['median_z_minus_y_mag']:+.4f} | "
-            f"{r['b0_scale']:.4f} | {r['dmag_median']:+.4f} | "
-            f"**{r['dmag_nmad']:.4f}** | {r['outlier_percent']:.2f} | "
+            f"| {r['z_low']:.2f}–{r['z_high']:.2f} | {r['window']} | "
+            f"{r['n_train']:,} | {r['n_eval']:,} | {r['median_m_z_eval']:.2f} | "
+            f"{r['median_z_minus_y_mag']:+.4f} | {r['b0_scale']:.4f} | "
+            f"{r['dmag_nmad']:.4f} | {cr_txt} | "
             f"{r['z_band_rest_A']:.0f} Å | {r['y_band_rest_A']:.0f} Å |"
         )
+    ctrl = out.get("brightness_control", {})
     lines += [
         "",
-        f"Degradation from the lowest bin to the worst: "
-        f"**{out['degradation_factor']:.1f}×** "
-        f"({out['lowest_bin_dmag_nmad']:.4f} → {out['worst_bin_dmag_nmad']:.4f}).",
+        f"Raw degradation, lowest bin to worst: **{out['degradation_factor_raw']:.1f}×** "
+        f"({out['lowest_bin_dmag_nmad']:.4f} → {out['worst_bin_dmag_nmad']:.4f}). "
+        f"**Brightness-controlled: "
+        f"{out['degradation_factor_controlled']:.1f}×** "
+        f"(worst bin z={ctrl.get('worst_bin_label', 'n/a')}). The gap between "
+        "those two numbers is the brightness effect, not a spectral one.",
+        "",
+        "### Per-window test (controlled)",
+        "",
+        "Each window bin's controlled ratio against the mean of the control bins:",
+        "",
+        "| Window | z range | controlled ratio | control bins | excess | verdict |",
+        "|---|---|---|---|---|---|",
+    ]
+    for w in ctrl.get("window_tests", []):
+        v = ("supported" if w["controlled_excess"] > 0.15
+             else "not supported" if w["controlled_excess"] < 0.05 else "weak")
+        lines.append(
+            f"| {w['window']} | {w['z_low']:.2f}–{w['z_high']:.2f} | "
+            f"{w['controlled_ratio']:.2f}× | {w['control_bins_mean']:.2f}× | "
+            f"{w['controlled_excess']:+.2f} | **{v}** |"
+        )
+    lines += [
         "",
         "## Predicted break points",
         "",
@@ -340,7 +525,19 @@ def make_plot(cfg, out: dict) -> Path:
         )
 
     ax1.errorbar(mid, nmad, xerr=xerr, fmt="o-", color="#1b263b", lw=1.8,
-                 ms=6, capsize=3, zorder=3, label="B0 Δm NMAD (per bin)")
+                 ms=6, capsize=3, zorder=3, label="raw Δm NMAD (confounded by brightness)")
+    ctrl = [r.get("controlled_ratio", np.nan) for r in rows]
+    if np.isfinite(ctrl).any():
+        axc = ax1.twinx()
+        axc.plot(mid, ctrl, "D--", color="#2a9d8f", lw=2.0, ms=6, zorder=4,
+                 label="brightness-controlled ratio")
+        axc.axhline(1.0, color="#2a9d8f", lw=0.8, ls=":")
+        axc.set_ylabel("controlled ratio (1.0 = same as lowest-z bin)",
+                       color="#2a9d8f")
+        axc.tick_params(axis="y", labelcolor="#2a9d8f")
+        h1, l1 = ax1.get_legend_handles_labels()
+        h2, l2 = axc.get_legend_handles_labels()
+        ax1.legend(h1 + h2, l1 + l2, loc="lower left", fontsize=8.5)
     ax1.set_ylabel(r"B0 magnitude error, $\Delta m$ NMAD  (mag)")
     ax1.set_title(
         "Does \"y is a scaled copy of z\" hold at higher redshift?\n"
@@ -351,7 +548,6 @@ def make_plot(cfg, out: dict) -> Path:
     )
     ax1.grid(alpha=0.3)
     ax1.margins(y=0.22)
-    ax1.legend(loc="lower left", fontsize=9)
 
     ax2.errorbar(mid, colour, yerr=cnmad, xerr=xerr, fmt="s-", color="#5f0f40",
                  lw=1.8, ms=6, capsize=3, zorder=3,

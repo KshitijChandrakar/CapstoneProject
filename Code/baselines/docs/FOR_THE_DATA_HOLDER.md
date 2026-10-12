@@ -65,7 +65,7 @@ A teammate asked whether "y is just a scaled copy of z" still holds at higher
 redshift. B0 has zero parameters, so this is cheap to answer:
 
 ```powershell
-python scripts_redshift_sweep.py
+python scripts/05_redshift_sweep.py
 ```
 
 It refits B0 independently in redshift bins across the whole catalogue
@@ -83,7 +83,7 @@ A teammate also asked how much each band's pixels affect the other bands, per
 redshift bin:
 
 ```powershell
-python scripts_band_correlations.py
+python scripts/06_band_correlations.py
 ```
 
 One streaming pass, no training. Outputs `band_correlations.json`,
@@ -127,26 +127,18 @@ not.
 
 ---
 
-## One quick question the team needs answered
+## Sample provenance — already settled, kept for the record
 
-The sample already shared (`sample_z0.2_2000.h5`) has 2,000 galaxies all at
-z ≈ 0.2 (range 0.19686–0.20313), and it carries the columns `x_coord_x`,
-`x_coord_y`, `y_coord_x`, `y_coord_y`, which appear in the **testing** file but
-not in training or validation.
+The 2,000-galaxy pilot sample (`sample_z0.2_2000.h5`) was checked with
+`scripts/check_sample_provenance.py` and came back **100% from the training
+split** (0 in validation, 0 in testing). No held-out data was used during
+development.
 
-The team needs to know whether those 2,000 galaxies come from one split or are
-mixed across all three, because GalaxiesML's test split must stay untouched
-during model tuning.
-
-This script answers it exactly:
-
-```bash
-python scripts/check_sample_provenance.py sample_z0.2_2000.h5 --raw-dir .
-```
-
-It prints how many of the 2,000 galaxies live in each official split and writes
-`sample_provenance.json`. **Send that file back** — it takes under a minute and
-settles the question.
+An earlier note in this file claimed the columns `x_coord_x`, `x_coord_y`,
+`y_coord_x`, `y_coord_y` appear only in the testing file. **That was wrong** —
+all four are present in all three splits. The earlier EDA notebooks only listed
+1-D datasets, and these are 2-D, so they were filtered out of one listing and
+not the other. Nothing was ever inferred correctly from that difference.
 
 ---
 
