@@ -77,6 +77,18 @@ takes a few minutes, not hours.
 Outputs `redshift_sweep.json`, `redshift_sweep.md` and
 `redshift_sweep.png` into `results/`.
 
+### 4c. Band-to-band pixel correlations (also quick)
+
+A teammate also asked how much each band's pixels affect the other bands, per
+redshift bin:
+
+```powershell
+python scripts_band_correlations.py
+```
+
+One streaming pass, no training. Outputs `band_correlations.json`,
+`band_correlations.md` and three figures into `results/`.
+
 ### 5. Send back
 
 Zip and send **`results/`** — the metrics JSON, the table, and the figures.
