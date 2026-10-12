@@ -59,6 +59,24 @@ Step 1 should report **84,911 train / 17,146 val / 17,072 test** after the
 redshift cut. It prints a warning if the counts disagree, which would mean
 something is different about the files.
 
+### 4b. One more run the team needs (quick, no training)
+
+A teammate asked whether "y is just a scaled copy of z" still holds at higher
+redshift. B0 has zero parameters, so this is cheap to answer:
+
+```powershell
+python scripts_redshift_sweep.py
+```
+
+It refits B0 independently in redshift bins across the whole catalogue
+(0 to 4, not just z < 0.4) and plots its accuracy against the redshifts where
+spectral features are predicted to break the assumption. It makes **one**
+streaming pass over the test images rather than re-filtering per bin, so it
+takes a few minutes, not hours.
+
+Outputs `redshift_sweep.json`, `redshift_sweep.md` and
+`redshift_sweep.png` into `results/`.
+
 ### 5. Send back
 
 Zip and send **`results/`** — the metrics JSON, the table, and the figures.
