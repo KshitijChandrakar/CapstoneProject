@@ -1,16 +1,29 @@
-"""Training loop for B1, with validation, checkpointing and early stopping."""
+"""Training loop with validation, checkpointing and early stopping.
+
+Shared by B1, B2 and B3. The defaults are B1's original behaviour -- masked
+L1 on a model called as ``model(x)`` -- so adding B2 and B3 did not change how
+B1 trains. B3 supplies ``loss_fn`` (which also receives the epoch, for the NLL
+warmup) and ``conditioning_key`` (redshift, for FiLM).
+"""
 
 from __future__ import annotations
 
 import copy
+import inspect
 import random
 from pathlib import Path
+from typing import Callable
 
 import numpy as np
 import torch
 
 from src.models.b1_linear import masked_l1_loss
 from src.training.logger import ExperimentLogger
+
+
+def _default_loss(pred, target, mask):
+    """Masked L1 -- B1's and B2's objective."""
+    return masked_l1_loss(pred, target, mask)
 
 
 def set_seed(seed: int) -> None:
@@ -32,6 +45,14 @@ class Trainer:
         logger: receives per-epoch rows.
         early_stopping_patience: stop after this many epochs without a val
             improvement. ``None`` disables it.
+        loss_fn: ``f(model_out, target, mask)``, or ``f(..., epoch)`` for an
+            objective that changes during the run. Defaults to masked L1,
+            which is what B1 and B2 use.
+        conditioning_key: batch key passed to the model as a second argument,
+            e.g. ``"redshift"`` for B3's FiLM. ``None`` calls ``model(x)``.
+        grad_clip_norm: clip the global gradient norm to this value. ``None``
+            disables it. B2 and B3 use it: with 2M parameters and a variance
+            head, one bad batch can otherwise push NaN through every weight.
     """
 
     def __init__(
@@ -45,6 +66,9 @@ class Trainer:
         device: str = "cpu",
         logger: ExperimentLogger | None = None,
         early_stopping_patience: int | None = None,
+        loss_fn: Callable | None = None,
+        conditioning_key: str | None = None,
+        grad_clip_norm: float | None = None,
     ) -> None:
         self.device = torch.device(device)
         self.model = model.to(self.device)
@@ -53,12 +77,26 @@ class Trainer:
         self.epochs = epochs
         self.logger = logger
         self.patience = early_stopping_patience
+        self.loss_fn = loss_fn if loss_fn is not None else _default_loss
+        self.conditioning_key = conditioning_key
+        self.grad_clip_norm = grad_clip_norm
+        # Only pass the epoch to a loss that asks for it, so a plain
+        # f(pred, target, mask) stays valid.
+        self._loss_takes_epoch = "epoch" in inspect.signature(self.loss_fn).parameters
+        self.epoch = 0
 
         self.optimizer = torch.optim.AdamW(
             self.model.parameters(), lr=lr, weight_decay=weight_decay
         )
         self.scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
             self.optimizer, T_max=epochs
+        )
+
+        # A switching loss (B3) exposes warmup_epochs; this is the first
+        # epoch on the new objective. None means it never changes.
+        warmup = getattr(self.loss_fn, "warmup_epochs", None)
+        self.objective_changes_at_epoch = (
+            int(warmup) + 1 if warmup not in (None, 0) else None
         )
 
         self.best_val = float("inf")
@@ -78,10 +116,25 @@ class Trainer:
                 y = batch["target"].to(self.device, non_blocking=True)
                 m = batch["mask"].to(self.device, non_blocking=True)
 
-                loss = masked_l1_loss(self.model(x), y, m)
+                if self.conditioning_key is None:
+                    out = self.model(x)
+                else:
+                    cond = batch[self.conditioning_key].to(
+                        self.device, non_blocking=True
+                    )
+                    out = self.model(x, cond)
+
+                loss = (
+                    self.loss_fn(out, y, m, epoch=self.epoch)
+                    if self._loss_takes_epoch else self.loss_fn(out, y, m)
+                )
                 if train:
                     self.optimizer.zero_grad(set_to_none=True)
                     loss.backward()
+                    if self.grad_clip_norm is not None:
+                        torch.nn.utils.clip_grad_norm_(
+                            self.model.parameters(), self.grad_clip_norm
+                        )
                     self.optimizer.step()
                 total += float(loss.detach())
                 n_batches += 1
@@ -94,10 +147,24 @@ class Trainer:
         since_improved = 0
 
         for epoch in range(1, self.epochs + 1):
+            self.epoch = epoch
             train_loss = self._run_epoch(self.train_loader, train=True)
             val_loss = self._run_epoch(self.val_loader, train=False)
             lr = self.optimizer.param_groups[0]["lr"]
             self.scheduler.step()
+
+            # An objective that changes mid-run (B3: L1 warmup, then NLL)
+            # produces two incomparable scales. Comparing across the boundary
+            # would freeze the best checkpoint inside the warmup, so the
+            # record is reset on the epoch the objective changes.
+            if epoch == self.objective_changes_at_epoch:
+                self.best_val = float("inf")
+                since_improved = 0
+                if self.logger is not None:
+                    self.logger.info(
+                        f"objective changed at epoch {epoch}; best-val record "
+                        "reset (the two losses are not comparable)"
+                    )
 
             is_best = val_loss < self.best_val
             if is_best:
@@ -132,6 +199,7 @@ class Trainer:
             "best_epoch": self.best_epoch,
             "epochs_run": len(self.history),
             "stopped_early": self.stopped_early,
+            "objective_changed_at_epoch": self.objective_changes_at_epoch,
             "history": self.history,
         }
 

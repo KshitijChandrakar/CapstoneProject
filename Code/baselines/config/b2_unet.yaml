@@ -1,0 +1,48 @@
+# Baseline B2 -- U-Net. The first model in the ladder that can see shapes.
+#
+# B0 and B1 are both per-pixel: they apply the same rule at every pixel and
+# cannot represent "the centre is redder than the outskirts". Script 04 showed
+# exactly that failure (a red-centre / blue-halo residual on typical galaxies),
+# and script 07 showed that y is blurrier than z by ~1.1 px, which is spatial
+# structure no per-pixel rescaling can produce. B2 is the answer to both.
+
+model:
+  name: "B2_unet"
+  in_channels: 4
+  out_channels: 1
+  # Channels at the top level; each level down doubles them.
+  base_channels: 32
+  # Encoder levels below the top. 3 gives 64 -> 32 -> 16 -> 8 px feature maps
+  # on a 64x64 cutout, which is as deep as is sensible before the galaxy is
+  # gone. With base_channels 32 this is 1,928,705 parameters -- the "~2M" the
+  # project's model ladder promises for B2 and B3.
+  depth: 3
+  norm: "group"          # "group" | "batch" | "none"
+  groups: 8              # GroupNorm groups; must divide every channel count
+  activation: "silu"     # "silu" | "relu"
+  dropout: 0.0
+  # Predict y directly, as the spec describes. With true, the net instead
+  # predicts a correction added to the standardised z input, which starts the
+  # model at roughly B0 and converges faster. Off by default: the headline B2
+  # should be the plain architecture, not a B0-assisted one.
+  residual_on_z: false
+  # Checked, not assumed -- see src/models/b2_unet.py. The spec says "~2M".
+  expected_parameters: 1928705
+  parameter_tolerance: 0.02
+
+training:
+  loss: "l1"             # same masked L1 as B1, so the comparison is like for like
+  optimizer: "adamw"
+  lr: 3.0e-4
+  weight_decay: 1.0e-5
+  epochs: 40
+  scheduler: "cosine"
+  # B2 has ~370,000x more parameters than B1, so it can overfit. Unlike B1,
+  # it gets early stopping.
+  early_stopping_patience: 8
+  # NaN-safe: clips the global grad norm. null disables.
+  grad_clip_norm: 1.0
+  save_best_only: true
+
+evaluation:
+  splits: ["test"]

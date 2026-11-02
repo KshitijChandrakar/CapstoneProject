@@ -12,6 +12,8 @@ Code/baselines/data/raw/
 Code/baselines/data/processed/
 Code/baselines/data/splits/
 Code/baselines/_fake_run/
+Code/baselines/_b2b3_run/
+Code/baselines/_xcorr_test/
 Code/baselines/_sanity_tmp/
 .venv/
 __pycache__/

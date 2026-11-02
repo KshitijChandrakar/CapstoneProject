@@ -102,6 +102,40 @@ python scripts/07_pixel_cross_correlation.py
 One streaming pass, no training. Outputs `pixel_cross_correlation.json`,
 `pixel_cross_correlation.md` and two figures into `results/`.
 
+### 4e. The two spatial models (B2 and B3) -- only if this machine has a GPU
+
+These are the first models big enough to care about hardware: ~1.9M parameters
+each, three seeds, over 84,911 training galaxies. On a GPU that is tens of
+minutes; on CPU it is hours per seed. **If this machine has no GPU, skip 4e and
+4f and say so** -- we will run them elsewhere, and everything above is still
+the deliverable.
+
+```powershell
+python scripts/08_train_b2.py
+python scripts/09_train_b3.py
+python scripts/10_benchmark_all.py
+```
+
+Short on time? `--seed 42` on either script runs one seed instead of three, and
+is worth sending on its own.
+
+Outputs `b2_metrics.json`, `b3_metrics.json`, `ladder_table.md` / `.tex`,
+`b3_anomaly_candidates.csv` and two figures into `results/`.
+
+### 4f. What to tell us about the B3 run
+
+Three lines from the console, because they decide whether the numbers are
+usable at all:
+
+1. the **calibration** line -- the `(y-mu)/sigma` spread. 1.0 is honest, above
+   1 means the model is over-confident;
+2. the **FiLM response** -- if it prints a warning that the conditioning barely
+   moves the prediction, that is a result we need to know;
+3. whether either run **stopped early**, and at which epoch.
+
+If a run fails with a CUDA out-of-memory error, lower `dataloader.batch_size`
+in `config/config.yaml` (64 -> 32 -> 16) and tell us which value worked.
+
 ### 5. Send back
 
 Zip and send **`results/`** — the metrics JSON, the table, and the figures.

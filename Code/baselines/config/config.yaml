@@ -3,7 +3,7 @@
 
 project:
   name: "hsc_band_prediction_z0_0.4"
-  experiment_phase: "baselines_b0_b1"
+  experiment_phase: "baselines_b0_b1_b2_b3"
 
 paths:
   raw_dir: "data/raw"

@@ -50,6 +50,8 @@ class Config:
     raw: dict[str, Any]
     b0: dict[str, Any]
     b1: dict[str, Any]
+    b2: dict[str, Any]
+    b3: dict[str, Any]
     root: Path = PROJECT_ROOT
 
     # -- convenient accessors ---------------------------------------------
@@ -81,6 +83,20 @@ class Config:
     @property
     def eps(self) -> float:
         return float(self.norm["eps"])
+
+    def model_config(self, name: str) -> dict[str, Any]:
+        """One model's config block by name, with a clear error if absent."""
+        table = {"b0": self.b0, "b1": self.b1, "b2": self.b2, "b3": self.b3}
+        key = name.lower()
+        if key not in table:
+            raise ConfigError(f"Unknown model {name!r}; expected one of {list(table)}.")
+        block = table[key]
+        if not block:
+            raise ConfigError(
+                f"Config for {key.upper()} is missing. Expected "
+                f"config/{'b2_unet' if key == 'b2' else 'b3_unet_film_nll'}.yaml."
+            )
+        return block
 
     def path(self, key: str) -> Path:
         """An absolute path from the `paths` block, created if missing."""
@@ -158,13 +174,25 @@ def _read_yaml(path: Path) -> dict[str, Any]:
     return data
 
 
+def _read_yaml_optional(path: Path) -> dict[str, Any]:
+    """Like :func:`_read_yaml`, but an absent file is an empty mapping."""
+    return _read_yaml(path) if path.exists() else {}
+
+
 def load_config(config_dir: Path | str | None = None) -> Config:
-    """Read config.yaml, b0_baseline.yaml and b1_baseline.yaml."""
+    """Read config.yaml and every model config.
+
+    B2 and B3 are optional so that a checkout predating them, or a sandbox
+    config directory that only copies the B0/B1 files, still loads. Scripts
+    that need them raise a clear error instead.
+    """
     d = Path(config_dir) if config_dir is not None else CONFIG_DIR
     cfg = Config(
         raw=_read_yaml(d / "config.yaml"),
         b0=_read_yaml(d / "b0_baseline.yaml"),
         b1=_read_yaml(d / "b1_baseline.yaml"),
+        b2=_read_yaml_optional(d / "b2_unet.yaml"),
+        b3=_read_yaml_optional(d / "b3_unet_film_nll.yaml"),
     )
     _validate(cfg)
     return cfg
@@ -190,6 +218,36 @@ def _validate(cfg: Config) -> None:
     sign = cfg.b0["scaling"]["sign"]
     if sign not in (1, -1):
         raise ConfigError(f"b0.scaling.sign must be +1 or -1, got {sign}.")
+    for name in ("b2", "b3"):
+        block = {"b2": cfg.b2, "b3": cfg.b3}[name]
+        if not block:
+            continue
+        m = block["model"]
+        if int(m["in_channels"]) != len(INPUT_BAND_IDX):
+            raise ConfigError(
+                f"{name.upper()}.model.in_channels must be {len(INPUT_BAND_IDX)} "
+                f"to match the input bands, got {m['in_channels']}."
+            )
+        size = int(cfg.dataset["image_size"])
+        if size % 2 ** int(m["depth"]) != 0:
+            raise ConfigError(
+                f"{name.upper()}.model.depth {m['depth']} needs an image size "
+                f"divisible by {2 ** int(m['depth'])}, but image_size is {size}."
+            )
+    if cfg.b3:
+        unc = cfg.b3["uncertainty"]
+        if unc["logvar_min"] >= unc["logvar_max"]:
+            raise ConfigError(
+                f"B3.uncertainty.logvar_min ({unc['logvar_min']}) must be below "
+                f"logvar_max ({unc['logvar_max']})."
+            )
+        if int(unc["nll_warmup_epochs"]) >= int(cfg.b3["training"]["epochs"]):
+            raise ConfigError(
+                f"B3's NLL warmup ({unc['nll_warmup_epochs']} epochs) is as long "
+                f"as the whole run ({cfg.b3['training']['epochs']} epochs), so "
+                f"the NLL would never be trained."
+            )
+
     handling = cfg.photometry["nonpositive_flux_handling"]
     if handling not in ("exclude", "clamp"):
         raise ConfigError(

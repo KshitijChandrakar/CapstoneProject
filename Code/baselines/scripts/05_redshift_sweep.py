@@ -464,14 +464,7 @@ def main() -> int:
         print("\nPER-WINDOW VERDICT (controlled, vs the control bins either side)")
         for w in control["window_tests"]:
             lo, hi = w["excess_ci_low"], w["excess_ci_high"]
-            if not np.isfinite(lo):
-                verdict = "no interval (too few galaxies)"
-            elif lo > 0.0:
-                verdict = "SUPPORTED"
-            elif hi > 0.0:
-                verdict = "not significant"
-            else:
-                verdict = "no effect"
+            verdict = window_verdict(w)
             ci = "   CI [n/a]" if not np.isfinite(lo) else f"   CI [{lo:+.2f}, {hi:+.2f}]"
             print(f"  {w['window']:<16} z={w['z_low']:.2f}-{w['z_high']:.2f}  "
                   f"excess {w['controlled_excess']:+.2f}{ci}  -> {verdict}")
@@ -505,6 +498,24 @@ def main() -> int:
 
     print(f"\nWrote:\n  {jp}\n  {md}\n  {fig}")
     return 0
+
+
+def window_verdict(w: dict) -> str:
+    """The verdict for one window, from its bootstrap interval.
+
+    The console and the markdown MUST agree, so both call this. An earlier
+    version duplicated the logic and the markdown kept a fixed 0.15 threshold
+    after the console had moved to the interval, which let the two outputs
+    state opposite conclusions from the same JSON.
+    """
+    lo, hi = w["excess_ci_low"], w["excess_ci_high"]
+    if not np.isfinite(lo):
+        return "no interval (too few galaxies)"
+    if lo > 0.0:
+        return "SUPPORTED"
+    if hi > 0.0:
+        return "not significant"
+    return "no effect"
 
 
 def write_markdown(cfg, out: dict) -> Path:
@@ -549,19 +560,39 @@ def write_markdown(cfg, out: dict) -> Path:
         "",
         "### Per-window test (controlled)",
         "",
-        "Each window bin's controlled ratio against the mean of the control bins:",
+        "Each window bin's controlled ratio against the mean of its **adjacent** "
+        "control bins, with a 95% bootstrap interval (400 resamples) on the "
+        "excess. A window counts as supported only when that interval clears "
+        "zero — not from the point estimate alone.",
         "",
-        "| Window | z range | controlled ratio | control bins | excess | verdict |",
-        "|---|---|---|---|---|---|",
+        "| Window | z range | controlled ratio | adjacent controls | their mean | "
+        "excess | 95% CI | verdict |",
+        "|---|---|---|---|---|---|---|---|",
     ]
     for w in ctrl.get("window_tests", []):
-        v = ("supported" if w["controlled_excess"] > 0.15
-             else "not supported" if w["controlled_excess"] < 0.05 else "weak")
+        v = window_verdict(w)
+        lo, hi = w["excess_ci_low"], w["excess_ci_high"]
+        ci_txt = "n/a" if not np.isfinite(lo) else f"[{lo:+.2f}, {hi:+.2f}]"
         lines.append(
             f"| {w['window']} | {w['z_low']:.2f}–{w['z_high']:.2f} | "
-            f"{w['controlled_ratio']:.2f}× | {w['control_bins_mean']:.2f}× | "
-            f"{w['controlled_excess']:+.2f} | **{v}** |"
+            f"{w['controlled_ratio']:.2f}× | "
+            f"{', '.join(w['adjacent_control_bins'])} | "
+            f"{w['adjacent_control_mean']:.2f}× | "
+            f"{w['controlled_excess']:+.2f} | {ci_txt} | **{v}** |"
         )
+    _wt = ctrl.get("window_tests", [])
+    if _wt:
+        lines += [
+            "",
+            f"Controls are the adjacent bins below z={REGIME_LIMIT:.0f}. Above it "
+            "both filters sample rest-frame UV, a different regime rather than a "
+            "control, so those bins are measured but excluded from the baseline. "
+            "For reference, the mean over **all** control bins including the "
+            f"high-z ones is "
+            f"{_wt[0]['all_control_bins_mean_including_high_z']:.2f}× — "
+            "that is the contaminated value, retained only so the difference is "
+            "visible. Do not quote it.",
+        ]
     lines += [
         "",
         "## Predicted break points",

@@ -21,14 +21,19 @@
 >   (error 0.317).
 > - **B1 converged** — 26,540 optimiser steps, 0.0127 from the solved optimum.
 
-Phase 1 of the physics-informed band-prediction project. These two baselines
-set the floor that every later model (B2 U-Net, B3 U-Net+FiLM+NLL, P1–P3
-physics models, ViT) has to beat.
+Phase 1 of the physics-informed band-prediction project. These baselines set
+the floor that every later model (P1–P3 physics models, ViT) has to beat.
 
-| | What it does | Learnable parameters |
-|---|---|---|
-| **B0** (Copy-z) | Copies the *z* image and multiplies it by one number | **0** |
-| **B1** (Linear 1×1) | A weighted sum of the four input bands, same weights at every pixel | **5** |
+| | What it does | Learnable parameters | Sees shapes? | Error bars? |
+|---|---|---|---|---|
+| **B0** (Copy-z) | Copies the *z* image and multiplies it by one number | **0** | no | no |
+| **B1** (Linear 1×1) | A weighted sum of the four input bands, same weights at every pixel | **5** | no | no |
+| **B2** (U-Net) | Encoder–decoder over the four bands, so a pixel depends on its surroundings | **1,928,705** | yes | no |
+| **B3** (U-Net+FiLM+NLL) | B2 conditioned on redshift, predicting a mean *and* a per-pixel sigma | **1,975,778** | yes | yes |
+
+**B0 and B1 have official numbers; B2 and B3 are implemented and tested but
+have not been run on the real data yet** — they need the GPU machine. See
+*Running B2 and B3* below.
 
 > *"If a complex physics model beats a random baseline, it proves nothing. If it
 > beats a carefully capacity-matched control, we have discovered new science."*
@@ -51,6 +56,11 @@ python scripts/01_prepare_data.py          # filter to 0 <= z < 0.4, fit global 
 python scripts/02_run_b0.py                # B0 on val + test
 python scripts/03_train_b1.py              # B1, 3 seeds
 python scripts/04_benchmark_comparison.py  # table + figures
+
+# 4. the spatial models (needs a GPU to be quick -- see below)
+python scripts/08_train_b2.py              # B2 U-Net, 3 seeds
+python scripts/09_train_b3.py              # B3 U-Net+FiLM+NLL, 3 seeds
+python scripts/10_benchmark_all.py         # the full ladder table
 ```
 
 **No data yet?** Check the code works first:
@@ -77,7 +87,9 @@ baselines/
 ├── config/
 │   ├── config.yaml              # paths, redshift window, splits, seeds, photometry
 │   ├── b0_baseline.yaml         # B0: the scale formula and its sign
-│   └── b1_baseline.yaml         # B1: architecture and hyperparameters
+│   ├── b1_baseline.yaml         # B1: architecture and hyperparameters
+│   ├── b2_unet.yaml             # B2: width, depth, early stopping
+│   └── b3_unet_film_nll.yaml    # B3: FiLM, the variance head, the NLL warmup
 ├── data/
 │   ├── raw/                     # the three official GalaxiesML HDF5 files
 │   ├── processed/               # redshift-filtered subsets + global_stats.json
@@ -90,16 +102,21 @@ baselines/
 │   │   └── augmentation.py      # coordinated rotations and flips
 │   ├── models/
 │   │   ├── b0_copy_z.py         # B0 + the empirical sign check
-│   │   └── b1_linear.py         # B1 + the directly-solved reference optimum
+│   │   ├── b1_linear.py         # B1 + the directly-solved reference optimum
+│   │   ├── b2_unet.py           # the U-Net backbone, shared with B3
+│   │   └── b3_unet_film_nll.py  # FiLM conditioning + the heteroscedastic NLL
 │   ├── training/
 │   │   ├── trainer.py           # training loop, validation, checkpointing
 │   │   └── logger.py            # console + CSV logging
 │   └── evaluation/
 │       ├── metrics.py           # MAE, RMSE, PSNR, SSIM
 │       ├── photometry.py        # aperture flux, NMAD, Δm, colour error
+│       ├── uncertainty.py       # NLL, calibration, sharpness, anomaly ranking
 │       └── evaluator.py         # unified evaluation across models
 ├── scripts/                     # 01 prepare | 01b pilot | 02 B0 | 03 B1 | 04 compare
-├── tests/                       # fake-data end-to-end test
+│                               # 05 redshift sweep | 06 band corr | 07 pixel xcorr
+│                               # 08 B2 | 09 B3 | 10 full ladder
+├── tests/                       # fake-data end-to-end tests
 └── docs/EDA_FINDINGS.md         # what the team's EDA notebooks tell us
 ```
 
@@ -115,6 +132,12 @@ baselines/
 | `figures/flux_scatter.png` | Predicted vs true aperture flux, log axes |
 | `figures/b1_weights_*.png` | Learned weights with seed error bars |
 | `figures/galaxy_grid.png` | Example galaxies: truth, predictions, residuals |
+| `metrics/b2_metrics.json` | B2 per seed and summarised |
+| `metrics/b3_metrics.json` | B3 per seed, plus calibration and the FiLM response |
+| `metrics/ladder_table.md` / `.tex` | B0 → B1 → B2 → B3, and what each rung bought |
+| `metrics/b3_anomaly_candidates.csv` | Galaxies B3 got confidently wrong, ranked |
+| `figures/b3_calibration.png` | Nominal vs empirical coverage, against the diagonal |
+| `figures/ladder_mae_vs_params.png` | MAE against parameter count, log scale |
 
 ---
 
@@ -200,6 +223,117 @@ This matters because the budget is `epochs × steps_per_epoch`:
 On the full dataset the prescribed hyperparameters are fine. On a small pilot
 they are not, and the report will say so rather than quietly presenting
 initialisation noise as a learned result.
+
+---
+
+## Running B2 and B3
+
+B0 and B1 run on a laptop in minutes. B2 and B3 are ~1.9M-parameter
+convolutional nets over 84,911 training galaxies, so they want a GPU; on CPU
+expect hours per seed rather than minutes. Everything else is unchanged --
+same splits, same standardisation, same photometry, same evaluation code, so
+the ladder table is a like-for-like comparison and not four separate
+experiments.
+
+```bash
+python scripts/08_train_b2.py                 # 3 seeds, masked L1
+python scripts/09_train_b3.py                 # 3 seeds, L1 warmup then NLL
+python scripts/10_benchmark_all.py            # B0 | B1 | B2 | B3 in one table
+
+python scripts/08_train_b2.py --seed 42       # one seed first, if time is short
+python scripts/09_train_b3.py --no-film       # ablation: is FiLM doing anything?
+python scripts/08_train_b2.py --residual-on-z # predict a correction to z, not y
+```
+
+`10_benchmark_all.py` reports whichever models have been run and names the
+ones that have not, so it is useful after B2 alone.
+
+### What B2 is for
+
+One question: **how much of the remaining error was spatial?** B1 bought 6.5%
+over B0 with five parameters, which says local spectral mixing is close to
+exhausted. Two separate measurements say the rest is shape:
+
+* script 04's residual figure -- a red-centre / blue-halo pattern on typical
+  galaxies, a gradient neither B0 nor B1 *can* represent;
+* script 07 -- y is blurrier than z by ~1.1 px of second-moment width, stable
+  across all eight redshift bins. Blur is spatial, so no per-pixel rescaling
+  of z can produce it.
+
+The ladder table's last column divides the improvement by the parameters it
+cost. If a U-Net needs 1.9M parameters to buy what B1 bought with five, the
+interesting conclusion is that **capacity is no longer the constraint** -- which
+is the argument for the physics models rather than for a bigger network.
+
+### What B3 is for
+
+B3 is the **capacity-matched control** for P1-P3. Same size (within 2.4% of
+B2), same redshift conditioning, same per-pixel error bars, no physics. Sir's
+slide 6 is the reason it exists:
+
+> *"If a complex physics model beats a random baseline, it proves nothing. If
+> it beats a carefully capacity-matched control, we have discovered new
+> science."*
+
+Three pieces, each with a measured reason rather than a stylistic one:
+
+**FiLM on redshift.** Script 05 refitted B0 independently per redshift bin and
+found the z->y relation really does change with redshift: the Ha window shows
+an excess of +0.20 (95% CI [+0.10, +0.29]) and [OIII]+Hb +0.28 (CI [+0.21,
++0.40]), both clear of zero. So redshift carries real information. FiLM
+injects it as a per-channel scale and shift rather than as an extra input
+plane, so one scalar cannot be mistaken for image structure.
+
+**A variance head.** B3 predicts log sigma^2 per pixel alongside the mean.
+
+**Gaussian NLL.** This scores the error bars, not just the prediction, and it
+is the only metric on which B3 and the physics models are directly comparable.
+
+### Reading B3's output: the NLL is meaningless without the calibration line
+
+A model can post an excellent MAE and useless error bars. Three numbers in
+`ladder_table.md` guard against each way of being fooled:
+
+| Number | What a bad value means |
+|---|---|
+| `(y-mu)/sigma` spread | **> 1: over-confident** -- sigma too small, so every anomaly score is inflated and the shortlist fills with ordinary galaxies. **< 1: hedging.** 1.0 is honest. |
+| coverage at 0.5 / 0.68 / 0.95 | The whole curve, not one point. Catches a model that is right on average and wrong at the tails. |
+| Spearman(sigma, \|error\|) | **Near 0: one flat sigma everywhere.** That passes calibration while being useless for ranking anything. Above ~0.2 means the model knows *where* it is uncertain. |
+
+`09_train_b3.py` also measures whether FiLM is doing anything at all: it
+re-predicts one batch at several redshifts with the images held fixed and
+reports how much the output moves. **A relative response near zero is a
+finding, not a bug** -- it would mean B3's advantage over B2, if any, comes from
+the NLL rather than from redshift. Either way it gets stated.
+
+### Two failure modes that are designed around, not hoped away
+
+**The variance head eating the model.** Trained on NLL from scratch, the
+cheapest way to cut the loss is to declare everything noisy, and the mean then
+never fits. `uncertainty.nll_warmup_epochs` trains the mean on masked L1 first
+(5 epochs by default). The switch is visible as a jump in the history CSV, and
+the Trainer **resets its best-validation record** at that epoch -- the two
+losses are not on the same scale, and without the reset the saved checkpoint
+would be frozen inside the warmup.
+
+**Silent architecture drift.** "Capacity-matched" is a claim the whole physics
+comparison rests on, so both configs record `expected_parameters` and
+construction fails loudly if the built model disagrees by more than 2%.
+Changing the width is fine -- it just has to be deliberate.
+
+### Checking it without the data
+
+```bash
+python tests/test_b2_b3.py       # 56 checks, a few minutes on CPU
+```
+
+Builds fake files, trains both models for a few epochs, runs the ladder table,
+and separately checks the properties that are impossible to eyeball later: the
+NLL minimised at sigma = \|residual\| (its analytic optimum), masked pixels
+contributing exactly nothing, the calibration metric returning 1.00 on data
+that is calibrated by construction and ~2.0 when sigma is deliberately halved,
+and the anomaly ranking putting a confidently-wrong galaxy above an equally
+wrong one that admitted its uncertainty.
 
 ---
 

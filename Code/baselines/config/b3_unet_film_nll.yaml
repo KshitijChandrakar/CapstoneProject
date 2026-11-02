@@ -1,0 +1,75 @@
+# Baseline B3 -- U-Net + FiLM(redshift) + heteroscedastic NLL.
+#
+# This is the model that matters. It is the CAPACITY-MATCHED CONTROL for the
+# physics models P1-P3: the same size, the same conditioning on redshift, the
+# same per-pixel uncertainty output -- but no physics. Per sir's slide 6, a
+# physics model that beats a random baseline has proved nothing; it has to beat
+# this.
+#
+# Three differences from B2:
+#   1. FiLM conditioning on redshift. Script 05 found the z->y relation really
+#      does change with redshift (Ha and [OIII]+Hb windows, bootstrap CI clear
+#      of zero), so redshift is genuine information, not decoration.
+#   2. Two output heads: the mean AND a per-pixel log-variance.
+#   3. Gaussian NLL instead of L1, so the model is scored on whether its own
+#      error bars are honest -- which is what makes anomaly detection possible.
+
+model:
+  name: "B3_unet_film_nll"
+  in_channels: 4
+  out_channels: 1
+  # Kept at B2's width so the two are comparable. The backbone is 1,928,738
+  # parameters against B2's 1,928,705 (the extra 33 are the log-variance head),
+  # and the FiLM generator adds 47,040 -- 2.4% more than B2 in total. Reported
+  # in every results table rather than hidden, because "capacity-matched" is a
+  # claim this project rests on.
+  base_channels: 32
+  depth: 3
+  norm: "group"
+  groups: 8
+  activation: "silu"
+  dropout: 0.0
+  residual_on_z: false
+  expected_parameters: 1975778
+  parameter_tolerance: 0.02
+
+film:
+  # What the FiLM generator conditions on.
+  conditioning: ["redshift"]
+  hidden: 32
+  # Fourier features on redshift. A bare scalar in [0, 0.4] is a very weak
+  # input to an MLP; random Fourier features let it express a sharp change at a
+  # particular redshift, which is exactly what script 05 says exists.
+  fourier_features: 8
+  fourier_scale: 10.0
+  # Initialise gamma=1, beta=0 so an untrained B3 starts as plain B2 and any
+  # gain from conditioning is learned rather than an initialisation artefact.
+  identity_init: true
+
+uncertainty:
+  # The head predicts log(sigma^2) in STANDARDISED units, clamped for stability.
+  logvar_min: -14.0
+  logvar_max: 6.0
+  # Train the mean on L1 alone for this many epochs before switching on the
+  # NLL. Without a warmup the variance head learns to explain everything as
+  # noise and the mean never fits -- the classic heteroscedastic failure.
+  nll_warmup_epochs: 5
+  # Coverage levels the calibration report checks.
+  coverage_levels: [0.5, 0.68, 0.95]
+
+training:
+  loss: "gaussian_nll"
+  optimizer: "adamw"
+  lr: 3.0e-4
+  weight_decay: 1.0e-5
+  epochs: 40
+  scheduler: "cosine"
+  early_stopping_patience: 8
+  grad_clip_norm: 1.0
+  save_best_only: true
+
+evaluation:
+  splits: ["test"]
+  # Rank galaxies by mean predictive NLL and report the worst ones. These are
+  # the anomaly candidates -- the science application, not just a score.
+  anomaly_top_k: 50
