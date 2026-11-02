@@ -55,7 +55,21 @@ dataloader:
   batch_size: 64
   # 0 is deliberate. On Windows each worker is a fresh spawned process that
   # re-opens the HDF5 file; with persistent workers that reliably hangs between
-  # seeds, and for this workload the reads are not the bottleneck anyway.
+  # seeds.
+  #
+  # The second half of this comment used to claim "the reads are not the
+  # bottleneck anyway". That was true for B0/B1 and false for B2/B3, and it
+  # hid a real problem: the processed files were written with 32 galaxies per
+  # HDF5 chunk, so each random read pulled 2.6 MB to use 80 KB -- 222 GB of
+  # I/O per epoch for 7 GB of data, which held an RTX 3050 to 0.36 s/step.
+  # The fix was the chunk layout, not the worker count: see
+  # scripts/11_rechunk_processed.py, and run it once on files prepared before
+  # that change.
+  #
+  # Raising this above 0 is now safe -- worker_init_fn gives each worker its
+  # own augmentation stream -- but it changes the augmentation sequence, so a
+  # run at 4 workers is not bit-comparable with one at 0. After rechunking the
+  # gain is small, because the GPU rather than the disk is then the limit.
   num_workers: 0
   pin_memory: true
   # "auto" holds the images in RAM when the file is small enough (fast for a

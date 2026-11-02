@@ -103,11 +103,19 @@ def filter_redshift_subset(
         n_total = int(images.shape[0])
         img_shape = tuple(images.shape[1:])
 
+        # One galaxy per chunk. Training reads single random indices, and HDF5
+        # must read a whole chunk to return any element of it, so a chunk of
+        # 32 galaxies made every read pull 2.6 MB to use 80 KB. Over an epoch
+        # of 84,911 shuffled reads that is 222 GB of I/O for 7 GB of data, and
+        # it starved an RTX 3050 down to 0.36 s/step on a model that should run
+        # at under 0.1. h5py's default 1 MB chunk cache cannot help, being
+        # smaller than a single chunk. One galaxy per chunk costs a little
+        # space in metadata and removes the amplification entirely.
         dst = g.create_dataset(
             "image",
             shape=(n_keep,) + img_shape,
             dtype=np.float32,
-            chunks=(min(32, n_keep),) + img_shape,
+            chunks=(1,) + img_shape,
         )
         for start in range(0, n_keep, chunk_size):
             stop = min(start + chunk_size, n_keep)

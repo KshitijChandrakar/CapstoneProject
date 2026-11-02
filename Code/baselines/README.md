@@ -270,6 +270,41 @@ python scripts/08_train_b2.py --residual-on-z # predict a correction to z, not y
 `10_benchmark_all.py` reports whichever models have been run and names the
 ones that have not, so it is useful after B2 alone.
 
+### If training is slower than it should be
+
+Measured on an RTX 3050 6 GB Laptop, B2 ran at **0.363 s/step**, about 8 minutes
+an epoch and 5h 20m for a single 40-epoch seed. The GPU was not the limit --
+it oscillated between 0 and 100% rather than sitting pinned, the data-starvation
+signature.
+
+The cause was the HDF5 chunk layout. `preprocess.py` wrote the image dataset
+with `chunks=(32, 5, 64, 64)` = 2.6 MB, and HDF5 must read a whole chunk to
+return any element of it. Training reads single random indices, so every galaxy
+cost a 2.6 MB read to deliver 80 KB:
+
+| | per epoch |
+|---|---|
+| data actually consumed | 6.96 GB |
+| data actually read | **222 GB** |
+| implied sustained rate at 482 s/epoch | 462 MB/s -- i.e. the disk, saturated |
+
+h5py's default 1 MB chunk cache cannot help, being smaller than a single chunk.
+`preprocess.py` now writes one galaxy per chunk. For files already prepared:
+
+```bash
+python scripts/11_rechunk_processed.py --dry-run   # report the layout
+python scripts/11_rechunk_processed.py             # rewrite, then verify
+```
+
+It copies the pixels unchanged, checks a sample of galaxies bitwise including
+NaNs plus every catalogue column, and only then replaces the original. **No
+result moves** -- the pixel data is identical and only the read pattern changes.
+
+`num_workers` was not the fix and is still 0 by default. Raising it is now safe
+(each worker gets its own augmentation stream, which it did not before -- see
+`tests/test_dataloader_perf.py`), but after rechunking the GPU is the limit, so
+the gain is small and it costs bit-comparability with earlier runs.
+
 ### What B2 is for
 
 One question: **how much of the remaining error was spatial?** B1 bought 6.5%

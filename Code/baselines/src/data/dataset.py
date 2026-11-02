@@ -93,9 +93,19 @@ class GalaxyDataset(Dataset):
     # -- lazy handle -------------------------------------------------------
 
     def _handle(self) -> h5py.File:
-        """Per-process file handle, opened on first use inside the worker."""
+        """Per-process file handle, opened on first use inside the worker.
+
+        The raw chunk cache is raised from h5py's 1 MB default. A file written
+        by the current ``preprocess.py`` holds one galaxy per chunk, so the
+        cache is not strictly needed; files written before that change hold 32
+        galaxies in a 2.6 MB chunk, which a 1 MB cache cannot hold at all, so
+        every read re-read the chunk from disk. 64 MB covers either layout and
+        lets the sequential evaluation loaders reuse what they fetch.
+        """
         if self._file is None:
-            self._file = h5py.File(self.h5_path, "r")
+            self._file = h5py.File(
+                self.h5_path, "r", rdcc_nbytes=64 * 1024 ** 2, rdcc_nslots=1013
+            )
         return self._file
 
     def _raw_image(self, i: int) -> np.ndarray:
@@ -161,6 +171,38 @@ class GalaxyDataset(Dataset):
                 f"{where}, augment={self.augmenter is not None})")
 
 
+def _make_worker_init(seed: int):
+    """Give each worker its own augmentation stream, deterministically.
+
+    Workers receive a copy of the dataset, so without this every worker would
+    draw the same flips and rotations from an identically seeded generator.
+    Augmentation diversity would quietly collapse to 1/num_workers with no
+    visible symptom -- the loss curve would look entirely normal.
+
+    Seeding from (seed, worker_id) keeps a run reproducible for a given
+    num_workers. It is NOT comparable across different num_workers: the
+    augmentation stream differs, so a run at 4 workers will not reproduce one
+    at 0 bit-for-bit. Both are valid; they are different samples.
+    """
+
+    def worker_init(worker_id: int) -> None:
+        info = torch.utils.data.get_worker_info()
+        if info is None:
+            return
+        augmenter = getattr(info.dataset, "augmenter", None)
+        if augmenter is None:
+            return
+        # SeedSequence.spawn is the documented way to derive independent
+        # streams. An earlier version passed [seed, worker_id] straight to
+        # default_rng, which looks equivalent and is not: NumPy strips
+        # trailing zeros from seed entropy, so [42, 0] is literally the same
+        # seed as 42, and worker 0 reproduced the un-workered stream exactly.
+        child = np.random.SeedSequence(seed).spawn(info.num_workers)[worker_id]
+        augmenter.reseed(child)
+
+    return worker_init
+
+
 def make_dataloader(
     dataset: GalaxyDataset,
     batch_size: int,
@@ -183,4 +225,5 @@ def make_dataloader(
         # Never persist: a lingering worker keeps an HDF5 handle open and
         # deadlocks the next seed's loader on Windows.
         persistent_workers=False,
+        worker_init_fn=_make_worker_init(seed) if num_workers > 0 else None,
     )

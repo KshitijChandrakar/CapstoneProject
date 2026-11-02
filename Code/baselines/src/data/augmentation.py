@@ -37,6 +37,17 @@ class AstronomicalAugmentation:
         self.vflip = vflip
         self._rng = np.random.default_rng(seed)
 
+    def reseed(self, seed) -> None:
+        """Point this instance at a fresh generator.
+
+        Needed because DataLoader workers each receive a *copy* of the dataset,
+        augmenter included. Without a per-worker reseed every worker would draw
+        the identical sequence of flips and rotations, so the effective
+        augmentation diversity would silently drop to one worker's worth while
+        the training loss carried on looking perfectly healthy.
+        """
+        self._rng = np.random.default_rng(seed)
+
     def sample_params(self) -> dict[str, int | bool]:
         """Draw one transform. Call once per galaxy, apply to every band."""
         return {
