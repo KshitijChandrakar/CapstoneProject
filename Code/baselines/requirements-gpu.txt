@@ -23,14 +23,20 @@
 
 # The "+cu130" local version is load-bearing and must stay exact.
 #
-# PyPI also publishes torch 2.14.1, and on Windows that one is CPU-only. With a
-# loose requirement like "torch>=2.0", pip compares the two indexes and takes
-# the highest version it can find, which is how an earlier revision of this
-# file -- pointing at cu128, whose newest Windows/cp311 wheel is 2.11.0 --
-# silently installed 2.14.1+cpu from PyPI instead. The resulting environment
-# weighed the same as the CPU one and reported cuda.is_available() == False on
-# a perfectly good RTX 3050. Pinning the local version makes that substitution
-# impossible: no PyPI release carries a "+cu130" tag.
+# PyPI's Windows torch builds are CPU-only, and PyPI runs ahead of the CUDA
+# indexes: at the time of writing it carried 2.15.0 while cu130's newest
+# Windows/cp311 wheel was 2.14.1 and cu128's was 2.11.0. With a loose
+# requirement like "torch>=2.0", pip compares the indexes and takes the highest
+# version it can find anywhere, which is how an earlier revision of this file
+# -- pointing at cu128, with PyPI as an extra index -- silently installed
+# 2.15.0+cpu. The resulting environment weighed 991 MB against the CPU venv's
+# 979 MB and reported cuda.is_available() == False on a perfectly good RTX
+# 3050. Pinning the local version makes that substitution impossible: no PyPI
+# release carries a "+cu130" tag.
+#
+# Note the direction of that race. PyPI leading the CUDA indexes is the normal
+# state, not a transient one, so this pin will keep being necessary even as the
+# version numbers move.
 #
 # cu130 is chosen over cu126/cu128 because it is the only index carrying 2.14.1,
 # which matches the CPU environment's torch version exactly -- so the GPU and
@@ -56,5 +62,8 @@ matplotlib>=3.7
 # backward compatible -- but CUDA 13 wheels dropped support for GPUs older than
 # Turing (sm_75), so pre-2018 cards need a cu12x index and an older torch.
 #
-# ~2.0 GB download, unpacking to roughly 4-6 GB once the bundled CUDA runtime,
-# cuDNN and cuBLAS libraries land. An environment near 1 GB is a CPU one.
+# ~2.0 GB download. The installed environment measured 3.4 GB on Windows with
+# Python 3.11 -- CPython, torch and the bundled CUDA runtime, cuDNN and cuBLAS
+# libraries, plus the six other requirements. An environment near 1 GB is a CPU
+# one; that gap is wide enough to use as a check, and more reliable than
+# is_available() alone, which is a flag rather than a measurement.

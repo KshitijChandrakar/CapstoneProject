@@ -132,8 +132,21 @@ It should print `2.14.1+cu130 True`. If it prints anything ending `+cpu`, or
 `False`, **stop and tell us** -- do not go looking for the right wheel. That is
 our mistake to fix, and it has already happened once: the CPU and GPU indexes
 publish the same version number, so pip can quietly install the CPU build.
-A quick sanity check is size: a real CUDA environment is 4-6 GB, a CPU one about
-1 GB.
+A quick sanity check is size: a real CUDA environment measured 3.4 GB, a CPU
+one about 1 GB.
+
+`is_available()` is a flag, not a measurement. If you want to be sure the card
+is really being used rather than silently fallen back on, check that its
+compute capability is in the wheel's compiled list and that a matmul actually
+runs on it:
+
+```powershell
+python -c "import torch; print('cuda build:', torch.version.cuda); print('capability:', 'sm_%d%d' % torch.cuda.get_device_capability(0)); print('arch list :', torch.cuda.get_arch_list()); print('matmul OK :', bool((torch.randn(512,512,device='cuda') @ torch.randn(512,512,device='cuda')).isfinite().all()))"
+```
+
+The capability must appear in the arch list. CUDA 13 wheels compile for sm_75
+and newer, so a pre-Turing card will print `True` for `is_available()` and then
+fail or crawl.
 
 Once that prints `True`, run the models from that environment:
 
