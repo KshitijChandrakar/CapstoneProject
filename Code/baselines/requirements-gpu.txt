@@ -1,0 +1,38 @@
+# GPU variant of requirements.txt -- for B2 / B3 only.
+#
+# B0 and B1 do not need this; 5 parameters run fine on a CPU, which is why
+# requirements.txt pins the CPU wheel. B2 and B3 are ~1.9M-parameter U-Nets
+# over 84,911 training galaxies, and on CPU that is hours per seed.
+#
+# Install into a SEPARATE venv, so the working CPU environment that produced
+# the official B0/B1 numbers is left exactly as it is:
+#
+#   python -m venv .venv-gpu
+#   .venv-gpu\Scripts\activate       # Windows;  macOS/Linux: source .venv-gpu/bin/activate
+#   pip install -r requirements-gpu.txt
+#
+# Then CHECK, because a CPU wheel installs silently and reports no GPU:
+#
+#   python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
+#
+# A version ending in "+cpu", or False, means pip resolved the wrong wheel --
+# see the note at the bottom.
+
+--index-url https://download.pytorch.org/whl/cu128
+--extra-index-url https://pypi.org/simple
+
+numpy>=1.24
+h5py>=3.8
+pyyaml>=6.0
+torch>=2.0
+scikit-image>=0.21      # PSNR / SSIM
+scipy>=1.10             # solved reference optimum (also a scikit-image dependency)
+matplotlib>=3.7
+
+# If the cu128 index has no wheel for this Python version, try cu126:
+#
+#   pip install torch --index-url https://download.pytorch.org/whl/cu126
+#
+# The CUDA version in the wheel name does not have to match the driver's CUDA
+# version -- the driver is backward compatible, so a cu126 or cu128 wheel runs
+# on a newer driver. It does have to be a CUDA wheel rather than a "+cpu" one.

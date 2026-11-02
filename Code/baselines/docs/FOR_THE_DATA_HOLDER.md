@@ -110,6 +110,26 @@ minutes; on CPU it is hours per seed. **If this machine has no GPU, skip 4e and
 4f and say so** -- we will run them elsewhere, and everything above is still
 the deliverable.
 
+First check that torch can actually see the GPU, because our own
+`requirements.txt` installs the CPU-only wheel:
+
+```powershell
+python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
+```
+
+If that prints a version ending `+cpu`, or `False`, the models would fall back
+to CPU and take hours. Build a second environment rather than changing the one
+that produced the B0/B1 numbers:
+
+```powershell
+python -m venv .venv-gpu
+.\.venv-gpu\Scripts\Activate.ps1
+pip install -r requirements-gpu.txt
+python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
+```
+
+Once that prints `True`, run the models from that environment:
+
 ```powershell
 python scripts/08_train_b2.py
 python scripts/09_train_b3.py

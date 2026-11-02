@@ -230,7 +230,23 @@ initialisation noise as a learned result.
 
 B0 and B1 run on a laptop in minutes. B2 and B3 are ~1.9M-parameter
 convolutional nets over 84,911 training galaxies, so they want a GPU; on CPU
-expect hours per seed rather than minutes. Everything else is unchanged --
+expect hours per seed rather than minutes.
+
+**The GPU needs a separate environment.** `requirements.txt` pins the CPU wheel
+index, which is right for B0/B1 but sticky: an environment built from it keeps
+resolving the `+cpu` wheel, and that reports `torch.cuda.is_available() ==
+False` on perfectly good hardware. Use `requirements-gpu.txt` in its own venv
+and verify before training:
+
+```bash
+python -m venv .venv-gpu
+.venv-gpu\Scripts\activate
+pip install -r requirements-gpu.txt
+python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
+```
+
+A version ending `+cpu`, or `False`, means pip picked the wrong wheel -- fix
+that before running 08 or 09, not after. Everything else is unchanged --
 same splits, same standardisation, same photometry, same evaluation code, so
 the ladder table is a like-for-like comparison and not four separate
 experiments.

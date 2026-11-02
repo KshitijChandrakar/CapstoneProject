@@ -6,6 +6,10 @@
 #   pip install -r requirements.txt
 #
 # Installs the CPU build of PyTorch, which is ample for B1's 5 parameters.
+# B2 and B3 want a GPU -- use requirements-gpu.txt in a separate venv for
+# those. The CPU index below is sticky: installing into an environment made
+# from this file will keep resolving the "+cpu" wheel, which reports
+# torch.cuda.is_available() == False however good the hardware is.
 --extra-index-url https://download.pytorch.org/whl/cpu
 
 numpy>=1.24
