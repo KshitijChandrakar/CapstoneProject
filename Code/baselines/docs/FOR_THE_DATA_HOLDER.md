@@ -128,6 +128,13 @@ pip install -r requirements-gpu.txt
 python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
 ```
 
+It should print `2.14.1+cu130 True`. If it prints anything ending `+cpu`, or
+`False`, **stop and tell us** -- do not go looking for the right wheel. That is
+our mistake to fix, and it has already happened once: the CPU and GPU indexes
+publish the same version number, so pip can quietly install the CPU build.
+A quick sanity check is size: a real CUDA environment is 4-6 GB, a CPU one about
+1 GB.
+
 Once that prints `True`, run the models from that environment:
 
 ```powershell

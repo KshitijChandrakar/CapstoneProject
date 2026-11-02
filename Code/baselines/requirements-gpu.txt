@@ -15,24 +15,46 @@
 #
 #   python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
 #
-# A version ending in "+cpu", or False, means pip resolved the wrong wheel --
-# see the note at the bottom.
+# Expect "2.14.1+cu130 True". A version ending "+cpu", or False, means pip
+# resolved the wrong wheel -- see "If the pin is stale" below.
 
---index-url https://download.pytorch.org/whl/cu128
+--index-url https://download.pytorch.org/whl/cu130
 --extra-index-url https://pypi.org/simple
+
+# The "+cu130" local version is load-bearing and must stay exact.
+#
+# PyPI also publishes torch 2.14.1, and on Windows that one is CPU-only. With a
+# loose requirement like "torch>=2.0", pip compares the two indexes and takes
+# the highest version it can find, which is how an earlier revision of this
+# file -- pointing at cu128, whose newest Windows/cp311 wheel is 2.11.0 --
+# silently installed 2.14.1+cpu from PyPI instead. The resulting environment
+# weighed the same as the CPU one and reported cuda.is_available() == False on
+# a perfectly good RTX 3050. Pinning the local version makes that substitution
+# impossible: no PyPI release carries a "+cu130" tag.
+#
+# cu130 is chosen over cu126/cu128 because it is the only index carrying 2.14.1,
+# which matches the CPU environment's torch version exactly -- so the GPU and
+# CPU runs differ by build type alone, not by a point release as well.
+torch==2.14.1+cu130
 
 numpy>=1.24
 h5py>=3.8
 pyyaml>=6.0
-torch>=2.0
 scikit-image>=0.21      # PSNR / SSIM
 scipy>=1.10             # solved reference optimum (also a scikit-image dependency)
 matplotlib>=3.7
 
-# If the cu128 index has no wheel for this Python version, try cu126:
+# -- If the pin is stale -------------------------------------------------------
 #
-#   pip install torch --index-url https://download.pytorch.org/whl/cu126
+# A newer torch, a different Python, or an older GPU may need another index.
+# Do not loosen the pin; find the right one and pin that instead:
 #
-# The CUDA version in the wheel name does not have to match the driver's CUDA
-# version -- the driver is backward compatible, so a cu126 or cu128 wheel runs
-# on a newer driver. It does have to be a CUDA wheel rather than a "+cpu" one.
+#   pip index versions torch --index-url https://download.pytorch.org/whl/cu130
+#
+# Then pin the exact version that command reports, keeping the "+cuXXX" suffix.
+# The wheel's CUDA version does not have to match the driver's -- drivers are
+# backward compatible -- but CUDA 13 wheels dropped support for GPUs older than
+# Turing (sm_75), so pre-2018 cards need a cu12x index and an older torch.
+#
+# ~2.0 GB download, unpacking to roughly 4-6 GB once the bundled CUDA runtime,
+# cuDNN and cuBLAS libraries land. An environment near 1 GB is a CPU one.

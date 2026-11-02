@@ -245,8 +245,14 @@ pip install -r requirements-gpu.txt
 python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
 ```
 
-A version ending `+cpu`, or `False`, means pip picked the wrong wheel -- fix
-that before running 08 or 09, not after. Everything else is unchanged --
+Expect `2.14.1+cu130 True`. A version ending `+cpu`, or `False`, means pip
+picked the wrong wheel -- fix that before running 08 or 09, not after.
+
+`requirements-gpu.txt` pins torch to an exact `+cu130` local version, and that
+pin is load-bearing: PyPI publishes the same version number as a CPU-only
+Windows build, so a loose `torch>=2.0` lets pip take whichever index offers the
+higher version and install the CPU wheel without a word. The file's footer says
+how to move the pin if it goes stale. Everything else is unchanged --
 same splits, same standardisation, same photometry, same evaluation code, so
 the ladder table is a like-for-like comparison and not four separate
 experiments.
