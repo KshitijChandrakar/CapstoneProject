@@ -200,6 +200,8 @@ def main() -> int:
     print("=" * 74)
     print("Rechunk processed files to one galaxy per HDF5 chunk")
     print("=" * 74)
+    print("\nThe layout reported below is the CURRENT one, before any change.")
+    print("32 galaxies per chunk is the problem; 1 is the goal.")
 
     todo: list[tuple[Path, dict]] = []
     for split in splits:
