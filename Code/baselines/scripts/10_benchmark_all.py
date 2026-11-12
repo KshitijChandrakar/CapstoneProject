@@ -115,10 +115,17 @@ def read_model(res_dir: Path, name: str, filename: str, split: str) -> dict | No
     }
 
 
-def _fmt(mean, std, nd: int) -> str:
+def _fmt(mean, std, nd: int, n_seeds: int = 0) -> str:
+    """One table cell.
+
+    A single-seed run has no seed-to-seed spread to report. Printing
+    "+/- 0.0000" for it would claim a repeatability that was never measured,
+    and the zero is indistinguishable from three seeds that happened to agree
+    perfectly. One seed prints the mean alone.
+    """
     if mean is None or not np.isfinite(mean):
         return "--"
-    if std is None or not np.isfinite(std):
+    if std is None or not np.isfinite(std) or n_seeds < 2:
         return f"{mean:.{nd}f}"
     return f"{mean:.{nd}f} ± {std:.{nd}f}"
 
@@ -137,6 +144,47 @@ def best_per_metric(models: dict) -> dict[str, str]:
     return winners
 
 
+def seed_sentence(models: dict) -> str:
+    """Say exactly which seeds each trained model used.
+
+    An earlier version printed B1's seed list as though it covered every
+    trained model. When B2 and B3 were run with a single seed that caption
+    claimed three, and the "+/- 0.0000" beside it looked like three seeds
+    agreeing perfectly rather than one seed with nothing to compare against.
+    A results table that overstates its own repeatability is worse than one
+    that admits a single seed, so the seeds are now reported per model.
+    """
+    groups: dict[tuple, list[str]] = {}
+    for m in models.values():
+        seeds = tuple(m.get("seeds") or [])
+        if not seeds:
+            continue                      # B0 has no seeds: it does not train
+        groups.setdefault(seeds, []).append(m["label"])
+
+    if not groups:
+        return ""
+    if len(groups) == 1:
+        seeds, labels = next(iter(groups.items()))
+        if len(seeds) == 1:
+            return (f" Trained models are a **single run at seed {seeds[0]}**, "
+                    "so no seed-to-seed spread is available and none is quoted.")
+        return (f" Trained models are the mean over seeds {list(seeds)}; "
+                "± is the seed-to-seed standard deviation.")
+
+    parts = []
+    for seeds, labels in groups.items():
+        who = ", ".join(labels)
+        if len(seeds) == 1:
+            parts.append(f"{who} at a single seed ({seeds[0]}), so no ±")
+        else:
+            parts.append(f"{who} over seeds {list(seeds)}")
+    return (" Seeds differ between models: " + "; ".join(parts)
+            + ". ± is the seed-to-seed standard deviation where one exists. "
+            "**Rows with different seed counts are not equally repeatable** and "
+            "a difference between them should not be read as significant "
+            "without rerunning the single-seed models.")
+
+
 def write_table(cfg, models: dict, split: str) -> tuple[Path, Path]:
     """The ladder table, as markdown and LaTeX."""
     winners = best_per_metric(models)
@@ -150,7 +198,7 @@ def write_table(cfg, models: dict, split: str) -> tuple[Path, Path]:
         cells = []
         for head, _, nd, _ in METRICS:
             mean, std = m["cells"][head]
-            text = _fmt(mean, std, nd)
+            text = _fmt(mean, std, nd, len(m.get("seeds") or []))
             if winners.get(head) == name and text != "--":
                 text = f"**{text}**"
             cells.append(text)
@@ -165,10 +213,9 @@ def write_table(cfg, models: dict, split: str) -> tuple[Path, Path]:
         f"Evaluated on the official GalaxiesML **{split}** split"
         + (f": **{n_eval:,} galaxies**" if n_eval else "")
         + f", {ds['z_min']} ≤ z < {ds['z_max']}, in physical flux units. "
-        "Trained models are the mean over seeds "
-        f"{models.get('b1', models.get('b2', {})).get('seeds', [])}; "
-        "± is the seed-to-seed standard deviation. Arrows mark the good "
-        "direction and the best value in each column is bold.",
+        + seed_sentence(models)
+        + " Arrows mark the good direction and the best value in each column "
+        "is bold.",
     ]
 
     gains = improvement_rows(models)
@@ -211,7 +258,7 @@ def write_table(cfg, models: dict, split: str) -> tuple[Path, Path]:
         r"\hline",
     ]
     for name, m in models.items():
-        cells = [_fmt(*m["cells"][head][:2], nd)
+        cells = [_fmt(*m["cells"][head][:2], nd, len(m.get("seeds") or []))
                  for head, _, nd, _ in METRICS]
         params = "--" if m["n_parameters"] is None else f"{m['n_parameters']:,}"
         label = m["label"].replace("_", r"\_")
