@@ -175,6 +175,62 @@ def evaluate_with_uncertainty(
     return result
 
 
+def merge_with_existing(per_seed: list[dict], path, label: str) -> list[dict]:
+    """Fold freshly trained seeds into whatever the metrics file already holds.
+
+    Training one seed at a time is the only sane way to use a single GPU over
+    several nights, but each run used to rewrite the metrics file with just its
+    own seed -- so finishing seed 123 silently destroyed seed 42 and the table
+    went back to claiming a single run. Earlier seeds are now kept.
+
+    A seed trained again replaces its older entry, so a rerun after a code
+    change does the obvious thing. Merging is refused outright when the stored
+    architecture or parameter count differs from the new run, because averaging
+    two different models and calling the spread "seed-to-seed variance" would
+    be worse than having no error bars at all.
+    """
+    import json
+    from pathlib import Path
+
+    path = Path(path)
+    if not path.exists():
+        return list(per_seed)
+
+    try:
+        old = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        print(f"  [!] cannot read {path.name} ({exc}); keeping only this run")
+        return list(per_seed)
+
+    kept = old.get("per_seed") or []
+    if not kept:
+        return list(per_seed)
+
+    new_arch = per_seed[0].get("architecture")
+    new_n = per_seed[0].get("n_parameters")
+    old_n = old.get("n_parameters")
+    old_arch = (kept[0] or {}).get("architecture")
+    if old_n != new_n or old_arch != new_arch:
+        print(f"  [!] {path.name} holds a different model "
+              f"({old_n:,} parameters vs {new_n:,}); starting fresh rather "
+              "than mixing two architectures into one mean.")
+        return list(per_seed)
+
+    fresh_seeds = {r["seed"] for r in per_seed}
+    carried = [r for r in kept if r.get("seed") not in fresh_seeds]
+    replaced = [r for r in kept if r.get("seed") in fresh_seeds]
+
+    merged = sorted(carried + list(per_seed), key=lambda r: r.get("seed", 0))
+    if carried:
+        print(f"  carried forward seed(s) "
+              f"{sorted(r['seed'] for r in carried)} from {path.name}")
+    if replaced:
+        print(f"  replaced seed(s) {sorted(r['seed'] for r in replaced)} "
+              "with this run")
+    print(f"  {label} now covers seeds {[r['seed'] for r in merged]}")
+    return merged
+
+
 def summarise_over_seeds(per_seed: list[dict]) -> dict:
     """mean / std of every numeric leaf across seed runs."""
     if not per_seed:

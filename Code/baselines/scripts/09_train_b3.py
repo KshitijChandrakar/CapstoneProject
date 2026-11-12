@@ -40,6 +40,7 @@ from src.data.dataset import GalaxyDataset, make_dataloader
 from src.data.preprocess import load_global_stats
 from src.evaluation.evaluator import (
     collect_predictions,
+    merge_with_existing,
     evaluate_with_uncertainty,
     summarise_over_seeds,
 )
@@ -66,6 +67,9 @@ def parse_args() -> argparse.Namespace:
                    help="ablation: train without redshift conditioning, so the "
                         "only difference from B2 is the NLL")
     p.add_argument("--tag", default="b3", help="output filename stem")
+    p.add_argument("--fresh", action="store_true",
+                   help="discard seeds already in the metrics file instead "
+                        "of merging this run into them")
     p.add_argument("--label", default=None,
                    help="human-readable name for the report")
     return p.parse_args()
@@ -306,6 +310,9 @@ def main() -> int:
     for ds in datasets.values():
         ds.close()
 
+    path = cfg.path("results_dir") / f"{args.tag}_metrics.json"
+    if not args.fresh:
+        per_seed = merge_with_existing(per_seed, path, label)
     summary = summarise_over_seeds([r["metrics"] for r in per_seed])
     out = {
         "model": "B3_unet_film_nll",
@@ -314,7 +321,7 @@ def main() -> int:
         "n_parameters": per_seed[0]["n_parameters"],
         "parameter_breakdown": per_seed[0]["parameter_breakdown"],
         "film_enabled": per_seed[0]["film_enabled"],
-        "seeds": seeds,
+        "seeds": [r["seed"] for r in per_seed],
         "architecture": per_seed[0]["architecture"],
         "film": per_seed[0]["film"],
         "uncertainty_settings": per_seed[0]["uncertainty_settings"],
@@ -326,7 +333,6 @@ def main() -> int:
         "anomaly_candidates_seed0": per_seed[0]["metrics"]["anomaly_candidates"],
         "per_seed": per_seed,
     }
-    path = cfg.path("results_dir") / f"{args.tag}_metrics.json"
     path.write_text(json.dumps(out, indent=2), encoding="utf-8")
 
     print_summary(out)
