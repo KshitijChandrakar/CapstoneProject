@@ -1,0 +1,1183 @@
+{
+  "model": "B2_unet",
+  "label": "B2 (U-Net)",
+  "tag": "b2",
+  "n_parameters": 1928705,
+  "seeds": [
+    42
+  ],
+  "architecture": {
+    "base_channels": 32,
+    "depth": 3,
+    "norm": "group",
+    "groups": 8,
+    "activation": "silu",
+    "dropout": 0.0,
+    "residual_on_z": false
+  },
+  "hyperparameters": {
+    "lr": 0.0003,
+    "weight_decay": 1e-05,
+    "epochs": 40,
+    "loss": "l1",
+    "optimizer": "adamw",
+    "scheduler": "cosine",
+    "batch_size": 64,
+    "grad_clip_norm": 1.0,
+    "early_stopping_patience": 8,
+    "optimiser_steps_max": 53080,
+    "optimiser_steps_run": 53080
+  },
+  "metrics_over_seeds": {
+    "pixel": {
+      "mae": {
+        "mean": 0.27392168613805384,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          0.27392168613805384
+        ]
+      },
+      "rmse": {
+        "mean": 0.7473559123717131,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          0.7473559123717131
+        ]
+      },
+      "n_valid_pixels": {
+        "mean": 69926912.0,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          69926912.0
+        ]
+      },
+      "n_invalid_pixels": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          0.0
+        ]
+      },
+      "psnr_mean": {
+        "mean": 40.456538891063744,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          40.456538891063744
+        ]
+      },
+      "psnr_std": {
+        "mean": 6.823343306917242,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          6.823343306917242
+        ]
+      },
+      "ssim_mean": {
+        "mean": 0.8917879247108615,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          0.8917879247108615
+        ]
+      },
+      "ssim_std": {
+        "mean": 0.19093893470375964,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          0.19093893470375964
+        ]
+      },
+      "n_galaxies_scored": {
+        "mean": 17072.0,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          17072.0
+        ]
+      },
+      "n_galaxies_skipped": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          0.0
+        ]
+      },
+      "n_galaxies_with_filled_pixels_for_ssim": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          0.0
+        ]
+      }
+    },
+    "photometry": {
+      "aperture": {
+        "radius_px": {
+          "mean": 15.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            15.0
+          ]
+        },
+        "center": {
+          "mean": NaN,
+          "std": NaN,
+          "n_seeds": 0
+        },
+        "n_pixels": {
+          "mean": 709.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            709.0
+          ]
+        }
+      },
+      "nonpositive_flux_handling": {
+        "mean": NaN,
+        "std": NaN,
+        "n_seeds": 0
+      },
+      "relative_flux_error": {
+        "median": {
+          "mean": 0.0002770779857909463,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.0002770779857909463
+          ]
+        },
+        "nmad": {
+          "mean": 0.015120142411156745,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.015120142411156745
+          ]
+        },
+        "mean": {
+          "mean": 0.0018183489772011282,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.0018183489772011282
+          ]
+        },
+        "std": {
+          "mean": 0.19582253761136365,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.19582253761136365
+          ]
+        },
+        "n": {
+          "mean": 17072.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            17072.0
+          ]
+        }
+      },
+      "delta_mag": {
+        "median": {
+          "mean": -0.00031174171312464694,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            -0.00031174171312464694
+          ]
+        },
+        "nmad": {
+          "mean": 0.016409154619335387,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.016409154619335387
+          ]
+        },
+        "mean": {
+          "mean": -0.0007331745437523445,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            -0.0007331745437523445
+          ]
+        },
+        "std": {
+          "mean": 0.06573954328568092,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.06573954328568092
+          ]
+        },
+        "n": {
+          "mean": 17060.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            17060.0
+          ]
+        },
+        "outlier_percent": {
+          "mean": 0.246189917936694,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.246189917936694
+          ]
+        },
+        "outlier_threshold": {
+          "mean": 0.5,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.5
+          ]
+        },
+        "zeropoint": {
+          "mean": 27.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            27.0
+          ]
+        },
+        "n_excluded_nonpositive_true_flux": {
+          "mean": 11.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            11.0
+          ]
+        },
+        "n_excluded_nonpositive_pred_flux": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            1.0
+          ]
+        },
+        "n_excluded_total": {
+          "mean": 12.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            12.0
+          ]
+        }
+      },
+      "colour_error_z_minus_y": {
+        "median": {
+          "mean": 0.00031174171312464694,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.00031174171312464694
+          ]
+        },
+        "nmad": {
+          "mean": 0.016409154619335387,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.016409154619335387
+          ]
+        },
+        "mean": {
+          "mean": 0.0007331745437523445,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.0007331745437523445
+          ]
+        },
+        "std": {
+          "mean": 0.06573954328568092,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.06573954328568092
+          ]
+        },
+        "n": {
+          "mean": 17060.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            17060.0
+          ]
+        },
+        "note": {
+          "mean": NaN,
+          "std": NaN,
+          "n_seeds": 0
+        },
+        "n_nonpositive_z_flux": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.0
+          ]
+        }
+      },
+      "delta_mag_by_brightness": {
+        "split_on": {
+          "mean": NaN,
+          "std": NaN,
+          "n_seeds": 0
+        },
+        "median_true_flux": {
+          "mean": 4024.4992852807045,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            4024.4992852807045
+          ]
+        },
+        "faint_half": {
+          "median": {
+            "mean": -0.001108368475390975,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              -0.001108368475390975
+            ]
+          },
+          "nmad": {
+            "mean": 0.019317769291344933,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.019317769291344933
+            ]
+          },
+          "mean": {
+            "mean": -0.002220046952185199,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              -0.002220046952185199
+            ]
+          },
+          "std": {
+            "mean": 0.09086831747406038,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.09086831747406038
+            ]
+          },
+          "n": {
+            "mean": 8530.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              8530.0
+            ]
+          }
+        },
+        "bright_half": {
+          "median": {
+            "mean": 0.00017734462135621243,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.00017734462135621243
+            ]
+          },
+          "nmad": {
+            "mean": 0.014158253771347084,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.014158253771347084
+            ]
+          },
+          "mean": {
+            "mean": 0.0007536978646805098,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.0007536978646805098
+            ]
+          },
+          "std": {
+            "mean": 0.019542323381197196,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.019542323381197196
+            ]
+          },
+          "n": {
+            "mean": 8530.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              8530.0
+            ]
+          }
+        }
+      }
+    },
+    "magnitude_handling_comparison": {
+      "exclude": {
+        "delta_mag": {
+          "median": {
+            "mean": -0.00031174171312464694,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              -0.00031174171312464694
+            ]
+          },
+          "nmad": {
+            "mean": 0.016409154619335387,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.016409154619335387
+            ]
+          },
+          "mean": {
+            "mean": -0.0007331745437523445,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              -0.0007331745437523445
+            ]
+          },
+          "std": {
+            "mean": 0.06573954328568092,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.06573954328568092
+            ]
+          },
+          "n": {
+            "mean": 17060.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              17060.0
+            ]
+          },
+          "outlier_percent": {
+            "mean": 0.246189917936694,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.246189917936694
+            ]
+          },
+          "outlier_threshold": {
+            "mean": 0.5,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.5
+            ]
+          },
+          "zeropoint": {
+            "mean": 27.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              27.0
+            ]
+          },
+          "n_excluded_nonpositive_true_flux": {
+            "mean": 11.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              11.0
+            ]
+          },
+          "n_excluded_nonpositive_pred_flux": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              1.0
+            ]
+          },
+          "n_excluded_total": {
+            "mean": 12.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              12.0
+            ]
+          }
+        },
+        "colour_error_z_minus_y": {
+          "median": {
+            "mean": 0.00031174171312464694,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.00031174171312464694
+            ]
+          },
+          "nmad": {
+            "mean": 0.016409154619335387,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.016409154619335387
+            ]
+          },
+          "mean": {
+            "mean": 0.0007331745437523445,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.0007331745437523445
+            ]
+          },
+          "std": {
+            "mean": 0.06573954328568092,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.06573954328568092
+            ]
+          },
+          "n": {
+            "mean": 17060.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              17060.0
+            ]
+          },
+          "note": {
+            "mean": NaN,
+            "std": NaN,
+            "n_seeds": 0
+          },
+          "n_nonpositive_z_flux": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.0
+            ]
+          }
+        }
+      },
+      "clamp": {
+        "delta_mag": {
+          "median": {
+            "mean": -0.0003260083391065649,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              -0.0003260083391065649
+            ]
+          },
+          "nmad": {
+            "mean": 0.01642329915821274,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.01642329915821274
+            ]
+          },
+          "mean": {
+            "mean": -0.04704110828865029,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              -0.04704110828865029
+            ]
+          },
+          "std": {
+            "mean": 2.088781984604359,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              2.088781984604359
+            ]
+          },
+          "n": {
+            "mean": 17072.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              17072.0
+            ]
+          },
+          "outlier_percent": {
+            "mean": 0.3163074039362699,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.3163074039362699
+            ]
+          },
+          "outlier_threshold": {
+            "mean": 0.5,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.5
+            ]
+          },
+          "zeropoint": {
+            "mean": 27.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              27.0
+            ]
+          },
+          "n_excluded_nonpositive_true_flux": {
+            "mean": 11.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              11.0
+            ]
+          },
+          "n_excluded_nonpositive_pred_flux": {
+            "mean": 1.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              1.0
+            ]
+          },
+          "n_excluded_total": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.0
+            ]
+          }
+        },
+        "colour_error_z_minus_y": {
+          "median": {
+            "mean": 0.0003260083391065649,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.0003260083391065649
+            ]
+          },
+          "nmad": {
+            "mean": 0.01642329915821274,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.01642329915821274
+            ]
+          },
+          "mean": {
+            "mean": 0.04704110828865029,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.04704110828865029
+            ]
+          },
+          "std": {
+            "mean": 2.088781984604359,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              2.088781984604359
+            ]
+          },
+          "n": {
+            "mean": 17072.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              17072.0
+            ]
+          },
+          "note": {
+            "mean": NaN,
+            "std": NaN,
+            "n_seeds": 0
+          },
+          "n_nonpositive_z_flux": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.0
+            ]
+          }
+        }
+      }
+    },
+    "n_galaxies": {
+      "mean": 17072.0,
+      "std": 0.0,
+      "n_seeds": 1,
+      "values": [
+        17072.0
+      ]
+    }
+  },
+  "per_seed": [
+    {
+      "model": "B2_unet",
+      "seed": 42,
+      "n_parameters": 1928705,
+      "architecture": {
+        "base_channels": 32,
+        "depth": 3,
+        "norm": "group",
+        "groups": 8,
+        "activation": "silu",
+        "dropout": 0.0,
+        "residual_on_z": false
+      },
+      "hyperparameters": {
+        "lr": 0.0003,
+        "weight_decay": 1e-05,
+        "epochs": 40,
+        "loss": "l1",
+        "optimizer": "adamw",
+        "scheduler": "cosine",
+        "batch_size": 64,
+        "grad_clip_norm": 1.0,
+        "early_stopping_patience": 8,
+        "optimiser_steps_max": 53080,
+        "optimiser_steps_run": 53080
+      },
+      "best_val_loss": 0.04311495058155104,
+      "best_epoch": 40,
+      "epochs_run": 40,
+      "stopped_early": false,
+      "checkpoint": "D:\\baselines_B0_B1\\baselines\\results\\checkpoints\\b2_seed42.pt",
+      "history": [
+        {
+          "epoch": 1,
+          "total_epochs": 40,
+          "train_loss": 0.05519988735647873,
+          "val_loss": 0.048339992539206546,
+          "lr": 0.0003
+        },
+        {
+          "epoch": 2,
+          "total_epochs": 40,
+          "train_loss": 0.04880693474589386,
+          "val_loss": 0.04775613315625867,
+          "lr": 0.00029953760005996916
+        },
+        {
+          "epoch": 3,
+          "total_epochs": 40,
+          "train_loss": 0.04773919748952268,
+          "val_loss": 0.047041910943755906,
+          "lr": 0.00029815325108927063
+        },
+        {
+          "epoch": 4,
+          "total_epochs": 40,
+          "train_loss": 0.04703184147874215,
+          "val_loss": 0.046156585181771376,
+          "lr": 0.0002958554880596515
+        },
+        {
+          "epoch": 5,
+          "total_epochs": 40,
+          "train_loss": 0.04671436040392026,
+          "val_loss": 0.04597503004540036,
+          "lr": 0.00029265847744427303
+        },
+        {
+          "epoch": 6,
+          "total_epochs": 40,
+          "train_loss": 0.04629609727363166,
+          "val_loss": 0.04526839529011232,
+          "lr": 0.000288581929876693
+        },
+        {
+          "epoch": 7,
+          "total_epochs": 40,
+          "train_loss": 0.046132884630491255,
+          "val_loss": 0.04555686380463972,
+          "lr": 0.0002836509786282552
+        },
+        {
+          "epoch": 8,
+          "total_epochs": 40,
+          "train_loss": 0.04586577263591248,
+          "val_loss": 0.04538487207922918,
+          "lr": 0.00027789602465311383
+        },
+        {
+          "epoch": 9,
+          "total_epochs": 40,
+          "train_loss": 0.045614665518735886,
+          "val_loss": 0.04575591005468324,
+          "lr": 0.0002713525491562421
+        },
+        {
+          "epoch": 10,
+          "total_epochs": 40,
+          "train_loss": 0.04547381168055912,
+          "val_loss": 0.04552802852174239,
+          "lr": 0.00026406089484000466
+        },
+        {
+          "epoch": 11,
+          "total_epochs": 40,
+          "train_loss": 0.045276791789339466,
+          "val_loss": 0.04547100660127046,
+          "lr": 0.0002560660171779821
+        },
+        {
+          "epoch": 12,
+          "total_epochs": 40,
+          "train_loss": 0.045171276223372046,
+          "val_loss": 0.04449361375074333,
+          "lr": 0.0002474172072495276
+        },
+        {
+          "epoch": 13,
+          "total_epochs": 40,
+          "train_loss": 0.04497214303981476,
+          "val_loss": 0.0449474490831481,
+          "lr": 0.000238167787843871
+        },
+        {
+          "epoch": 14,
+          "total_epochs": 40,
+          "train_loss": 0.044892022348294695,
+          "val_loss": 0.04417039262158657,
+          "lr": 0.00022837478470739232
+        },
+        {
+          "epoch": 15,
+          "total_epochs": 40,
+          "train_loss": 0.04473984765047495,
+          "val_loss": 0.0452923060867435,
+          "lr": 0.000218098574960932
+        },
+        {
+          "epoch": 16,
+          "total_epochs": 40,
+          "train_loss": 0.04464442500481052,
+          "val_loss": 0.04411884584227827,
+          "lr": 0.00020740251485476348
+        },
+        {
+          "epoch": 17,
+          "total_epochs": 40,
+          "train_loss": 0.04455343199600469,
+          "val_loss": 0.04462286767396909,
+          "lr": 0.00019635254915624213
+        },
+        {
+          "epoch": 18,
+          "total_epochs": 40,
+          "train_loss": 0.04442699222678786,
+          "val_loss": 0.04471761272497364,
+          "lr": 0.00018501680457838585
+        },
+        {
+          "epoch": 19,
+          "total_epochs": 40,
+          "train_loss": 0.04430833509151165,
+          "val_loss": 0.04404071545395166,
+          "lr": 0.00017346516975603465
+        },
+        {
+          "epoch": 20,
+          "total_epochs": 40,
+          "train_loss": 0.0441668523361832,
+          "val_loss": 0.04391475354752211,
+          "lr": 0.00016176886435917675
+        },
+        {
+          "epoch": 21,
+          "total_epochs": 40,
+          "train_loss": 0.04406117007540596,
+          "val_loss": 0.044461984646075696,
+          "lr": 0.00015
+        },
+        {
+          "epoch": 22,
+          "total_epochs": 40,
+          "train_loss": 0.043972727371703976,
+          "val_loss": 0.04367764979434102,
+          "lr": 0.00013823113564082325
+        },
+        {
+          "epoch": 23,
+          "total_epochs": 40,
+          "train_loss": 0.04383646840539837,
+          "val_loss": 0.0440046221657253,
+          "lr": 0.00012653483024396538
+        },
+        {
+          "epoch": 24,
+          "total_epochs": 40,
+          "train_loss": 0.04377686754767394,
+          "val_loss": 0.043594771210771446,
+          "lr": 0.00011498319542161417
+        },
+        {
+          "epoch": 25,
+          "total_epochs": 40,
+          "train_loss": 0.043642648134293555,
+          "val_loss": 0.04367026796481058,
+          "lr": 0.00010364745084375787
+        },
+        {
+          "epoch": 26,
+          "total_epochs": 40,
+          "train_loss": 0.043559339986699995,
+          "val_loss": 0.04358459002018642,
+          "lr": 9.259748514523652e-05
+        },
+        {
+          "epoch": 27,
+          "total_epochs": 40,
+          "train_loss": 0.04348306903319424,
+          "val_loss": 0.04352391709976677,
+          "lr": 8.190142503906796e-05
+        },
+        {
+          "epoch": 28,
+          "total_epochs": 40,
+          "train_loss": 0.04336959654753066,
+          "val_loss": 0.043601520581921537,
+          "lr": 7.162521529260765e-05
+        },
+        {
+          "epoch": 29,
+          "total_epochs": 40,
+          "train_loss": 0.04327448145307449,
+          "val_loss": 0.04342524833810418,
+          "lr": 6.183221215612902e-05
+        },
+        {
+          "epoch": 30,
+          "total_epochs": 40,
+          "train_loss": 0.043184001683717214,
+          "val_loss": 0.04340671585288955,
+          "lr": 5.258279275047245e-05
+        },
+        {
+          "epoch": 31,
+          "total_epochs": 40,
+          "train_loss": 0.0431075382559436,
+          "val_loss": 0.043277697317969446,
+          "lr": 4.393398282201786e-05
+        },
+        {
+          "epoch": 32,
+          "total_epochs": 40,
+          "train_loss": 0.043039790800328354,
+          "val_loss": 0.04326871506619587,
+          "lr": 3.5939105159995345e-05
+        },
+        {
+          "epoch": 33,
+          "total_epochs": 40,
+          "train_loss": 0.04297426833119173,
+          "val_loss": 0.04322235135417154,
+          "lr": 2.8647450843757884e-05
+        },
+        {
+          "epoch": 34,
+          "total_epochs": 40,
+          "train_loss": 0.04289602652225803,
+          "val_loss": 0.04323295077114408,
+          "lr": 2.210397534688616e-05
+        },
+        {
+          "epoch": 35,
+          "total_epochs": 40,
+          "train_loss": 0.04284876431728002,
+          "val_loss": 0.04316998706824744,
+          "lr": 1.6349021371744823e-05
+        },
+        {
+          "epoch": 36,
+          "total_epochs": 40,
+          "train_loss": 0.04280346865290614,
+          "val_loss": 0.04312543327739434,
+          "lr": 1.1418070123306984e-05
+        },
+        {
+          "epoch": 37,
+          "total_epochs": 40,
+          "train_loss": 0.042781236227082416,
+          "val_loss": 0.04314169192464271,
+          "lr": 7.3415225557269666e-06
+        },
+        {
+          "epoch": 38,
+          "total_epochs": 40,
+          "train_loss": 0.04273778811860731,
+          "val_loss": 0.043119468045101236,
+          "lr": 4.144511940348515e-06
+        },
+        {
+          "epoch": 39,
+          "total_epochs": 40,
+          "train_loss": 0.042728404095501674,
+          "val_loss": 0.04311799182236862,
+          "lr": 1.8467489107293504e-06
+        },
+        {
+          "epoch": 40,
+          "total_epochs": 40,
+          "train_loss": 0.04271944115372107,
+          "val_loss": 0.04311495058155104,
+          "lr": 4.623999400308053e-07
+        }
+      ],
+      "metrics": {
+        "pixel": {
+          "mae": 0.27392168613805384,
+          "rmse": 0.7473559123717131,
+          "n_valid_pixels": 69926912,
+          "n_invalid_pixels": 0,
+          "psnr_mean": 40.456538891063744,
+          "psnr_std": 6.823343306917242,
+          "ssim_mean": 0.8917879247108615,
+          "ssim_std": 0.19093893470375964,
+          "n_galaxies_scored": 17072,
+          "n_galaxies_skipped": 0,
+          "n_galaxies_with_filled_pixels_for_ssim": 0
+        },
+        "photometry": {
+          "aperture": {
+            "radius_px": 15.0,
+            "center": [
+              32.0,
+              32.0
+            ],
+            "n_pixels": 709
+          },
+          "nonpositive_flux_handling": "exclude",
+          "relative_flux_error": {
+            "median": 0.0002770779857909463,
+            "nmad": 0.015120142411156745,
+            "mean": 0.0018183489772011282,
+            "std": 0.19582253761136365,
+            "n": 17072
+          },
+          "delta_mag": {
+            "median": -0.00031174171312464694,
+            "nmad": 0.016409154619335387,
+            "mean": -0.0007331745437523445,
+            "std": 0.06573954328568092,
+            "n": 17060,
+            "outlier_percent": 0.246189917936694,
+            "outlier_threshold": 0.5,
+            "zeropoint": 27.0,
+            "n_excluded_nonpositive_true_flux": 11,
+            "n_excluded_nonpositive_pred_flux": 1,
+            "n_excluded_total": 12
+          },
+          "colour_error_z_minus_y": {
+            "median": 0.00031174171312464694,
+            "nmad": 0.016409154619335387,
+            "mean": 0.0007331745437523445,
+            "std": 0.06573954328568092,
+            "n": 17060,
+            "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+            "n_nonpositive_z_flux": 0
+          },
+          "delta_mag_by_brightness": {
+            "split_on": "median true aperture flux",
+            "median_true_flux": 4024.4992852807045,
+            "faint_half": {
+              "median": -0.001108368475390975,
+              "nmad": 0.019317769291344933,
+              "mean": -0.002220046952185199,
+              "std": 0.09086831747406038,
+              "n": 8530
+            },
+            "bright_half": {
+              "median": 0.00017734462135621243,
+              "nmad": 0.014158253771347084,
+              "mean": 0.0007536978646805098,
+              "std": 0.019542323381197196,
+              "n": 8530
+            }
+          }
+        },
+        "magnitude_handling_comparison": {
+          "exclude": {
+            "delta_mag": {
+              "median": -0.00031174171312464694,
+              "nmad": 0.016409154619335387,
+              "mean": -0.0007331745437523445,
+              "std": 0.06573954328568092,
+              "n": 17060,
+              "outlier_percent": 0.246189917936694,
+              "outlier_threshold": 0.5,
+              "zeropoint": 27.0,
+              "n_excluded_nonpositive_true_flux": 11,
+              "n_excluded_nonpositive_pred_flux": 1,
+              "n_excluded_total": 12
+            },
+            "colour_error_z_minus_y": {
+              "median": 0.00031174171312464694,
+              "nmad": 0.016409154619335387,
+              "mean": 0.0007331745437523445,
+              "std": 0.06573954328568092,
+              "n": 17060,
+              "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+              "n_nonpositive_z_flux": 0
+            }
+          },
+          "clamp": {
+            "delta_mag": {
+              "median": -0.0003260083391065649,
+              "nmad": 0.01642329915821274,
+              "mean": -0.04704110828865029,
+              "std": 2.088781984604359,
+              "n": 17072,
+              "outlier_percent": 0.3163074039362699,
+              "outlier_threshold": 0.5,
+              "zeropoint": 27.0,
+              "n_excluded_nonpositive_true_flux": 11,
+              "n_excluded_nonpositive_pred_flux": 1,
+              "n_excluded_total": 0
+            },
+            "colour_error_z_minus_y": {
+              "median": 0.0003260083391065649,
+              "nmad": 0.01642329915821274,
+              "mean": 0.04704110828865029,
+              "std": 2.088781984604359,
+              "n": 17072,
+              "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+              "n_nonpositive_z_flux": 0
+            }
+          }
+        },
+        "n_galaxies": 17072
+      }
+    }
+  ]
+}

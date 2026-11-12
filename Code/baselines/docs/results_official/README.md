@@ -8,12 +8,71 @@ B1 is mean ± std over seeds `[42, 123, 2026]`.
 
 ## Headline table
 
-| Model | Params | Test MAE ↓ | PSNR ↑ | SSIM ↑ | Flux NMAD ↓ | σ(mag) ↓ | Outlier % ↓ | σ(z−y) ↓ |
-|---|---|---|---|---|---|---|---|---|
-| **B0 (Copy-z)** | 0 | 0.3505 | 37.431 | 0.8694 | 0.0402 | 0.0431 | **0.504** | 0.0431 |
-| **B1 (Linear 1×1)** | 5 | **0.3276** | **37.991** | **0.8785** | **0.0395** | **0.0423** | 1.217 | **0.0423** |
+| Model | Params | Test MAE ↓ | PSNR ↑ | SSIM ↑ | Flux NMAD ↓ | σ(mag) ↓ | Outlier % ↓ |
+|---|---|---|---|---|---|---|---|
+| **B0** (Copy-z) | 0 | 0.3505 | 37.431 | 0.8694 | 0.0402 | 0.0431 | 0.504 |
+| **B1** (Linear 1×1) | 5 | 0.3276 ± 0.0000 | 37.991 ± 0.000 | 0.8785 ± 0.0000 | 0.0395 ± 0.0000 | 0.0423 ± 0.0000 | 1.217 ± 0.007 |
+| **B2** (U-Net) | 1,928,705 | **0.2739** | **40.457** | **0.8918** | 0.0151 | 0.0164 | **0.246** |
+| **B3** (U-Net+FiLM+NLL) | 1,975,778 | 0.2798 | 39.934 | 0.8913 | **0.0129** | **0.0140** | 0.299 |
 
-B1 wins on six of seven metrics. B0 wins on catastrophic outlier rate.
+> **Seeds differ between rows.** B1 is the mean over seeds [42, 123, 2026].
+> **B2 and B3 are a single run at seed 42**, so they have no seed-to-seed
+> spread and none is quoted. The B2-over-B1 gap (16.4%) is far too large to be
+> seed noise and stands on its own. **The B3-vs-B2 gap (2.1% MAE) is not
+> safe to interpret** until B2 and B3 are rerun at further seeds — and that has
+> to happen before P1–P3 are compared against B3, or the comparison cannot be
+> read at all.
+
+### What each rung bought
+
+| Step | MAE change | Params added | MAE gain per 10k params |
+|---|---|---|---|
+| B0 → B1 | 0.3505 → 0.3276 (−6.5%) | 5 | 45.8 |
+| B1 → B2 | 0.3276 → 0.2739 (−16.4%) | 1,928,700 | 0.000278 |
+| B2 → B3 | 0.2739 → 0.2798 (+2.1%) | 47,073 | −0.00125 |
+
+**Capacity is no longer the constraint.** B1 bought 6.5% with five parameters;
+B2 bought 16.4% with 1.9 million — a per-parameter efficiency roughly 165,000×
+worse. That collapse is the argument for physics-informed models rather than a
+bigger network.
+
+The photometry tells the same story more sharply: flux NMAD fell 0.0395 →
+0.0151 (**−62%**) from B1 to B2, and B2's catastrophic outlier rate of 0.246%
+is **better than B0's** 0.504% — so the spatial model repairs the tail
+regression that B1 introduced.
+
+### B3's uncertainty
+
+| Quantity | Value | Verdict |
+|---|---|---|
+| NLL per pixel | 0.2995 | the only metric directly comparable to P1–P3 |
+| (y−μ)/σ spread | **1.044** | 1.0 is honest — **calibrated** |
+| coverage at 0.50 / 0.68 / 0.95 | 52.9% / 70.6% / 94.8% | against nominal 50 / 68 / 95 |
+| median σ | 0.2849 | sharpness, meaningful because calibration holds |
+| Spearman(σ, \|error\|) | **+0.288** | > 0.2: it knows *where* it is uncertain |
+
+Both conditions the anomaly search needs are met: the error bars are honest,
+and σ tracks where the error actually is.
+
+### FiLM does almost nothing — a finding, not a bug
+
+The redshift conditioning moves B3's prediction by a **relative 0.0109 (≈1%)**
+when the same images are re-predicted across redshifts. So B3's advantages over
+B2 — better flux NMAD and σ(mag), plus error bars B2 cannot produce — come from
+the **variance head and the NLL objective, not from redshift**. FiLM's 47,040
+parameters are close to inert.
+
+This matters for P1–P3: it says a physics model conditioned on redshift should
+not expect the conditioning alone to buy anything, and that B3 is a control
+whose strength lies in its uncertainty modelling.
+
+### Training
+
+Both models ran 40 epochs with a cosine schedule decaying from 3.0e-4 to
+4.6e-7. Neither stopped early, and neither needed to: the last five epochs
+moved validation loss by **+0.13% (B2)** and **+0.01% (B3)**. They are
+converged, and more epochs on this schedule would change the fourth decimal
+place. B2 took 167 min and B3 175 min on an RTX 3050 6 GB Laptop.
 
 ## The four discussion answers
 
