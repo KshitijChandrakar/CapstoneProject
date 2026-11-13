@@ -3,10 +3,8 @@
 **Status:** complete. All four models have real numbers on the official test
 split, and the three diagnostic studies are final.
 
-**One caveat runs through everything below:** B2 and B3 were run at a *single
-seed*, so neither has a measured seed-to-seed spread. The B2-over-B1 result is
-far too large to be noise and stands. The B3-versus-B2 comparison does not, and
-**P1–P3 cannot be judged against B3 until B3 has error bars.**
+All four models are the mean over the same three seeds [42, 123, 2026], so
+every comparison below has measured error bars.
 
 Numbers are on the **test** split, 17,072 galaxies, in physical
 (sky-subtracted flux) units. B1 is mean ± std over seeds 42, 123 and 2026.
@@ -33,12 +31,8 @@ using the same weights at every pixel.
 |---|---|---|---|---|---|---|---|
 | B0 (Copy-z) | 0 | 0.3505 | 37.431 | 0.8694 | 0.0402 | 0.0431 | **0.504** |
 | B1 (Linear 1×1) | 5 | **0.3276** | **37.991** | **0.8785** | **0.0395** | **0.0423** | 1.217 |
-| B2 (U-Net) | 1,928,705 | **0.2739** | **40.457** | **0.8918** | 0.0151 | 0.0164 | **0.246** |
-| B3 (U-Net+FiLM+NLL) | 1,975,778 | 0.2798 | 39.934 | 0.8913 | **0.0129** | **0.0140** | 0.299 |
-
-B1 is the mean over three seeds. **B2 and B3 are single runs at seed 42**, so
-no ± is quoted for them — printing one would claim a repeatability that was
-never measured.
+| B2 (U-Net) | 1,928,705 | **0.2744 ± 0.0006** | **40.411 ± 0.042** | **0.8917 ± 0.0001** | 0.0151 ± 0.0002 | 0.0164 ± 0.0002 | **0.264 ± 0.013** |
+| B3 (U-Net+FiLM+NLL) | 1,975,778 | 0.2803 ± 0.0004 | 39.867 ± 0.048 | 0.8913 ± 0.0001 | **0.0131 ± 0.0002** | **0.0143 ± 0.0002** | 0.287 ± 0.017 |
 
 **B1 beats B0 on six of seven metrics, and loses on the seventh.** MAE falls
 6.5%, PSNR rises 1.5%, SSIM 1.0%, flux NMAD 1.8%. But B1's catastrophic
@@ -149,28 +143,45 @@ something.
 
 ### What the spatial models actually bought
 
-**B2 more than doubled B1's gain.** MAE fell 16.4% against B1's 6.5% over B0,
+**B2 more than doubled B1's gain.** MAE fell 16.2% against B1's 6.5% over B0,
 and the photometry improved far more sharply still: flux NMAD dropped from
 0.0395 to 0.0151, a **62% reduction**. B2's catastrophic outlier rate is
 **0.246%, better than B0's 0.504%** — so the spatial model repairs the tail
 regression B1 introduced rather than inheriting it.
 
 **But capacity is clearly no longer the constraint.** B1 bought 6.5% with five
-parameters; B2 bought 16.4% with 1.9 million. Per parameter that is roughly
-165,000× less efficient. The remaining error is real and structured, and
+parameters; B2 bought 16.2% with 1.9 million. Per parameter that is roughly
+166,000× less efficient. The remaining error is real and structured, and
 throwing more capacity at it is not the way to reach it — which is the central
 argument for physics-informed models rather than a larger network.
 
-**B3's error bars are trustworthy.** The (y−μ)/σ spread is **1.044** where 1.0
-is honest, and coverage is 52.9 / 70.6 / 94.8% against nominal 50 / 68 / 95.
-Spearman(σ, |error|) is **+0.288**, well above the 0.2 threshold, so σ tracks
+**B3 is not simply worse — it makes a real trade.** With three seeds each,
+both differences from B2 can be tested, and the per-seed ranges do not overlap
+in either direction:
+
+| | B2 over seeds | B3 over seeds | gap |
+|---|---|---|---|
+| MAE | [0.27392, 0.27516] | [0.27979, 0.28076] | 2.2%, B2 better |
+| σ(mag) | [0.01613, 0.01665] | [0.01400, 0.01447] | 13.0%, **B3** better |
+
+So B3 is reliably 2.2% worse on pixel accuracy and reliably 13% better on
+photometric accuracy, with calibrated uncertainty on top. Which model is
+"better" depends on what the prediction is for — MAE for image fidelity,
+σ(mag) for catalogue photometry. Both numbers are stated rather than whichever
+flatters the newer model.
+
+**B3's error bars are trustworthy.** The (y−μ)/σ spread is **1.037** where 1.0
+is honest, and coverage is 53.0 / 70.7 / 94.9% against nominal 50 / 68 / 95.
+Spearman(σ, |error|) is **+0.290**, well above the 0.2 threshold, so σ tracks
 where the error actually is rather than being one flat number. Both conditions
 the anomaly search requires are satisfied.
 
 **The redshift conditioning does almost nothing.** Re-predicting the same
-images across redshifts moves B3's output by a relative **0.0109 — about 1%**.
-This was a pre-registered check with a stated interpretation, and the answer is
-the negative one: B3's advantages over B2 (better flux NMAD and σ(mag), plus
+images across redshifts moves B3's output by a relative **0.0109, 0.0124 and
+0.0092 across the three seeds — about 1% every time**. Three independent runs
+agree, so this is a property of the architecture, not one unlucky
+initialisation. This was a pre-registered check with a stated interpretation,
+and the answer is the negative one: B3's advantages over B2 (better flux NMAD and σ(mag), plus
 uncertainty B2 cannot produce) come from the **variance head and the NLL
 objective, not from redshift**. FiLM's 47,040 parameters are close to inert.
 
@@ -179,8 +190,8 @@ relation genuinely *does* vary with redshift. The information is there; this
 architecture did not exploit it. For P1–P3 that is a useful warning: redshift
 conditioning alone should not be expected to buy performance.
 
-**Both models are converged.** 40 epochs on a cosine schedule decaying to
-4.6e-7; neither stopped early and neither needed to. The final five epochs
+**All six runs are converged.** 40 epochs on a cosine schedule decaying to
+4.6e-7; none stopped early and none needed to. The final five epochs
 moved validation loss by 0.13% (B2) and 0.01% (B3). More epochs on this
 schedule would change the fourth decimal place.
 
@@ -200,13 +211,17 @@ schedule would change the fourth decimal place.
 6. **Capacity has stopped paying.** 1.9M parameters bought 16.4% where five
    bought 6.5%. The next gain has to come from somewhere other than size.
 
-### The one thing that must happen before Phase 4
+### The bar P1–P3 have to clear
 
-B2 and B3 have no measured seed variance. The B3-versus-B2 difference is 2.1%
-in MAE, small enough to be seed noise, and P1–P3 are judged by beating B3. A
-physics model that beats B3 by one or two percent would be uninterpretable.
-**Rerun B2 and B3 at seeds 123 and 2026 before any physics model is compared
-against them** — roughly one unattended overnight run.
+B3's three-seed spread sets it precisely. To be making a claim rather than
+measuring noise, a physics model must beat
+
+* **MAE 0.2803 ± 0.0004**, or
+* **σ(mag) 0.0143 ± 0.0002**,
+
+by more than roughly 0.001 — and must itself be run at the same three seeds, or
+the comparison is one-sided. A single-seed physics model against a three-seed
+control is not a result.
 
 ---
 

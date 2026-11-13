@@ -12,52 +12,71 @@ B1 is mean ± std over seeds `[42, 123, 2026]`.
 |---|---|---|---|---|---|---|---|
 | **B0** (Copy-z) | 0 | 0.3505 | 37.431 | 0.8694 | 0.0402 | 0.0431 | 0.504 |
 | **B1** (Linear 1×1) | 5 | 0.3276 ± 0.0000 | 37.991 ± 0.000 | 0.8785 ± 0.0000 | 0.0395 ± 0.0000 | 0.0423 ± 0.0000 | 1.217 ± 0.007 |
-| **B2** (U-Net) | 1,928,705 | **0.2739** | **40.457** | **0.8918** | 0.0151 | 0.0164 | **0.246** |
-| **B3** (U-Net+FiLM+NLL) | 1,975,778 | 0.2798 | 39.934 | 0.8913 | **0.0129** | **0.0140** | 0.299 |
+| **B2** (U-Net) | 1,928,705 | **0.2744 ± 0.0006** | **40.411 ± 0.042** | **0.8917 ± 0.0001** | 0.0151 ± 0.0002 | 0.0164 ± 0.0002 | **0.264 ± 0.013** |
+| **B3** (U-Net+FiLM+NLL) | 1,975,778 | 0.2803 ± 0.0004 | 39.867 ± 0.048 | 0.8913 ± 0.0001 | **0.0131 ± 0.0002** | **0.0143 ± 0.0002** | 0.287 ± 0.017 |
 
-> **Seeds differ between rows.** B1 is the mean over seeds [42, 123, 2026].
-> **B2 and B3 are a single run at seed 42**, so they have no seed-to-seed
-> spread and none is quoted. The B2-over-B1 gap (16.4%) is far too large to be
-> seed noise and stands on its own. **The B3-vs-B2 gap (2.1% MAE) is not
-> safe to interpret** until B2 and B3 are rerun at further seeds — and that has
-> to happen before P1–P3 are compared against B3, or the comparison cannot be
-> read at all.
+All four rows are now the mean over the same three seeds [42, 123, 2026]; ± is
+the seed-to-seed standard deviation.
+
+### Are the B2 / B3 differences real? Yes — both of them
+
+With three seeds each the two differences can finally be judged, and **neither
+is seed noise**. The per-seed ranges do not overlap at all, so this needs no
+distributional assumption:
+
+| | B2 range over seeds | B3 range over seeds | gap | t |
+|---|---|---|---|---|
+| MAE | [0.27392, 0.27516] | [0.27979, 0.28076] | 2.2%, B2 better | ~12 |
+| σ(mag) | [0.01613, 0.01665] | [0.01400, 0.01447] | 13.0%, **B3** better | ~10 |
+
+**B3 trades pixel accuracy for photometric accuracy, and it is a real trade.**
+It is reliably 2.2% worse on MAE and reliably 13% better on σ(mag), with
+calibrated per-pixel uncertainty on top. Which model is "better" depends
+entirely on what the band prediction is for: MAE for image fidelity, σ(mag) for
+catalogue photometry.
+
+For the physics comparison this matters twice over. B3 is the control, so its
+error bars set the bar P1–P3 must clear: a physics model must beat **0.2803 ±
+0.0004** on MAE or **0.0143 ± 0.0002** on σ(mag) by more than roughly 0.001 to
+be making a claim rather than a noise measurement.
 
 ### What each rung bought
 
 | Step | MAE change | Params added | MAE gain per 10k params |
 |---|---|---|---|
 | B0 → B1 | 0.3505 → 0.3276 (−6.5%) | 5 | 45.8 |
-| B1 → B2 | 0.3276 → 0.2739 (−16.4%) | 1,928,700 | 0.000278 |
-| B2 → B3 | 0.2739 → 0.2798 (+2.1%) | 47,073 | −0.00125 |
+| B1 → B2 | 0.3276 → 0.2744 (−16.2%) | 1,928,700 | 0.000276 |
+| B2 → B3 | 0.2744 → 0.2803 (+2.2%) | 47,073 | −0.00126 |
 
-**Capacity is no longer the constraint.** B1 bought 6.5% with five parameters;
-B2 bought 16.4% with 1.9 million — a per-parameter efficiency roughly 165,000×
-worse. That collapse is the argument for physics-informed models rather than a
-bigger network.
+**Capacity has stopped paying.** B1 bought 6.5% with five parameters; B2 bought
+16.2% with 1.9 million — a per-parameter efficiency roughly 166,000× worse.
+That collapse is the argument for physics-informed models rather than a bigger
+network, and it is now a measured quantity rather than an expectation.
 
-The photometry tells the same story more sharply: flux NMAD fell 0.0395 →
-0.0151 (**−62%**) from B1 to B2, and B2's catastrophic outlier rate of 0.246%
-is **better than B0's** 0.504% — so the spatial model repairs the tail
-regression that B1 introduced.
+The photometry moves the other way and more sharply: flux NMAD fell 0.0395 →
+0.0151 (**−62%**) from B1 to B2, and B2's catastrophic outlier rate of
+0.264 ± 0.013% is **better than B0's** 0.504% — so the spatial model repairs the
+tail regression B1 introduced rather than inheriting it.
 
 ### B3's uncertainty
 
 | Quantity | Value | Verdict |
 |---|---|---|
-| NLL per pixel | 0.2995 | the only metric directly comparable to P1–P3 |
-| (y−μ)/σ spread | **1.044** | 1.0 is honest — **calibrated** |
-| coverage at 0.50 / 0.68 / 0.95 | 52.9% / 70.6% / 94.8% | against nominal 50 / 68 / 95 |
+| NLL per pixel | 0.2968 | the only metric directly comparable to P1–P3 |
+| (y−μ)/σ spread | **1.037** | 1.0 is honest — **calibrated** |
+| coverage at 0.50 / 0.68 / 0.95 | 53.0% / 70.7% / 94.9% | against nominal 50 / 68 / 95 |
 | median σ | 0.2849 | sharpness, meaningful because calibration holds |
-| Spearman(σ, \|error\|) | **+0.288** | > 0.2: it knows *where* it is uncertain |
+| Spearman(σ, \|error\|) | **+0.290** | > 0.2: it knows *where* it is uncertain |
 
 Both conditions the anomaly search needs are met: the error bars are honest,
 and σ tracks where the error actually is.
 
 ### FiLM does almost nothing — a finding, not a bug
 
-The redshift conditioning moves B3's prediction by a **relative 0.0109 (≈1%)**
-when the same images are re-predicted across redshifts. So B3's advantages over
+The redshift conditioning moves B3's prediction by a relative **0.0109,
+0.0124 and 0.0092 across the three seeds — about 1% every time** — when the
+same images are re-predicted across redshifts. Three independent runs agree, so
+this is a property of the architecture and not a quirk of one initialisation. So B3's advantages over
 B2 — better flux NMAD and σ(mag), plus error bars B2 cannot produce — come from
 the **variance head and the NLL objective, not from redshift**. FiLM's 47,040
 parameters are close to inert.
@@ -68,11 +87,13 @@ whose strength lies in its uncertainty modelling.
 
 ### Training
 
-Both models ran 40 epochs with a cosine schedule decaying from 3.0e-4 to
-4.6e-7. Neither stopped early, and neither needed to: the last five epochs
-moved validation loss by **+0.13% (B2)** and **+0.01% (B3)**. They are
-converged, and more epochs on this schedule would change the fourth decimal
-place. B2 took 167 min and B3 175 min on an RTX 3050 6 GB Laptop.
+All six runs used 40 epochs with a cosine schedule decaying from 3.0e-4 to
+4.6e-7. None stopped early and none needed to: the last five epochs moved
+validation loss by **+0.13% (B2)** and **+0.01% (B3)**. Best epochs were 40/40
+for every B2 seed and 38–39 for B3, which is the schedule reaching zero rather
+than training being cut short — more epochs on this schedule would change the
+fourth decimal place. Roughly 170 min per run on an RTX 3050 6 GB Laptop,
+about 11.5 hours for the six runs in total.
 
 ## The four discussion answers
 
