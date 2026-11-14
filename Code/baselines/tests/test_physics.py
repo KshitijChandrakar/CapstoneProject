@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import numpy as np
 
 from src.config import BANDS, INPUT_BAND_IDX, TARGET_BAND_IDX
-from src.physics import bands, lines, sed
+from src.physics import bands, lines, psf, sed
 
 PASS, FAIL = 0, 0
 
@@ -263,9 +263,110 @@ def test_sed_fit_ignores_the_target_channel() -> None:
           a, b, tol=1e-12)
 
 
+# --------------------------------------------------------------- PSF layer
+def test_the_measured_sign_is_what_makes_p1_well_posed() -> None:
+    """y broader than z in every bin. If this flips, P1 needs deconvolution."""
+    print("\nPSF: the measured sign")
+    diffs = [d for _, d in psf.MEASURED_Y_MINUS_Z_PX]
+    check("script 07 recorded eight bins", len(diffs), 8)
+    check("y is broader than z in every one", all(d > 0 for d in diffs))
+    check("the smallest difference is +0.05 px", min(diffs), 0.05, tol=1e-9)
+    check("the largest is +0.40 px", max(diffs), 0.40, tol=1e-9)
+
+
+def test_matching_sigma_follows_quadrature() -> None:
+    print("\nPSF: quadrature")
+    # 3-4-5: blurring a width-3 image with a width-4 kernel gives width 5.
+    check("sqrt(5^2 - 3^2) = 4", float(psf.matching_sigma(3.0, 5.0)), 4.0,
+          tol=1e-12)
+    check("equal widths need no kernel", float(psf.matching_sigma(2.0, 2.0)),
+          0.0, tol=1e-12)
+    try:
+        psf.matching_sigma(5.0, 3.0)
+        check("sharpening is refused, not NaN", False)
+    except ValueError:
+        check("sharpening is refused, not NaN", True)
+
+
+def test_blurring_actually_broadens_by_the_predicted_amount() -> None:
+    """The end-to-end physical claim, measured rather than asserted."""
+    print("\nPSF: blurring widens an image in quadrature")
+    n = 81
+    yy, xx = np.mgrid[0:n, 0:n]
+    s_from, s_to = 4.0, 5.0
+    src = np.exp(-((yy - 40) ** 2 + (xx - 40) ** 2) / (2 * s_from ** 2))
+
+    measured_before = psf.width_from_second_moment(src)
+    check("the synthetic source has the width we built it with",
+          measured_before, s_from, tol=0.05)
+
+    kernel_sigma = float(psf.matching_sigma(s_from, s_to))
+    out = psf.blur(src, kernel_sigma)
+    measured_after = psf.width_from_second_moment(out)
+    check(f"after blurring it measures {s_to} px",
+          measured_after, s_to, tol=0.05)
+    check("and no flux was created or destroyed",
+          float(out.sum()), float(src.sum()),
+          tol=abs(float(src.sum())) * 2e-3)
+
+
+def test_no_rescaling_of_z_can_reproduce_y_s_width() -> None:
+    """The claim B0 and B1 fail on, and the reason P1 exists."""
+    print("\nPSF: rescaling cannot change width")
+    n = 81
+    yy, xx = np.mgrid[0:n, 0:n]
+    src = np.exp(-((yy - 40) ** 2 + (xx - 40) ** 2) / (2 * 4.0 ** 2))
+    w0 = psf.width_from_second_moment(src)
+
+    check("a global rescale leaves the width untouched (this is B0)",
+          psf.width_from_second_moment(src * 1.179), w0, tol=1e-9)
+
+    # A smooth per-pixel gain, the most B1 could ever do, still cannot
+    # broaden the source the way a convolution does.
+    gain = 1.0 + 0.05 * (xx - 40) / n
+    check("a smooth per-pixel gain barely moves it either (this is B1)",
+          psf.width_from_second_moment(src * gain), w0, tol=0.02)
+
+    blurred = psf.blur(src, 2.0)
+    check("only a convolution broadens it",
+          psf.width_from_second_moment(blurred) > w0 + 0.3)
+
+
+def test_kernels_are_normalised_and_zero_is_the_identity() -> None:
+    print("\nPSF: kernels")
+    for sigma in (0.5, 1.0, 3.7):
+        k1 = psf.gaussian_kernel_1d(sigma)
+        check(f"1-D kernel at sigma={sigma} sums to 1", float(k1.sum()), 1.0,
+              tol=1e-12)
+        check(f"1-D kernel at sigma={sigma} has odd length", k1.size % 2, 1)
+        k2 = psf.gaussian_kernel_2d(sigma)
+        check(f"2-D kernel at sigma={sigma} sums to 1", float(k2.sum()), 1.0,
+              tol=1e-12)
+    check("sigma=0 is the identity kernel",
+          psf.gaussian_kernel_1d(0.0), np.array([1.0]))
+    rng = np.random.default_rng(3)
+    img = rng.normal(size=(9, 9))
+    check("blurring with sigma=0 returns the image unchanged",
+          psf.blur(img, 0.0), img, tol=0.0)
+
+
+def test_measured_difference_lookup_matches_the_table() -> None:
+    print("\nPSF: redshift lookup")
+    check("z=0.1 falls in the first bin",
+          float(psf.measured_difference(0.1)[0]), 0.05, tol=1e-12)
+    check("z=0.40 falls in the second",
+          float(psf.measured_difference(0.40)[0]), 0.10, tol=1e-12)
+    check("z=1.10 picks up the +0.40 bin",
+          float(psf.measured_difference(1.10)[0]), 0.40, tol=1e-12)
+    check("beyond the table it clamps rather than extrapolating",
+          float(psf.measured_difference(9.0)[0]), 0.37, tol=1e-12)
+    check("the expected kernel in this project's window is small",
+          bool(0.0 < float(psf.expected_kernel_sigma(0.2)[0]) < 1.5))
+
+
 def main() -> int:
     print("=" * 70)
-    print("PHYSICS LAYER -- wavelengths, emission lines, SED extrapolation")
+    print("PHYSICS LAYER -- wavelengths, lines, SED extrapolation, PSF")
     print("=" * 70)
     test_wavelengths_are_ordered_and_match_script_05()
     test_target_is_an_extrapolation()
@@ -280,6 +381,12 @@ def main() -> int:
     test_power_law_is_exact_on_a_power_law()
     test_design_matrix_and_target_share_a_normalisation()
     test_sed_fit_ignores_the_target_channel()
+    test_the_measured_sign_is_what_makes_p1_well_posed()
+    test_matching_sigma_follows_quadrature()
+    test_blurring_actually_broadens_by_the_predicted_amount()
+    test_no_rescaling_of_z_can_reproduce_y_s_width()
+    test_kernels_are_normalised_and_zero_is_the_identity()
+    test_measured_difference_lookup_matches_the_table()
     print("\n" + "=" * 70)
     print(f"{PASS} passed, {FAIL} failed")
     print("=" * 70)
