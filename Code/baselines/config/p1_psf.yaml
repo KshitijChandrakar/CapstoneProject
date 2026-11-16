@@ -1,0 +1,44 @@
+# P1 -- PSF-aware physics model.
+#
+# Predicts y as a spectral mix of the inputs, blurred by a Gaussian whose width
+# is learned per redshift bin and INITIALISED at what script 07 measured.
+#
+# Seven parameters. That is the point: B1 had 5 and could not reach y because
+# no per-pixel rescaling changes an image's width; B2 reached it with 1,928,705.
+# If P1 lands near B2, the gap was two numbers' worth of optics, not two
+# million parameters' worth of capacity.
+
+model:
+  in_channels: 4
+  # Bin edges inside this project's window. The 0.36 split is script 07's own
+  # bin boundary, inherited rather than invented, and it is where the measured
+  # y-z width difference steps from +0.05 to +0.10 px.
+  z_edges: [0.0, 0.36, 0.4]
+  # Half-width of the blur kernel in pixels. 4 covers +-3 sigma for the
+  # ~1.2 px kernels this window implies, with room if training grows them.
+  kernel_radius: 4
+  # Typical z-band width proxy, px, used to turn script 07's *difference* in
+  # width into a kernel sigma via quadrature. Script 07 reports 7.86 and 7.07
+  # for the two bins here.
+  z_width_px: 7.5
+  # false pins the blur at the measured value, so any gain is attributable to
+  # script 07's measurement rather than to fitting. Run both; the difference
+  # is the answer to "did the measurement help, or just the extra freedom?"
+  learn_blur: true
+  expected_parameters: 7
+
+training:
+  loss: l1
+  optimizer: adam
+  lr: 1.0e-2          # few parameters, so a far larger step than B2's 3e-4
+  weight_decay: 0.0   # 7 parameters cannot overfit 84,911 galaxies
+  epochs: 20
+  scheduler: cosine
+  early_stopping_patience: 5
+  grad_clip_norm: 1.0
+
+evaluation:
+  # Printed beside script 07's measurement after training. A fitted sigma that
+  # collapses towards zero is P1 rejecting the PSF hypothesis -- a result, and
+  # reported as one.
+  report_fitted_sigmas: true
