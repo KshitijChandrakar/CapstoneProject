@@ -1,0 +1,48 @@
+# P2 -- SED extrapolation physics model.
+#
+# Treats the four inputs as four samples of one spectrum at known wavelengths,
+# fits a smooth curve through them per pixel, and evaluates it at y's 9762 A.
+#
+# Four parameters in the pure form. The point is not the count but what the
+# model knows: B1 and B2 are both invariant to permuting their input channels,
+# because neither is ever told the bands are ordered in wavelength. P2 breaks
+# if you swap two bands, and the test suite checks that it does.
+
+model:
+  in_channels: 4
+  # Polynomial degree in log wavelength. Four bands can support at most a
+  # cubic, but a cubic passes exactly through all four points, so the 864 A
+  # extrapolation to y would ride entirely on fitted noise. Degree 2 has
+  # enough curvature to bend and not enough to chase the data.
+  degree: 2
+  # Keeps the normal equations conditioned. At 1e-8 it does not bias the fit.
+  ridge: 1.0e-8
+  # Learnable weight on each fitted coefficient: how much to trust the measured
+  # curvature when stepping past the end of the data. Starting at 1 means the
+  # model begins as the exact zero-parameter least-squares answer.
+  learn_gains: true
+  # false is the headline run: pure spectral extrapolation, no spatial
+  # awareness at all, so the number says what wavelength reasoning alone buys.
+  # true adds a small zero-initialised convolution; run both, and the gap is
+  # the part of the error that is NOT spectral.
+  residual: false
+  residual_hidden: 16
+  residual_kernel: 3
+  expected_parameters: 4
+
+training:
+  loss: l1
+  optimizer: adam
+  lr: 1.0e-2          # four parameters, so a far larger step than B2's 3e-4
+  weight_decay: 0.0
+  epochs: 20
+  scheduler: cosine
+  early_stopping_patience: 5
+  grad_clip_norm: 1.0
+
+evaluation:
+  # Printed after training. Gains near 1 mean plain least squares was already
+  # right; a small gain on the quadratic term means the model learned not to
+  # trust measured curvature 864 A beyond the data -- a physical statement,
+  # and one B2's two million parameters cannot be asked for.
+  report_fitted_gains: true
