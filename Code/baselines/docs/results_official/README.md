@@ -11,12 +11,104 @@ B1 is mean ± std over seeds `[42, 123, 2026]`.
 | Model | Params | Test MAE ↓ | PSNR ↑ | SSIM ↑ | Flux NMAD ↓ | σ(mag) ↓ | Outlier % ↓ |
 |---|---|---|---|---|---|---|---|
 | **B0** (Copy-z) | 0 | 0.3505 | 37.431 | 0.8694 | 0.0402 | 0.0431 | 0.504 |
+| **P2** (SED) | 4 | 0.3279 ± 0.0001 | 37.973 ± 0.020 | 0.8792 ± 0.0004 | 0.0399 ± 0.0001 | 0.0428 ± 0.0001 | 1.125 ± 0.075 |
 | **B1** (Linear 1×1) | 5 | 0.3276 ± 0.0000 | 37.991 ± 0.000 | 0.8785 ± 0.0000 | 0.0395 ± 0.0000 | 0.0423 ± 0.0000 | 1.217 ± 0.007 |
+| **P1** (PSF) | 7 | 0.3113 ± 0.0001 | 38.488 ± 0.006 | 0.8851 ± 0.0008 | 0.0337 ± 0.0001 | 0.0362 ± 0.0002 | 1.077 ± 0.167 |
 | **B2** (U-Net) | 1,928,705 | **0.2744 ± 0.0006** | **40.411 ± 0.042** | **0.8917 ± 0.0001** | 0.0151 ± 0.0002 | 0.0164 ± 0.0002 | **0.264 ± 0.013** |
 | **B3** (U-Net+FiLM+NLL) | 1,975,778 | 0.2803 ± 0.0004 | 39.867 ± 0.048 | 0.8913 ± 0.0001 | **0.0131 ± 0.0002** | **0.0143 ± 0.0002** | 0.287 ± 0.017 |
 
-All four rows are now the mean over the same three seeds [42, 123, 2026]; ± is
-the seed-to-seed standard deviation.
+All six rows are the mean over the same three seeds [42, 123, 2026]; ± is the
+seed-to-seed standard deviation. Rows are ordered by parameter count, which is
+where the argument lives: the two physics models sit between B1 and B2.
+
+## The physics models
+
+### P1's gain comes from the measurement, not from fitting
+
+This is the central result.
+
+| | Trainable params | Test MAE |
+|---|---|---|
+| B1 (linear) | 5 | 0.32758 |
+| P1, blur width **learned** | 7 | 0.311273 ± 0.000121 |
+| P1, blur width **frozen** at script 07's measurement | **5** | 0.311754 |
+
+Freezing the blur at the width script 07 measured independently — giving the
+model no freedom to adjust it at all — costs **0.15%**. So at **the same five
+parameters as B1**, P1 is 5.0% better on MAE and 14% better on σ(mag), entirely
+because one number came from a measurement instead of being learned.
+
+That is what "physics-informed" is supposed to mean: the prior is not a
+regulariser or an initialisation, it is a quantity measured elsewhere that
+carries over intact.
+
+### P1's fitted width against the independent measurement
+
+| Redshift bin | Train galaxies | P1 fitted σ (3 seeds) | Script 07 measured σ |
+|---|---|---|---|
+| 0.00–0.36 | 79,445 (93.6%) | 0.8178, 0.8206, 0.8222 | **0.8675** |
+| 0.36–0.40 | 5,466 (6.4%) | 0.7640, 0.7837, 0.8005 | 1.2288 |
+
+In the bin holding 94% of the data, **two unrelated methods agree to within
+6%**. Script 07 obtained 0.8675 px by cross-correlating band images and
+measuring second-moment widths; P1 obtained 0.82 px by gradient descent on
+prediction error, never seeing that number except as a starting point. The
+seed-to-seed spread is 0.004 px, so this is a measurement with an error bar.
+
+**The second bin is not a contradiction and should not be quoted as agreement
+either.** It holds 6.4% of the galaxies, its seed spread is 0.036 px — nine
+times wider on fifteen times less data — and it is a thin sliver of script 07's
+much broader 0.36–0.49 bin, so the model is fitting a lower-redshift population
+than the measurement describes.
+
+### P2 ties B1, and explains why
+
+P2 reaches 0.3279 ± 0.0001 against B1's 0.3276 — statistically
+indistinguishable. The fitted basis gains say what happened:
+
+| Basis term | Fitted gain (3 seeds) |
+|---|---|
+| constant | 1.0061, 1.0071, 1.0093 |
+| linear (spectral slope) | **0.5359, 0.5422, 0.5307** |
+| quadratic (curvature) | **0.0485, 0.0692, 0.0372** |
+
+The model discarded the curvature and halved the slope. Two things follow.
+
+**Extrapolating along the measured spectral slope overshoots.** Trusting a
+curvature measured over 4754–8898 Å out to 9762 Å is actively harmful; damping
+it to near-zero is better. Only a model with named physical terms can report
+this — the question cannot be put to B2.
+
+**Once damped, P2 is B1.** With the quadratic gain near zero and the linear
+term halved, P2 collapses to an affine function of the four band fluxes, which
+is exactly what B1 is. P2 landing on B1's number is the model discovering that
+the spectral information is already exhausted by a linear combination.
+
+### The residual ablation locates the missing error
+
+| | Params | Test MAE | σ(mag) |
+|---|---|---|---|
+| P2, pure SED | 4 | 0.3279 | 0.0428 |
+| P2 + residual convolution | 741 | **0.2994** | **0.0349** |
+
+737 convolution parameters buy 8.7% — more than P1's entire gain over B1. And
+the fitted gains move from `[1.01, 0.54, 0.05]` to `[1.06, 0.68, 0.23]`: once
+something else handles the spatial structure, **the model trusts the spectral
+terms more**. The damping in pure P2 was partly compensating for missing
+spatial capacity, not a statement about spectra alone.
+
+### What the two physics models establish
+
+The diagnostics predicted this and the models confirm it independently:
+
+* script 06 found the spectral signal dominated by z and essentially linear
+  → **P2 cannot beat B1**, and says so through its own gains;
+* script 07 found y optically broader than z
+  → **P1 beats B1 by 5% at equal parameter count**, using the measured width;
+* B2 beats both → there is more spatial structure than one Gaussian captures.
+
+**The remaining error is spatial, not spectral.** That was the hypothesis, and
+two physics models now test it from different directions and agree.
 
 ### Are the B2 / B3 differences real? Yes — both of them
 

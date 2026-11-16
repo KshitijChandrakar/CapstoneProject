@@ -1,0 +1,1083 @@
+{
+  "model": "p1_frozen",
+  "label": "P1 (PSF frozen)",
+  "tag": "p1_frozen",
+  "n_parameters": 5,
+  "seeds": [
+    42
+  ],
+  "architecture": {
+    "in_channels": 4,
+    "z_edges": [
+      0.0,
+      0.36,
+      0.4
+    ],
+    "kernel_radius": 8,
+    "z_width_px": 7.5,
+    "learn_blur": false,
+    "expected_parameters": 5
+  },
+  "hyperparameters": {
+    "lr": 0.01,
+    "weight_decay": 0.0,
+    "epochs": 20,
+    "loss": "l1",
+    "optimizer": "adam",
+    "scheduler": "cosine",
+    "batch_size": 64,
+    "grad_clip_norm": 1.0,
+    "early_stopping_patience": 5,
+    "optimiser_steps_run": 18578
+  },
+  "physics_per_seed": [
+    {
+      "bins": [
+        "0.00-0.36",
+        "0.36-0.40"
+      ],
+      "fitted_sigma_px": [
+        0.8674675822257996,
+        1.228820562362671
+      ],
+      "measured_sigma_px": [
+        0.8674675786448723,
+        1.22882057274445
+      ],
+      "ratio_fitted_to_measured": [
+        1.0000000041280244,
+        0.999999991551428
+      ],
+      "collapsed": [
+        false,
+        false
+      ],
+      "truncation": {
+        "fitted_sigma_px": [
+          0.8674675822257996,
+          1.228820562362671
+        ],
+        "max_supported_sigma_px": 2.6666666666666665,
+        "kernel_radius_px": 8,
+        "truncated": [
+          false,
+          false
+        ],
+        "any_truncated": false
+      }
+    }
+  ],
+  "metrics_over_seeds": {
+    "pixel": {
+      "mae": {
+        "mean": 0.3117538645488854,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          0.3117538645488854
+        ]
+      },
+      "rmse": {
+        "mean": 1.0092208741052378,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          1.0092208741052378
+        ]
+      },
+      "n_valid_pixels": {
+        "mean": 69926912.0,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          69926912.0
+        ]
+      },
+      "n_invalid_pixels": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          0.0
+        ]
+      },
+      "psnr_mean": {
+        "mean": 38.39928128861508,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          38.39928128861508
+        ]
+      },
+      "psnr_std": {
+        "mean": 6.019396305494291,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          6.019396305494291
+        ]
+      },
+      "ssim_mean": {
+        "mean": 0.884948319743697,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          0.884948319743697
+        ]
+      },
+      "ssim_std": {
+        "mean": 0.1978627337116486,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          0.1978627337116486
+        ]
+      },
+      "n_galaxies_scored": {
+        "mean": 17072.0,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          17072.0
+        ]
+      },
+      "n_galaxies_skipped": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          0.0
+        ]
+      },
+      "n_galaxies_with_filled_pixels_for_ssim": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          0.0
+        ]
+      }
+    },
+    "photometry": {
+      "aperture": {
+        "radius_px": {
+          "mean": 15.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            15.0
+          ]
+        },
+        "center": {
+          "mean": NaN,
+          "std": NaN,
+          "n_seeds": 0
+        },
+        "n_pixels": {
+          "mean": 709.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            709.0
+          ]
+        }
+      },
+      "nonpositive_flux_handling": {
+        "mean": NaN,
+        "std": NaN,
+        "n_seeds": 0
+      },
+      "relative_flux_error": {
+        "median": {
+          "mean": 0.010071739160575233,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.010071739160575233
+          ]
+        },
+        "nmad": {
+          "mean": 0.033612615547911,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.033612615547911
+          ]
+        },
+        "mean": {
+          "mean": 0.037740113388683216,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.037740113388683216
+          ]
+        },
+        "std": {
+          "mean": 0.5198823596529523,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.5198823596529523
+          ]
+        },
+        "n": {
+          "mean": 17072.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            17072.0
+          ]
+        }
+      },
+      "delta_mag": {
+        "median": {
+          "mean": -0.010905778898727903,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            -0.010905778898727903
+          ]
+        },
+        "nmad": {
+          "mean": 0.03613506379495862,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.03613506379495862
+          ]
+        },
+        "mean": {
+          "mean": -0.029864492593828052,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            -0.029864492593828052
+          ]
+        },
+        "std": {
+          "mean": 0.12560932038497696,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.12560932038497696
+          ]
+        },
+        "n": {
+          "mean": 17061.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            17061.0
+          ]
+        },
+        "outlier_percent": {
+          "mean": 1.1488189437899303,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            1.1488189437899303
+          ]
+        },
+        "outlier_threshold": {
+          "mean": 0.5,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.5
+          ]
+        },
+        "zeropoint": {
+          "mean": 27.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            27.0
+          ]
+        },
+        "n_excluded_nonpositive_true_flux": {
+          "mean": 11.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            11.0
+          ]
+        },
+        "n_excluded_nonpositive_pred_flux": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.0
+          ]
+        },
+        "n_excluded_total": {
+          "mean": 11.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            11.0
+          ]
+        }
+      },
+      "colour_error_z_minus_y": {
+        "median": {
+          "mean": 0.010905778898727903,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.010905778898727903
+          ]
+        },
+        "nmad": {
+          "mean": 0.03613506379495862,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.03613506379495862
+          ]
+        },
+        "mean": {
+          "mean": 0.029864492593828052,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.029864492593828052
+          ]
+        },
+        "std": {
+          "mean": 0.12560932038497696,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.12560932038497696
+          ]
+        },
+        "n": {
+          "mean": 17061.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            17061.0
+          ]
+        },
+        "note": {
+          "mean": NaN,
+          "std": NaN,
+          "n_seeds": 0
+        },
+        "n_nonpositive_z_flux": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.0
+          ]
+        }
+      },
+      "delta_mag_by_brightness": {
+        "split_on": {
+          "mean": NaN,
+          "std": NaN,
+          "n_seeds": 0
+        },
+        "median_true_flux": {
+          "mean": 4024.4992852807045,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            4024.4992852807045
+          ]
+        },
+        "faint_half": {
+          "median": {
+            "mean": -0.03181368815664243,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              -0.03181368815664243
+            ]
+          },
+          "nmad": {
+            "mean": 0.04483428711311624,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.04483428711311624
+            ]
+          },
+          "mean": {
+            "mean": -0.06455451595560963,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              -0.06455451595560963
+            ]
+          },
+          "std": {
+            "mean": 0.1674397338747618,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.1674397338747618
+            ]
+          },
+          "n": {
+            "mean": 8531.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              8531.0
+            ]
+          }
+        },
+        "bright_half": {
+          "median": {
+            "mean": 0.002008482938952838,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.002008482938952838
+            ]
+          },
+          "nmad": {
+            "mean": 0.02702134446580998,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.02702134446580998
+            ]
+          },
+          "mean": {
+            "mean": 0.004829597593670028,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.004829597593670028
+            ]
+          },
+          "std": {
+            "mean": 0.03332690315274367,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.03332690315274367
+            ]
+          },
+          "n": {
+            "mean": 8530.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              8530.0
+            ]
+          }
+        }
+      }
+    },
+    "magnitude_handling_comparison": {
+      "exclude": {
+        "delta_mag": {
+          "median": {
+            "mean": -0.010905778898727903,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              -0.010905778898727903
+            ]
+          },
+          "nmad": {
+            "mean": 0.03613506379495862,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.03613506379495862
+            ]
+          },
+          "mean": {
+            "mean": -0.029864492593828052,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              -0.029864492593828052
+            ]
+          },
+          "std": {
+            "mean": 0.12560932038497696,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.12560932038497696
+            ]
+          },
+          "n": {
+            "mean": 17061.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              17061.0
+            ]
+          },
+          "outlier_percent": {
+            "mean": 1.1488189437899303,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              1.1488189437899303
+            ]
+          },
+          "outlier_threshold": {
+            "mean": 0.5,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.5
+            ]
+          },
+          "zeropoint": {
+            "mean": 27.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              27.0
+            ]
+          },
+          "n_excluded_nonpositive_true_flux": {
+            "mean": 11.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              11.0
+            ]
+          },
+          "n_excluded_nonpositive_pred_flux": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.0
+            ]
+          },
+          "n_excluded_total": {
+            "mean": 11.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              11.0
+            ]
+          }
+        },
+        "colour_error_z_minus_y": {
+          "median": {
+            "mean": 0.010905778898727903,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.010905778898727903
+            ]
+          },
+          "nmad": {
+            "mean": 0.03613506379495862,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.03613506379495862
+            ]
+          },
+          "mean": {
+            "mean": 0.029864492593828052,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.029864492593828052
+            ]
+          },
+          "std": {
+            "mean": 0.12560932038497696,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.12560932038497696
+            ]
+          },
+          "n": {
+            "mean": 17061.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              17061.0
+            ]
+          },
+          "note": {
+            "mean": NaN,
+            "std": NaN,
+            "n_seeds": 0
+          },
+          "n_nonpositive_z_flux": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.0
+            ]
+          }
+        }
+      },
+      "clamp": {
+        "delta_mag": {
+          "median": {
+            "mean": -0.010932202400967483,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              -0.010932202400967483
+            ]
+          },
+          "nmad": {
+            "mean": 0.03617821078054023,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.03617821078054023
+            ]
+          },
+          "mean": {
+            "mean": -0.08125702644678347,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              -0.08125702644678347
+            ]
+          },
+          "std": {
+            "mean": 2.0279393393729834,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              2.0279393393729834
+            ]
+          },
+          "n": {
+            "mean": 17072.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              17072.0
+            ]
+          },
+          "outlier_percent": {
+            "mean": 1.2125117150890348,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              1.2125117150890348
+            ]
+          },
+          "outlier_threshold": {
+            "mean": 0.5,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.5
+            ]
+          },
+          "zeropoint": {
+            "mean": 27.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              27.0
+            ]
+          },
+          "n_excluded_nonpositive_true_flux": {
+            "mean": 11.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              11.0
+            ]
+          },
+          "n_excluded_nonpositive_pred_flux": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.0
+            ]
+          },
+          "n_excluded_total": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.0
+            ]
+          }
+        },
+        "colour_error_z_minus_y": {
+          "median": {
+            "mean": 0.010932202400967483,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.010932202400967483
+            ]
+          },
+          "nmad": {
+            "mean": 0.03617821078054023,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.03617821078054023
+            ]
+          },
+          "mean": {
+            "mean": 0.08125702644678347,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.08125702644678347
+            ]
+          },
+          "std": {
+            "mean": 2.0279393393729834,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              2.0279393393729834
+            ]
+          },
+          "n": {
+            "mean": 17072.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              17072.0
+            ]
+          },
+          "note": {
+            "mean": NaN,
+            "std": NaN,
+            "n_seeds": 0
+          },
+          "n_nonpositive_z_flux": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.0
+            ]
+          }
+        }
+      }
+    },
+    "n_galaxies": {
+      "mean": 17072.0,
+      "std": 0.0,
+      "n_seeds": 1,
+      "values": [
+        17072.0
+      ]
+    }
+  },
+  "per_seed": [
+    {
+      "model": "p1_frozen",
+      "seed": 42,
+      "n_parameters": 5,
+      "parameter_breakdown": {
+        "spectral_mix": 5,
+        "blur_widths": 2,
+        "total": 7,
+        "trainable": 5
+      },
+      "architecture": {
+        "in_channels": 4,
+        "z_edges": [
+          0.0,
+          0.36,
+          0.4
+        ],
+        "kernel_radius": 8,
+        "z_width_px": 7.5,
+        "learn_blur": false,
+        "expected_parameters": 5
+      },
+      "hyperparameters": {
+        "lr": 0.01,
+        "weight_decay": 0.0,
+        "epochs": 20,
+        "loss": "l1",
+        "optimizer": "adam",
+        "scheduler": "cosine",
+        "batch_size": 64,
+        "grad_clip_norm": 1.0,
+        "early_stopping_patience": 5,
+        "optimiser_steps_run": 18578
+      },
+      "best_val_loss": 0.04894104729920848,
+      "best_epoch": 9,
+      "epochs_run": 14,
+      "stopped_early": true,
+      "checkpoint": "D:\\capstone project\\CapstoneProject\\Code\\baselines\\results\\checkpoints\\p1_frozen_seed42.pt",
+      "history": [
+        {
+          "epoch": 1,
+          "total_epochs": 20,
+          "train_loss": 0.04963568463281482,
+          "val_loss": 0.04899537894847011,
+          "lr": 0.01
+        },
+        {
+          "epoch": 2,
+          "total_epochs": 20,
+          "train_loss": 0.04940613606816948,
+          "val_loss": 0.04918850673390413,
+          "lr": 0.009938441702975689
+        },
+        {
+          "epoch": 3,
+          "total_epochs": 20,
+          "train_loss": 0.04942342074701637,
+          "val_loss": 0.04898834371689095,
+          "lr": 0.009755282581475769
+        },
+        {
+          "epoch": 4,
+          "total_epochs": 20,
+          "train_loss": 0.04938968895922591,
+          "val_loss": 0.0492018938425984,
+          "lr": 0.00945503262094184
+        },
+        {
+          "epoch": 5,
+          "total_epochs": 20,
+          "train_loss": 0.049413163554605545,
+          "val_loss": 0.04940823860355278,
+          "lr": 0.009045084971874739
+        },
+        {
+          "epoch": 6,
+          "total_epochs": 20,
+          "train_loss": 0.04938245489744199,
+          "val_loss": 0.048976558059064756,
+          "lr": 0.008535533905932738
+        },
+        {
+          "epoch": 7,
+          "total_epochs": 20,
+          "train_loss": 0.04938383118867784,
+          "val_loss": 0.048965597837996575,
+          "lr": 0.007938926261462366
+        },
+        {
+          "epoch": 8,
+          "total_epochs": 20,
+          "train_loss": 0.0493554024765522,
+          "val_loss": 0.04896413065743313,
+          "lr": 0.007269952498697735
+        },
+        {
+          "epoch": 9,
+          "total_epochs": 20,
+          "train_loss": 0.049338288158852085,
+          "val_loss": 0.04894104729920848,
+          "lr": 0.006545084971874738
+        },
+        {
+          "epoch": 10,
+          "total_epochs": 20,
+          "train_loss": 0.049326284639060095,
+          "val_loss": 0.04913165233334276,
+          "lr": 0.005782172325201155
+        },
+        {
+          "epoch": 11,
+          "total_epochs": 20,
+          "train_loss": 0.04930012246710336,
+          "val_loss": 0.04895184753434872,
+          "lr": 0.005
+        },
+        {
+          "epoch": 12,
+          "total_epochs": 20,
+          "train_loss": 0.049303029897568726,
+          "val_loss": 0.0491625601634272,
+          "lr": 0.004217827674798847
+        },
+        {
+          "epoch": 13,
+          "total_epochs": 20,
+          "train_loss": 0.04928479951995157,
+          "val_loss": 0.049013397420075405,
+          "lr": 0.0034549150281252636
+        },
+        {
+          "epoch": 14,
+          "total_epochs": 20,
+          "train_loss": 0.04928310460831406,
+          "val_loss": 0.04894178175826126,
+          "lr": 0.0027300475013022664
+        }
+      ],
+      "physics": {
+        "bins": [
+          "0.00-0.36",
+          "0.36-0.40"
+        ],
+        "fitted_sigma_px": [
+          0.8674675822257996,
+          1.228820562362671
+        ],
+        "measured_sigma_px": [
+          0.8674675786448723,
+          1.22882057274445
+        ],
+        "ratio_fitted_to_measured": [
+          1.0000000041280244,
+          0.999999991551428
+        ],
+        "collapsed": [
+          false,
+          false
+        ],
+        "truncation": {
+          "fitted_sigma_px": [
+            0.8674675822257996,
+            1.228820562362671
+          ],
+          "max_supported_sigma_px": 2.6666666666666665,
+          "kernel_radius_px": 8,
+          "truncated": [
+            false,
+            false
+          ],
+          "any_truncated": false
+        }
+      },
+      "metrics": {
+        "pixel": {
+          "mae": 0.3117538645488854,
+          "rmse": 1.0092208741052378,
+          "n_valid_pixels": 69926912,
+          "n_invalid_pixels": 0,
+          "psnr_mean": 38.39928128861508,
+          "psnr_std": 6.019396305494291,
+          "ssim_mean": 0.884948319743697,
+          "ssim_std": 0.1978627337116486,
+          "n_galaxies_scored": 17072,
+          "n_galaxies_skipped": 0,
+          "n_galaxies_with_filled_pixels_for_ssim": 0
+        },
+        "photometry": {
+          "aperture": {
+            "radius_px": 15.0,
+            "center": [
+              32.0,
+              32.0
+            ],
+            "n_pixels": 709
+          },
+          "nonpositive_flux_handling": "exclude",
+          "relative_flux_error": {
+            "median": 0.010071739160575233,
+            "nmad": 0.033612615547911,
+            "mean": 0.037740113388683216,
+            "std": 0.5198823596529523,
+            "n": 17072
+          },
+          "delta_mag": {
+            "median": -0.010905778898727903,
+            "nmad": 0.03613506379495862,
+            "mean": -0.029864492593828052,
+            "std": 0.12560932038497696,
+            "n": 17061,
+            "outlier_percent": 1.1488189437899303,
+            "outlier_threshold": 0.5,
+            "zeropoint": 27.0,
+            "n_excluded_nonpositive_true_flux": 11,
+            "n_excluded_nonpositive_pred_flux": 0,
+            "n_excluded_total": 11
+          },
+          "colour_error_z_minus_y": {
+            "median": 0.010905778898727903,
+            "nmad": 0.03613506379495862,
+            "mean": 0.029864492593828052,
+            "std": 0.12560932038497696,
+            "n": 17061,
+            "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+            "n_nonpositive_z_flux": 0
+          },
+          "delta_mag_by_brightness": {
+            "split_on": "median true aperture flux",
+            "median_true_flux": 4024.4992852807045,
+            "faint_half": {
+              "median": -0.03181368815664243,
+              "nmad": 0.04483428711311624,
+              "mean": -0.06455451595560963,
+              "std": 0.1674397338747618,
+              "n": 8531
+            },
+            "bright_half": {
+              "median": 0.002008482938952838,
+              "nmad": 0.02702134446580998,
+              "mean": 0.004829597593670028,
+              "std": 0.03332690315274367,
+              "n": 8530
+            }
+          }
+        },
+        "magnitude_handling_comparison": {
+          "exclude": {
+            "delta_mag": {
+              "median": -0.010905778898727903,
+              "nmad": 0.03613506379495862,
+              "mean": -0.029864492593828052,
+              "std": 0.12560932038497696,
+              "n": 17061,
+              "outlier_percent": 1.1488189437899303,
+              "outlier_threshold": 0.5,
+              "zeropoint": 27.0,
+              "n_excluded_nonpositive_true_flux": 11,
+              "n_excluded_nonpositive_pred_flux": 0,
+              "n_excluded_total": 11
+            },
+            "colour_error_z_minus_y": {
+              "median": 0.010905778898727903,
+              "nmad": 0.03613506379495862,
+              "mean": 0.029864492593828052,
+              "std": 0.12560932038497696,
+              "n": 17061,
+              "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+              "n_nonpositive_z_flux": 0
+            }
+          },
+          "clamp": {
+            "delta_mag": {
+              "median": -0.010932202400967483,
+              "nmad": 0.03617821078054023,
+              "mean": -0.08125702644678347,
+              "std": 2.0279393393729834,
+              "n": 17072,
+              "outlier_percent": 1.2125117150890348,
+              "outlier_threshold": 0.5,
+              "zeropoint": 27.0,
+              "n_excluded_nonpositive_true_flux": 11,
+              "n_excluded_nonpositive_pred_flux": 0,
+              "n_excluded_total": 0
+            },
+            "colour_error_z_minus_y": {
+              "median": 0.010932202400967483,
+              "nmad": 0.03617821078054023,
+              "mean": 0.08125702644678347,
+              "std": 2.0279393393729834,
+              "n": 17072,
+              "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+              "n_nonpositive_z_flux": 0
+            }
+          }
+        },
+        "n_galaxies": 17072
+      }
+    }
+  ]
+}

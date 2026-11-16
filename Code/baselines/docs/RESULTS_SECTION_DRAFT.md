@@ -1,7 +1,8 @@
 # Results — draft for the extended abstract
 
-**Status:** complete. All four models have real numbers on the official test
-split, and the three diagnostic studies are final.
+**Status:** complete. All six models — four baselines and the two physics
+models P1 and P2 — have real numbers on the official test split at the same
+three seeds, and the three diagnostic studies are final.
 
 All four models are the mean over the same three seeds [42, 123, 2026], so
 every comparison below has measured error bars.
@@ -31,6 +32,8 @@ using the same weights at every pixel.
 |---|---|---|---|---|---|---|---|
 | B0 (Copy-z) | 0 | 0.3505 | 37.431 | 0.8694 | 0.0402 | 0.0431 | **0.504** |
 | B1 (Linear 1×1) | 5 | **0.3276** | **37.991** | **0.8785** | **0.0395** | **0.0423** | 1.217 |
+| P2 (SED) | 4 | 0.3279 ± 0.0001 | 37.973 ± 0.020 | 0.8792 ± 0.0004 | 0.0399 ± 0.0001 | 0.0428 ± 0.0001 | 1.125 ± 0.075 |
+| P1 (PSF) | 7 | 0.3113 ± 0.0001 | 38.488 ± 0.006 | 0.8851 ± 0.0008 | 0.0337 ± 0.0001 | 0.0362 ± 0.0002 | 1.077 ± 0.167 |
 | B2 (U-Net) | 1,928,705 | **0.2744 ± 0.0006** | **40.411 ± 0.042** | **0.8917 ± 0.0001** | 0.0151 ± 0.0002 | 0.0164 ± 0.0002 | **0.264 ± 0.013** |
 | B3 (U-Net+FiLM+NLL) | 1,975,778 | 0.2803 ± 0.0004 | 39.867 ± 0.048 | 0.8913 ± 0.0001 | **0.0131 ± 0.0002** | **0.0143 ± 0.0002** | 0.287 ± 0.017 |
 
@@ -211,7 +214,57 @@ schedule would change the fourth decimal place.
 6. **Capacity has stopped paying.** 1.9M parameters bought 16.4% where five
    bought 6.5%. The next gain has to come from somewhere other than size.
 
-### The bar P1–P3 have to clear
+## 7. The two physics models
+
+**P1 (PSF-aware, 7 parameters)** predicts y as a spectral mix of the inputs,
+blurred by a Gaussian whose width is initialised at what script 07 measured.
+**P2 (SED, 4 parameters)** treats the four bands as four samples of one
+spectrum at known wavelengths and evaluates it at y's 9762 Å.
+
+### P1: the measurement carries over intact
+
+| | Trainable params | Test MAE |
+|---|---|---|
+| B1 (linear) | 5 | 0.3276 |
+| P1, blur **learned** | 7 | 0.3113 ± 0.0001 |
+| P1, blur **frozen** at the measured width | **5** | 0.3118 |
+
+Freezing the blur — no freedom to adjust it at all — costs 0.15%. So **at the
+same five parameters as B1, P1 is 5.0% better on MAE and 14% better on
+σ(mag)**, purely because one number came from an independent measurement rather
+than being learned. The prior is not a regulariser; it is a measured quantity
+that transfers.
+
+In the redshift bin holding 94% of the data, P1's fitted width (0.818–0.822 px
+across three seeds, spread 0.004) agrees with script 07's cross-correlation
+measurement (0.8675 px) to within 6% — two unrelated methods, one number. The
+sparse second bin (6.4% of galaxies, nine times the seed spread) is a thin
+slice of script 07's much wider bin and is not quoted as agreement.
+
+### P2: a negative result that explains itself
+
+P2 reaches 0.3279 against B1's 0.3276 — indistinguishable. Its fitted gains say
+why: it discarded the spectral curvature (gain 0.04–0.07) and halved the slope
+(0.53–0.54). Extrapolating along a measured curvature 864 Å past the data
+overshoots, and once damped P2 **is** an affine function of the four bands,
+which is exactly B1. The spectral dimension is genuinely exhausted by a linear
+combination, and the model reports this itself — a question B2's 1.9M
+parameters cannot be asked.
+
+Adding a 737-parameter residual convolution takes P2 to **0.2994** (−8.7%),
+more than P1's whole gain, and its gains then rise to `[1.06, 0.68, 0.23]`:
+with something else handling spatial structure, the spectral terms become
+trustworthy again.
+
+### Why this matters for the argument
+
+The diagnostics predicted both outcomes, and the physics models confirm them
+from different directions: script 06 said the spectral signal is essentially
+linear, so P2 cannot beat B1; script 07 said y is optically broader, so P1
+beats B1 at equal parameter count. **The remaining error is spatial, not
+spectral.**
+
+### The bar a physics model has to clear
 
 B3's three-seed spread sets it precisely. To be making a claim rather than
 measuring noise, a physics model must beat

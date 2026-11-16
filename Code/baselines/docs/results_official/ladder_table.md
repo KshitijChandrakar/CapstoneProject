@@ -1,7 +1,9 @@
 | Model | Params | Test MAE ↓ | PSNR (dB) ↑ | SSIM ↑ | Flux NMAD ↓ | sigma(mag) ↓ | Outlier % ↓ |
 |---|---|---|---|---|---|---|---|
 | B0 (Copy-z) | 0 | 0.3505 | 37.431 | 0.8694 | 0.0402 | 0.0431 | 0.504 |
+| P2 (SED) | 4 | 0.3279 ± 0.0001 | 37.973 ± 0.020 | 0.8792 ± 0.0004 | 0.0399 ± 0.0001 | 0.0428 ± 0.0001 | 1.125 ± 0.075 |
 | B1 (as specified) | 5 | 0.3276 ± 0.0000 | 37.991 ± 0.000 | 0.8785 ± 0.0000 | 0.0395 ± 0.0000 | 0.0423 ± 0.0000 | 1.217 ± 0.007 |
+| P1 (PSF) | 7 | 0.3113 ± 0.0001 | 38.488 ± 0.006 | 0.8851 ± 0.0008 | 0.0337 ± 0.0001 | 0.0362 ± 0.0002 | 1.077 ± 0.167 |
 | B2 (U-Net) | 1,928,705 | **0.2744 ± 0.0006** | **40.411 ± 0.042** | **0.8917 ± 0.0001** | 0.0151 ± 0.0002 | 0.0164 ± 0.0002 | **0.264 ± 0.013** |
 | B3 (U-Net+FiLM+NLL) | 1,975,778 | 0.2803 ± 0.0004 | 39.867 ± 0.048 | 0.8913 ± 0.0001 | **0.0131 ± 0.0002** | **0.0143 ± 0.0002** | 0.287 ± 0.017 |
 
@@ -11,8 +13,10 @@ Evaluated on the official GalaxiesML **test** split: **17,072 galaxies**, 0.0 �
 
 | Step | MAE change | Parameters added | MAE improvement per 10k params |
 |---|---|---|---|
-| B0 -> B1 | 0.3505 -> 0.3276 (-6.5%) | 5 | 45.8 |
-| B1 -> B2 | 0.3276 -> 0.2744 (-16.2%) | 1,928,700 | 0.000276 |
+| B0 -> P2 | 0.3505 -> 0.3279 (-6.4%) | 4 | 56.4 |
+| P2 -> B1 | 0.3279 -> 0.3276 (-0.1%) | 1 | 3.51 |
+| B1 -> P1 | 0.3276 -> 0.3113 (-5.0%) | 2 | 81.5 |
+| P1 -> B2 | 0.3113 -> 0.2744 (-11.9%) | 1,928,698 | 0.000191 |
 | B2 -> B3 | 0.2744 -> 0.2803 (+2.2%) | 47,073 | -0.00126 |
 
 The last column is the honest one. B1 bought 6.5% with five parameters; a U-Net buys whatever it buys with ~1.9 million. If the per-parameter column collapses, the ladder has reached the point where capacity is no longer the constraint -- which is exactly the argument for the physics models rather than a bigger network.

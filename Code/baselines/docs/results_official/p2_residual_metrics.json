@@ -1,0 +1,1088 @@
+{
+  "model": "p2_residual",
+  "label": "P2 (SED+residual)",
+  "tag": "p2_residual",
+  "n_parameters": 741,
+  "seeds": [
+    42
+  ],
+  "architecture": {
+    "in_channels": 4,
+    "degree": 2,
+    "ridge": 1e-08,
+    "learn_gains": true,
+    "residual": true,
+    "residual_hidden": 16,
+    "residual_kernel": 3
+  },
+  "hyperparameters": {
+    "lr": 0.01,
+    "weight_decay": 0.0,
+    "epochs": 20,
+    "loss": "l1",
+    "optimizer": "adam",
+    "scheduler": "cosine",
+    "batch_size": 64,
+    "grad_clip_norm": 1.0,
+    "early_stopping_patience": 5,
+    "optimiser_steps_run": 26540
+  },
+  "physics_per_seed": [
+    {
+      "degree": 2,
+      "terms": [
+        "log_lambda^0",
+        "log_lambda^1",
+        "log_lambda^2"
+      ],
+      "gains": [
+        1.0604732036590576,
+        0.6848706007003784,
+        0.23112237453460693
+      ],
+      "bias": 0.003077917266637087,
+      "departs_from_pure_physics": [
+        true,
+        true,
+        true
+      ]
+    }
+  ],
+  "metrics_over_seeds": {
+    "pixel": {
+      "mae": {
+        "mean": 0.2994427625080991,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          0.2994427625080991
+        ]
+      },
+      "rmse": {
+        "mean": 0.9173828665693935,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          0.9173828665693935
+        ]
+      },
+      "n_valid_pixels": {
+        "mean": 69926912.0,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          69926912.0
+        ]
+      },
+      "n_invalid_pixels": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          0.0
+        ]
+      },
+      "psnr_mean": {
+        "mean": 39.04643714144901,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          39.04643714144901
+        ]
+      },
+      "psnr_std": {
+        "mean": 6.489957148182919,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          6.489957148182919
+        ]
+      },
+      "ssim_mean": {
+        "mean": 0.888092982579564,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          0.888092982579564
+        ]
+      },
+      "ssim_std": {
+        "mean": 0.19400952938356716,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          0.19400952938356716
+        ]
+      },
+      "n_galaxies_scored": {
+        "mean": 17072.0,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          17072.0
+        ]
+      },
+      "n_galaxies_skipped": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          0.0
+        ]
+      },
+      "n_galaxies_with_filled_pixels_for_ssim": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n_seeds": 1,
+        "values": [
+          0.0
+        ]
+      }
+    },
+    "photometry": {
+      "aperture": {
+        "radius_px": {
+          "mean": 15.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            15.0
+          ]
+        },
+        "center": {
+          "mean": NaN,
+          "std": NaN,
+          "n_seeds": 0
+        },
+        "n_pixels": {
+          "mean": 709.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            709.0
+          ]
+        }
+      },
+      "nonpositive_flux_handling": {
+        "mean": NaN,
+        "std": NaN,
+        "n_seeds": 0
+      },
+      "relative_flux_error": {
+        "median": {
+          "mean": 0.011348514515575805,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.011348514515575805
+          ]
+        },
+        "nmad": {
+          "mean": 0.03244450471310844,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.03244450471310844
+          ]
+        },
+        "mean": {
+          "mean": 0.030945956114956548,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.030945956114956548
+          ]
+        },
+        "std": {
+          "mean": 0.40304488597255916,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.40304488597255916
+          ]
+        },
+        "n": {
+          "mean": 17072.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            17072.0
+          ]
+        }
+      },
+      "delta_mag": {
+        "median": {
+          "mean": -0.012285260385841212,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            -0.012285260385841212
+          ]
+        },
+        "nmad": {
+          "mean": 0.0348501632853913,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.0348501632853913
+          ]
+        },
+        "mean": {
+          "mean": -0.02660677809109161,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            -0.02660677809109161
+          ]
+        },
+        "std": {
+          "mean": 0.10371627328276352,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.10371627328276352
+          ]
+        },
+        "n": {
+          "mean": 17061.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            17061.0
+          ]
+        },
+        "outlier_percent": {
+          "mean": 0.6857745735888869,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.6857745735888869
+          ]
+        },
+        "outlier_threshold": {
+          "mean": 0.5,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.5
+          ]
+        },
+        "zeropoint": {
+          "mean": 27.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            27.0
+          ]
+        },
+        "n_excluded_nonpositive_true_flux": {
+          "mean": 11.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            11.0
+          ]
+        },
+        "n_excluded_nonpositive_pred_flux": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.0
+          ]
+        },
+        "n_excluded_total": {
+          "mean": 11.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            11.0
+          ]
+        }
+      },
+      "colour_error_z_minus_y": {
+        "median": {
+          "mean": 0.012285260385841212,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.012285260385841212
+          ]
+        },
+        "nmad": {
+          "mean": 0.0348501632853913,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.0348501632853913
+          ]
+        },
+        "mean": {
+          "mean": 0.02660677809109161,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.02660677809109161
+          ]
+        },
+        "std": {
+          "mean": 0.10371627328276352,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.10371627328276352
+          ]
+        },
+        "n": {
+          "mean": 17061.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            17061.0
+          ]
+        },
+        "note": {
+          "mean": NaN,
+          "std": NaN,
+          "n_seeds": 0
+        },
+        "n_nonpositive_z_flux": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            0.0
+          ]
+        }
+      },
+      "delta_mag_by_brightness": {
+        "split_on": {
+          "mean": NaN,
+          "std": NaN,
+          "n_seeds": 0
+        },
+        "median_true_flux": {
+          "mean": 4024.4992852807045,
+          "std": 0.0,
+          "n_seeds": 1,
+          "values": [
+            4024.4992852807045
+          ]
+        },
+        "faint_half": {
+          "median": {
+            "mean": -0.028537891817776995,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              -0.028537891817776995
+            ]
+          },
+          "nmad": {
+            "mean": 0.04217986535691052,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.04217986535691052
+            ]
+          },
+          "mean": {
+            "mean": -0.05238517237584339,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              -0.05238517237584339
+            ]
+          },
+          "std": {
+            "mean": 0.1387099403929498,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.1387099403929498
+            ]
+          },
+          "n": {
+            "mean": 8531.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              8531.0
+            ]
+          }
+        },
+        "bright_half": {
+          "median": {
+            "mean": -0.0013730921874177682,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              -0.0013730921874177682
+            ]
+          },
+          "nmad": {
+            "mean": 0.02583246730948051,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.02583246730948051
+            ]
+          },
+          "mean": {
+            "mean": -0.000825361720257202,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              -0.000825361720257202
+            ]
+          },
+          "std": {
+            "mean": 0.03071487656099143,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.03071487656099143
+            ]
+          },
+          "n": {
+            "mean": 8530.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              8530.0
+            ]
+          }
+        }
+      }
+    },
+    "magnitude_handling_comparison": {
+      "exclude": {
+        "delta_mag": {
+          "median": {
+            "mean": -0.012285260385841212,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              -0.012285260385841212
+            ]
+          },
+          "nmad": {
+            "mean": 0.0348501632853913,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.0348501632853913
+            ]
+          },
+          "mean": {
+            "mean": -0.02660677809109161,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              -0.02660677809109161
+            ]
+          },
+          "std": {
+            "mean": 0.10371627328276352,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.10371627328276352
+            ]
+          },
+          "n": {
+            "mean": 17061.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              17061.0
+            ]
+          },
+          "outlier_percent": {
+            "mean": 0.6857745735888869,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.6857745735888869
+            ]
+          },
+          "outlier_threshold": {
+            "mean": 0.5,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.5
+            ]
+          },
+          "zeropoint": {
+            "mean": 27.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              27.0
+            ]
+          },
+          "n_excluded_nonpositive_true_flux": {
+            "mean": 11.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              11.0
+            ]
+          },
+          "n_excluded_nonpositive_pred_flux": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.0
+            ]
+          },
+          "n_excluded_total": {
+            "mean": 11.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              11.0
+            ]
+          }
+        },
+        "colour_error_z_minus_y": {
+          "median": {
+            "mean": 0.012285260385841212,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.012285260385841212
+            ]
+          },
+          "nmad": {
+            "mean": 0.0348501632853913,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.0348501632853913
+            ]
+          },
+          "mean": {
+            "mean": 0.02660677809109161,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.02660677809109161
+            ]
+          },
+          "std": {
+            "mean": 0.10371627328276352,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.10371627328276352
+            ]
+          },
+          "n": {
+            "mean": 17061.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              17061.0
+            ]
+          },
+          "note": {
+            "mean": NaN,
+            "std": NaN,
+            "n_seeds": 0
+          },
+          "n_nonpositive_z_flux": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.0
+            ]
+          }
+        }
+      },
+      "clamp": {
+        "delta_mag": {
+          "median": {
+            "mean": -0.012309836495683513,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              -0.012309836495683513
+            ]
+          },
+          "nmad": {
+            "mean": 0.03488834620745418,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.03488834620745418
+            ]
+          },
+          "mean": {
+            "mean": -0.07784387462241665,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              -0.07784387462241665
+            ]
+          },
+          "std": {
+            "mean": 2.0206099871128376,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              2.0206099871128376
+            ]
+          },
+          "n": {
+            "mean": 17072.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              17072.0
+            ]
+          },
+          "outlier_percent": {
+            "mean": 0.7497656982193065,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.7497656982193065
+            ]
+          },
+          "outlier_threshold": {
+            "mean": 0.5,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.5
+            ]
+          },
+          "zeropoint": {
+            "mean": 27.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              27.0
+            ]
+          },
+          "n_excluded_nonpositive_true_flux": {
+            "mean": 11.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              11.0
+            ]
+          },
+          "n_excluded_nonpositive_pred_flux": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.0
+            ]
+          },
+          "n_excluded_total": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.0
+            ]
+          }
+        },
+        "colour_error_z_minus_y": {
+          "median": {
+            "mean": 0.012309836495683513,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.012309836495683513
+            ]
+          },
+          "nmad": {
+            "mean": 0.03488834620745418,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.03488834620745418
+            ]
+          },
+          "mean": {
+            "mean": 0.07784387462241665,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.07784387462241665
+            ]
+          },
+          "std": {
+            "mean": 2.020609987112838,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              2.020609987112838
+            ]
+          },
+          "n": {
+            "mean": 17072.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              17072.0
+            ]
+          },
+          "note": {
+            "mean": NaN,
+            "std": NaN,
+            "n_seeds": 0
+          },
+          "n_nonpositive_z_flux": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n_seeds": 1,
+            "values": [
+              0.0
+            ]
+          }
+        }
+      }
+    },
+    "n_galaxies": {
+      "mean": 17072.0,
+      "std": 0.0,
+      "n_seeds": 1,
+      "values": [
+        17072.0
+      ]
+    }
+  },
+  "per_seed": [
+    {
+      "model": "p2_residual",
+      "seed": 42,
+      "n_parameters": 741,
+      "parameter_breakdown": {
+        "sed_gains": 3,
+        "sed_bias": 1,
+        "residual": 737,
+        "total": 741,
+        "trainable": 741
+      },
+      "architecture": {
+        "in_channels": 4,
+        "degree": 2,
+        "ridge": 1e-08,
+        "learn_gains": true,
+        "residual": true,
+        "residual_hidden": 16,
+        "residual_kernel": 3
+      },
+      "hyperparameters": {
+        "lr": 0.01,
+        "weight_decay": 0.0,
+        "epochs": 20,
+        "loss": "l1",
+        "optimizer": "adam",
+        "scheduler": "cosine",
+        "batch_size": 64,
+        "grad_clip_norm": 1.0,
+        "early_stopping_patience": 5,
+        "optimiser_steps_run": 26540
+      },
+      "best_val_loss": 0.0470841466032191,
+      "best_epoch": 20,
+      "epochs_run": 20,
+      "stopped_early": false,
+      "checkpoint": "D:\\capstone project\\CapstoneProject\\Code\\baselines\\results\\checkpoints\\p2_residual_seed42.pt",
+      "history": [
+        {
+          "epoch": 1,
+          "total_epochs": 20,
+          "train_loss": 0.04910284545224865,
+          "val_loss": 0.04764664743040035,
+          "lr": 0.01
+        },
+        {
+          "epoch": 2,
+          "total_epochs": 20,
+          "train_loss": 0.04821397464079523,
+          "val_loss": 0.047544127413586004,
+          "lr": 0.009938441702975689
+        },
+        {
+          "epoch": 3,
+          "total_epochs": 20,
+          "train_loss": 0.04938119040702462,
+          "val_loss": 0.047672041156676725,
+          "lr": 0.009755282581475769
+        },
+        {
+          "epoch": 4,
+          "total_epochs": 20,
+          "train_loss": 0.047958468941139296,
+          "val_loss": 0.04809952083863874,
+          "lr": 0.00945503262094184
+        },
+        {
+          "epoch": 5,
+          "total_epochs": 20,
+          "train_loss": 0.04804926607041945,
+          "val_loss": 0.04742653923692988,
+          "lr": 0.009045084971874739
+        },
+        {
+          "epoch": 6,
+          "total_epochs": 20,
+          "train_loss": 0.048033148392799124,
+          "val_loss": 0.04860174272960024,
+          "lr": 0.008535533905932738
+        },
+        {
+          "epoch": 7,
+          "total_epochs": 20,
+          "train_loss": 0.04814183413308639,
+          "val_loss": 0.04748427234729057,
+          "lr": 0.007938926261462366
+        },
+        {
+          "epoch": 8,
+          "total_epochs": 20,
+          "train_loss": 0.04787157906588523,
+          "val_loss": 0.04739458522578673,
+          "lr": 0.007269952498697735
+        },
+        {
+          "epoch": 9,
+          "total_epochs": 20,
+          "train_loss": 0.04784029369897293,
+          "val_loss": 0.04746954613573738,
+          "lr": 0.006545084971874738
+        },
+        {
+          "epoch": 10,
+          "total_epochs": 20,
+          "train_loss": 0.047822530049418,
+          "val_loss": 0.04773154925666193,
+          "lr": 0.005782172325201155
+        },
+        {
+          "epoch": 11,
+          "total_epochs": 20,
+          "train_loss": 0.047735848565836465,
+          "val_loss": 0.047327090840119476,
+          "lr": 0.005
+        },
+        {
+          "epoch": 12,
+          "total_epochs": 20,
+          "train_loss": 0.04771476950336419,
+          "val_loss": 0.047376136844560726,
+          "lr": 0.004217827674798847
+        },
+        {
+          "epoch": 13,
+          "total_epochs": 20,
+          "train_loss": 0.04764051326096462,
+          "val_loss": 0.0475048797636001,
+          "lr": 0.0034549150281252636
+        },
+        {
+          "epoch": 14,
+          "total_epochs": 20,
+          "train_loss": 0.04759770868165024,
+          "val_loss": 0.04738157233501326,
+          "lr": 0.0027300475013022664
+        },
+        {
+          "epoch": 15,
+          "total_epochs": 20,
+          "train_loss": 0.047539476574747386,
+          "val_loss": 0.04729258396259662,
+          "lr": 0.0020610737385376348
+        },
+        {
+          "epoch": 16,
+          "total_epochs": 20,
+          "train_loss": 0.047471532644458345,
+          "val_loss": 0.04725559620158886,
+          "lr": 0.0014644660940672626
+        },
+        {
+          "epoch": 17,
+          "total_epochs": 20,
+          "train_loss": 0.04742583073535268,
+          "val_loss": 0.047172105878091126,
+          "lr": 0.0009549150281252633
+        },
+        {
+          "epoch": 18,
+          "total_epochs": 20,
+          "train_loss": 0.047378980386903975,
+          "val_loss": 0.047120107608889024,
+          "lr": 0.0005449673790581611
+        },
+        {
+          "epoch": 19,
+          "total_epochs": 20,
+          "train_loss": 0.04733596837320719,
+          "val_loss": 0.04709642386036133,
+          "lr": 0.00024471741852423234
+        },
+        {
+          "epoch": 20,
+          "total_epochs": 20,
+          "train_loss": 0.047309604058633103,
+          "val_loss": 0.0470841466032191,
+          "lr": 6.15582970243117e-05
+        }
+      ],
+      "physics": {
+        "degree": 2,
+        "terms": [
+          "log_lambda^0",
+          "log_lambda^1",
+          "log_lambda^2"
+        ],
+        "gains": [
+          1.0604732036590576,
+          0.6848706007003784,
+          0.23112237453460693
+        ],
+        "bias": 0.003077917266637087,
+        "departs_from_pure_physics": [
+          true,
+          true,
+          true
+        ]
+      },
+      "metrics": {
+        "pixel": {
+          "mae": 0.2994427625080991,
+          "rmse": 0.9173828665693935,
+          "n_valid_pixels": 69926912,
+          "n_invalid_pixels": 0,
+          "psnr_mean": 39.04643714144901,
+          "psnr_std": 6.489957148182919,
+          "ssim_mean": 0.888092982579564,
+          "ssim_std": 0.19400952938356716,
+          "n_galaxies_scored": 17072,
+          "n_galaxies_skipped": 0,
+          "n_galaxies_with_filled_pixels_for_ssim": 0
+        },
+        "photometry": {
+          "aperture": {
+            "radius_px": 15.0,
+            "center": [
+              32.0,
+              32.0
+            ],
+            "n_pixels": 709
+          },
+          "nonpositive_flux_handling": "exclude",
+          "relative_flux_error": {
+            "median": 0.011348514515575805,
+            "nmad": 0.03244450471310844,
+            "mean": 0.030945956114956548,
+            "std": 0.40304488597255916,
+            "n": 17072
+          },
+          "delta_mag": {
+            "median": -0.012285260385841212,
+            "nmad": 0.0348501632853913,
+            "mean": -0.02660677809109161,
+            "std": 0.10371627328276352,
+            "n": 17061,
+            "outlier_percent": 0.6857745735888869,
+            "outlier_threshold": 0.5,
+            "zeropoint": 27.0,
+            "n_excluded_nonpositive_true_flux": 11,
+            "n_excluded_nonpositive_pred_flux": 0,
+            "n_excluded_total": 11
+          },
+          "colour_error_z_minus_y": {
+            "median": 0.012285260385841212,
+            "nmad": 0.0348501632853913,
+            "mean": 0.02660677809109161,
+            "std": 0.10371627328276352,
+            "n": 17061,
+            "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+            "n_nonpositive_z_flux": 0
+          },
+          "delta_mag_by_brightness": {
+            "split_on": "median true aperture flux",
+            "median_true_flux": 4024.4992852807045,
+            "faint_half": {
+              "median": -0.028537891817776995,
+              "nmad": 0.04217986535691052,
+              "mean": -0.05238517237584339,
+              "std": 0.1387099403929498,
+              "n": 8531
+            },
+            "bright_half": {
+              "median": -0.0013730921874177682,
+              "nmad": 0.02583246730948051,
+              "mean": -0.000825361720257202,
+              "std": 0.03071487656099143,
+              "n": 8530
+            }
+          }
+        },
+        "magnitude_handling_comparison": {
+          "exclude": {
+            "delta_mag": {
+              "median": -0.012285260385841212,
+              "nmad": 0.0348501632853913,
+              "mean": -0.02660677809109161,
+              "std": 0.10371627328276352,
+              "n": 17061,
+              "outlier_percent": 0.6857745735888869,
+              "outlier_threshold": 0.5,
+              "zeropoint": 27.0,
+              "n_excluded_nonpositive_true_flux": 11,
+              "n_excluded_nonpositive_pred_flux": 0,
+              "n_excluded_total": 11
+            },
+            "colour_error_z_minus_y": {
+              "median": 0.012285260385841212,
+              "nmad": 0.0348501632853913,
+              "mean": 0.02660677809109161,
+              "std": 0.10371627328276352,
+              "n": 17061,
+              "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+              "n_nonpositive_z_flux": 0
+            }
+          },
+          "clamp": {
+            "delta_mag": {
+              "median": -0.012309836495683513,
+              "nmad": 0.03488834620745418,
+              "mean": -0.07784387462241665,
+              "std": 2.0206099871128376,
+              "n": 17072,
+              "outlier_percent": 0.7497656982193065,
+              "outlier_threshold": 0.5,
+              "zeropoint": 27.0,
+              "n_excluded_nonpositive_true_flux": 11,
+              "n_excluded_nonpositive_pred_flux": 0,
+              "n_excluded_total": 0
+            },
+            "colour_error_z_minus_y": {
+              "median": 0.012309836495683513,
+              "nmad": 0.03488834620745418,
+              "mean": 0.07784387462241665,
+              "std": 2.020609987112838,
+              "n": 17072,
+              "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+              "n_nonpositive_z_flux": 0
+            }
+          }
+        },
+        "n_galaxies": 17072
+      }
+    }
+  ]
+}

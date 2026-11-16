@@ -1,0 +1,1730 @@
+{
+  "model": "p2",
+  "label": "P2 (SED)",
+  "tag": "p2",
+  "n_parameters": 4,
+  "seeds": [
+    42,
+    123,
+    2026
+  ],
+  "architecture": {
+    "in_channels": 4,
+    "degree": 2,
+    "ridge": 1e-08,
+    "learn_gains": true,
+    "residual": false,
+    "residual_hidden": 16,
+    "residual_kernel": 3,
+    "expected_parameters": 4
+  },
+  "hyperparameters": {
+    "lr": 0.01,
+    "weight_decay": 0.0,
+    "epochs": 20,
+    "loss": "l1",
+    "optimizer": "adam",
+    "scheduler": "cosine",
+    "batch_size": 64,
+    "grad_clip_norm": 1.0,
+    "early_stopping_patience": 5,
+    "optimiser_steps_run": 11943
+  },
+  "physics_per_seed": [
+    {
+      "degree": 2,
+      "terms": [
+        "log_lambda^0",
+        "log_lambda^1",
+        "log_lambda^2"
+      ],
+      "gains": [
+        1.0061308145523071,
+        0.5359103083610535,
+        0.04851929470896721
+      ],
+      "bias": -0.0007199524552561343,
+      "departs_from_pure_physics": [
+        false,
+        true,
+        true
+      ]
+    },
+    {
+      "degree": 2,
+      "terms": [
+        "log_lambda^0",
+        "log_lambda^1",
+        "log_lambda^2"
+      ],
+      "gains": [
+        1.007128119468689,
+        0.5422223210334778,
+        0.0692492127418518
+      ],
+      "bias": -0.0015227345284074545,
+      "departs_from_pure_physics": [
+        false,
+        true,
+        true
+      ]
+    },
+    {
+      "degree": 2,
+      "terms": [
+        "log_lambda^0",
+        "log_lambda^1",
+        "log_lambda^2"
+      ],
+      "gains": [
+        1.0093436241149902,
+        0.5307116508483887,
+        0.037166014313697815
+      ],
+      "bias": -0.0006909632938914001,
+      "departs_from_pure_physics": [
+        false,
+        true,
+        true
+      ]
+    }
+  ],
+  "metrics_over_seeds": {
+    "pixel": {
+      "mae": {
+        "mean": 0.3279304766707292,
+        "std": 5.127046766418889e-05,
+        "n_seeds": 3,
+        "values": [
+          0.32790361596216194,
+          0.32800223256001426,
+          0.32788558149001135
+        ]
+      },
+      "rmse": {
+        "mean": 1.0535548954149336,
+        "std": 0.003263676975978087,
+        "n_seeds": 3,
+        "values": [
+          1.0526687989006924,
+          1.0500751250641043,
+          1.0579207622800049
+        ]
+      },
+      "n_valid_pixels": {
+        "mean": 69926912.0,
+        "std": 0.0,
+        "n_seeds": 3,
+        "values": [
+          69926912.0,
+          69926912.0,
+          69926912.0
+        ]
+      },
+      "n_invalid_pixels": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n_seeds": 3,
+        "values": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "psnr_mean": {
+        "mean": 37.97323160225069,
+        "std": 0.02029544036062834,
+        "n_seeds": 3,
+        "values": [
+          37.985728984515276,
+          37.98935966080524,
+          37.944606161431565
+        ]
+      },
+      "psnr_std": {
+        "mean": 6.652122363481424,
+        "std": 0.002905774850565791,
+        "n_seeds": 3,
+        "values": [
+          6.653401597045175,
+          6.648100741031265,
+          6.654864752367832
+        ]
+      },
+      "ssim_mean": {
+        "mean": 0.8791701789016891,
+        "std": 0.0003985298666917576,
+        "n_seeds": 3,
+        "values": [
+          0.8786223196956549,
+          0.8793295362578893,
+          0.8795586807515231
+        ]
+      },
+      "ssim_std": {
+        "mean": 0.2004852481262823,
+        "std": 0.0006028972386653058,
+        "n_seeds": 3,
+        "values": [
+          0.20132261514482505,
+          0.2002056328656444,
+          0.19992749636837742
+        ]
+      },
+      "n_galaxies_scored": {
+        "mean": 17072.0,
+        "std": 0.0,
+        "n_seeds": 3,
+        "values": [
+          17072.0,
+          17072.0,
+          17072.0
+        ]
+      },
+      "n_galaxies_skipped": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n_seeds": 3,
+        "values": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "n_galaxies_with_filled_pixels_for_ssim": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n_seeds": 3,
+        "values": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "photometry": {
+      "aperture": {
+        "radius_px": {
+          "mean": 15.0,
+          "std": 0.0,
+          "n_seeds": 3,
+          "values": [
+            15.0,
+            15.0,
+            15.0
+          ]
+        },
+        "center": {
+          "mean": NaN,
+          "std": NaN,
+          "n_seeds": 0
+        },
+        "n_pixels": {
+          "mean": 709.0,
+          "std": 0.0,
+          "n_seeds": 3,
+          "values": [
+            709.0,
+            709.0,
+            709.0
+          ]
+        }
+      },
+      "nonpositive_flux_handling": {
+        "mean": NaN,
+        "std": NaN,
+        "n_seeds": 0
+      },
+      "relative_flux_error": {
+        "median": {
+          "mean": 0.013085599279022747,
+          "std": 0.0014925673971590942,
+          "n_seeds": 3,
+          "values": [
+            0.012614855064243688,
+            0.011538996059483638,
+            0.015102946713340924
+          ]
+        },
+        "nmad": {
+          "mean": 0.039924560883303074,
+          "std": 5.51471199380323e-05,
+          "n_seeds": 3,
+          "values": [
+            0.03987454231883024,
+            0.04000139115223646,
+            0.03989774917884252
+          ]
+        },
+        "mean": {
+          "mean": 0.04080394477668609,
+          "std": 0.0014553530568970753,
+          "n_seeds": 3,
+          "values": [
+            0.04212065793838755,
+            0.03877563249666801,
+            0.04151554389500271
+          ]
+        },
+        "std": {
+          "mean": 0.5037125340917651,
+          "std": 0.018344398630109,
+          "n_seeds": 3,
+          "values": [
+            0.5295660147800406,
+            0.49264955174593045,
+            0.4889220357493241
+          ]
+        },
+        "n": {
+          "mean": 17072.0,
+          "std": 0.0,
+          "n_seeds": 3,
+          "values": [
+            17072.0,
+            17072.0,
+            17072.0
+          ]
+        }
+      },
+      "delta_mag": {
+        "median": {
+          "mean": -0.01415773831601778,
+          "std": 0.0016124775180495956,
+          "n_seeds": 3,
+          "values": [
+            -0.013650104689496345,
+            -0.012486235235016352,
+            -0.016336875023540642
+          ]
+        },
+        "nmad": {
+          "mean": 0.042840878060249755,
+          "std": 0.00013686638118598274,
+          "n_seeds": 3,
+          "values": [
+            0.04270336299438533,
+            0.04302760090352212,
+            0.04279167028284182
+          ]
+        },
+        "mean": {
+          "mean": -0.03339009296755752,
+          "std": 0.001276280012234738,
+          "n_seeds": 3,
+          "values": [
+            -0.03390902150044632,
+            -0.03163350783499701,
+            -0.034627749567229235
+          ]
+        },
+        "std": {
+          "mean": 0.12558248297333477,
+          "std": 0.0027152706859747354,
+          "n_seeds": 3,
+          "values": [
+            0.12941903188283382,
+            0.12352381017124203,
+            0.12380460686592841
+          ]
+        },
+        "n": {
+          "mean": 17061.0,
+          "std": 0.0,
+          "n_seeds": 3,
+          "values": [
+            17061.0,
+            17061.0,
+            17061.0
+          ]
+        },
+        "outlier_percent": {
+          "mean": 1.1253736592227888,
+          "std": 0.07521394429759949,
+          "n_seeds": 3,
+          "values": [
+            1.2308774397749254,
+            1.0843444112302913,
+            1.0608991266631498
+          ]
+        },
+        "outlier_threshold": {
+          "mean": 0.5,
+          "std": 0.0,
+          "n_seeds": 3,
+          "values": [
+            0.5,
+            0.5,
+            0.5
+          ]
+        },
+        "zeropoint": {
+          "mean": 27.0,
+          "std": 0.0,
+          "n_seeds": 3,
+          "values": [
+            27.0,
+            27.0,
+            27.0
+          ]
+        },
+        "n_excluded_nonpositive_true_flux": {
+          "mean": 11.0,
+          "std": 0.0,
+          "n_seeds": 3,
+          "values": [
+            11.0,
+            11.0,
+            11.0
+          ]
+        },
+        "n_excluded_nonpositive_pred_flux": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n_seeds": 3,
+          "values": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "n_excluded_total": {
+          "mean": 11.0,
+          "std": 0.0,
+          "n_seeds": 3,
+          "values": [
+            11.0,
+            11.0,
+            11.0
+          ]
+        }
+      },
+      "colour_error_z_minus_y": {
+        "median": {
+          "mean": 0.01415773831601778,
+          "std": 0.0016124775180495956,
+          "n_seeds": 3,
+          "values": [
+            0.013650104689496345,
+            0.012486235235016352,
+            0.016336875023540642
+          ]
+        },
+        "nmad": {
+          "mean": 0.042840878060249755,
+          "std": 0.00013686638118598274,
+          "n_seeds": 3,
+          "values": [
+            0.04270336299438533,
+            0.04302760090352212,
+            0.04279167028284182
+          ]
+        },
+        "mean": {
+          "mean": 0.03339009296755752,
+          "std": 0.001276280012234738,
+          "n_seeds": 3,
+          "values": [
+            0.03390902150044632,
+            0.03163350783499701,
+            0.034627749567229235
+          ]
+        },
+        "std": {
+          "mean": 0.12558248297333477,
+          "std": 0.0027152706859747354,
+          "n_seeds": 3,
+          "values": [
+            0.12941903188283382,
+            0.12352381017124203,
+            0.12380460686592841
+          ]
+        },
+        "n": {
+          "mean": 17061.0,
+          "std": 0.0,
+          "n_seeds": 3,
+          "values": [
+            17061.0,
+            17061.0,
+            17061.0
+          ]
+        },
+        "note": {
+          "mean": NaN,
+          "std": NaN,
+          "n_seeds": 0
+        },
+        "n_nonpositive_z_flux": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n_seeds": 3,
+          "values": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "delta_mag_by_brightness": {
+        "split_on": {
+          "mean": NaN,
+          "std": NaN,
+          "n_seeds": 0
+        },
+        "median_true_flux": {
+          "mean": 4024.4992852807045,
+          "std": 0.0,
+          "n_seeds": 3,
+          "values": [
+            4024.4992852807045,
+            4024.4992852807045,
+            4024.4992852807045
+          ]
+        },
+        "faint_half": {
+          "median": {
+            "mean": -0.038797821661968136,
+            "std": 0.0012705011052837774,
+            "n_seeds": 3,
+            "values": [
+              -0.03876064178686178,
+              -0.0372607050621383,
+              -0.040372118136904334
+            ]
+          },
+          "nmad": {
+            "mean": 0.0568771702683768,
+            "std": 0.0004040647566207104,
+            "n_seeds": 3,
+            "values": [
+              0.05677822151035562,
+              0.05741404525138678,
+              0.05643924404338798
+            ]
+          },
+          "mean": {
+            "mean": -0.0688953937292645,
+            "std": 0.001710364178620132,
+            "n_seeds": 3,
+            "values": [
+              -0.07083514014842164,
+              -0.0666740988052804,
+              -0.06917694223409142
+            ]
+          },
+          "std": {
+            "mean": 0.16623125497644553,
+            "std": 0.003682531640265164,
+            "n_seeds": 3,
+            "values": [
+              0.17142955943670557,
+              0.16335863981251747,
+              0.16390556568011352
+            ]
+          },
+          "n": {
+            "mean": 8531.0,
+            "std": 0.0,
+            "n_seeds": 3,
+            "values": [
+              8531.0,
+              8531.0,
+              8531.0
+            ]
+          }
+        },
+        "bright_half": {
+          "median": {
+            "mean": -0.0004964781551735816,
+            "std": 0.0016305998339751853,
+            "n_seeds": 3,
+            "values": [
+              0.000362577834307487,
+              0.000927315417715846,
+              -0.002779327717544078
+            ]
+          },
+          "nmad": {
+            "mean": 0.030725640785831104,
+            "std": 5.26979146075371e-05,
+            "n_seeds": 3,
+            "values": [
+              0.03068757053704259,
+              0.030800161020154603,
+              0.030689190800296112
+            ]
+          },
+          "mean": {
+            "mean": 0.002119370197521272,
+            "std": 0.001559444490622972,
+            "n_seeds": 3,
+            "values": [
+              0.003021426118062167,
+              0.003411191059198485,
+              -7.450658469683657e-05
+            ]
+          },
+          "std": {
+            "mean": 0.03721642073307891,
+            "std": 0.00015889610025589363,
+            "n_seeds": 3,
+            "values": [
+              0.037167728440520145,
+              0.03705078332349404,
+              0.037430750435222544
+            ]
+          },
+          "n": {
+            "mean": 8530.0,
+            "std": 0.0,
+            "n_seeds": 3,
+            "values": [
+              8530.0,
+              8530.0,
+              8530.0
+            ]
+          }
+        }
+      }
+    },
+    "magnitude_handling_comparison": {
+      "exclude": {
+        "delta_mag": {
+          "median": {
+            "mean": -0.01415773831601778,
+            "std": 0.0016124775180495956,
+            "n_seeds": 3,
+            "values": [
+              -0.013650104689496345,
+              -0.012486235235016352,
+              -0.016336875023540642
+            ]
+          },
+          "nmad": {
+            "mean": 0.042840878060249755,
+            "std": 0.00013686638118598274,
+            "n_seeds": 3,
+            "values": [
+              0.04270336299438533,
+              0.04302760090352212,
+              0.04279167028284182
+            ]
+          },
+          "mean": {
+            "mean": -0.03339009296755752,
+            "std": 0.001276280012234738,
+            "n_seeds": 3,
+            "values": [
+              -0.03390902150044632,
+              -0.03163350783499701,
+              -0.034627749567229235
+            ]
+          },
+          "std": {
+            "mean": 0.12558248297333477,
+            "std": 0.0027152706859747354,
+            "n_seeds": 3,
+            "values": [
+              0.12941903188283382,
+              0.12352381017124203,
+              0.12380460686592841
+            ]
+          },
+          "n": {
+            "mean": 17061.0,
+            "std": 0.0,
+            "n_seeds": 3,
+            "values": [
+              17061.0,
+              17061.0,
+              17061.0
+            ]
+          },
+          "outlier_percent": {
+            "mean": 1.1253736592227888,
+            "std": 0.07521394429759949,
+            "n_seeds": 3,
+            "values": [
+              1.2308774397749254,
+              1.0843444112302913,
+              1.0608991266631498
+            ]
+          },
+          "outlier_threshold": {
+            "mean": 0.5,
+            "std": 0.0,
+            "n_seeds": 3,
+            "values": [
+              0.5,
+              0.5,
+              0.5
+            ]
+          },
+          "zeropoint": {
+            "mean": 27.0,
+            "std": 0.0,
+            "n_seeds": 3,
+            "values": [
+              27.0,
+              27.0,
+              27.0
+            ]
+          },
+          "n_excluded_nonpositive_true_flux": {
+            "mean": 11.0,
+            "std": 0.0,
+            "n_seeds": 3,
+            "values": [
+              11.0,
+              11.0,
+              11.0
+            ]
+          },
+          "n_excluded_nonpositive_pred_flux": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n_seeds": 3,
+            "values": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "n_excluded_total": {
+            "mean": 11.0,
+            "std": 0.0,
+            "n_seeds": 3,
+            "values": [
+              11.0,
+              11.0,
+              11.0
+            ]
+          }
+        },
+        "colour_error_z_minus_y": {
+          "median": {
+            "mean": 0.01415773831601778,
+            "std": 0.0016124775180495956,
+            "n_seeds": 3,
+            "values": [
+              0.013650104689496345,
+              0.012486235235016352,
+              0.016336875023540642
+            ]
+          },
+          "nmad": {
+            "mean": 0.042840878060249755,
+            "std": 0.00013686638118598274,
+            "n_seeds": 3,
+            "values": [
+              0.04270336299438533,
+              0.04302760090352212,
+              0.04279167028284182
+            ]
+          },
+          "mean": {
+            "mean": 0.03339009296755752,
+            "std": 0.001276280012234738,
+            "n_seeds": 3,
+            "values": [
+              0.03390902150044632,
+              0.03163350783499701,
+              0.034627749567229235
+            ]
+          },
+          "std": {
+            "mean": 0.12558248297333477,
+            "std": 0.0027152706859747354,
+            "n_seeds": 3,
+            "values": [
+              0.12941903188283382,
+              0.12352381017124203,
+              0.12380460686592841
+            ]
+          },
+          "n": {
+            "mean": 17061.0,
+            "std": 0.0,
+            "n_seeds": 3,
+            "values": [
+              17061.0,
+              17061.0,
+              17061.0
+            ]
+          },
+          "note": {
+            "mean": NaN,
+            "std": NaN,
+            "n_seeds": 0
+          },
+          "n_nonpositive_z_flux": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n_seeds": 3,
+            "values": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        }
+      },
+      "clamp": {
+        "delta_mag": {
+          "median": {
+            "mean": -0.014210980574976162,
+            "std": 0.0016196548402006054,
+            "n_seeds": 3,
+            "values": [
+              -0.013709487437818524,
+              -0.012526190738029186,
+              -0.016397263549080776
+            ]
+          },
+          "nmad": {
+            "mean": 0.04288678459380999,
+            "std": 0.0001403328674029024,
+            "n_seeds": 3,
+            "values": [
+              0.0427734930051844,
+              0.04308454641297574,
+              0.042802314363269846
+            ]
+          },
+          "mean": {
+            "mean": -0.08476759620592077,
+            "std": 0.0012800155316647736,
+            "n_seeds": 3,
+            "values": [
+              -0.08531637569157544,
+              -0.08299928864438719,
+              -0.08598712428179968
+            ]
+          },
+          "std": {
+            "mean": 2.0273512321319456,
+            "std": 0.0010006931627071947,
+            "n_seeds": 3,
+            "values": [
+              2.0287599587566487,
+              2.026763903777927,
+              2.02652983386126
+            ]
+          },
+          "n": {
+            "mean": 17072.0,
+            "std": 0.0,
+            "n_seeds": 3,
+            "values": [
+              17072.0,
+              17072.0,
+              17072.0
+            ]
+          },
+          "outlier_percent": {
+            "mean": 1.1890815370196812,
+            "std": 0.07516548170462416,
+            "n_seeds": 3,
+            "values": [
+              1.2945173383317714,
+              1.1480787253983131,
+              1.1246485473289598
+            ]
+          },
+          "outlier_threshold": {
+            "mean": 0.5,
+            "std": 0.0,
+            "n_seeds": 3,
+            "values": [
+              0.5,
+              0.5,
+              0.5
+            ]
+          },
+          "zeropoint": {
+            "mean": 27.0,
+            "std": 0.0,
+            "n_seeds": 3,
+            "values": [
+              27.0,
+              27.0,
+              27.0
+            ]
+          },
+          "n_excluded_nonpositive_true_flux": {
+            "mean": 11.0,
+            "std": 0.0,
+            "n_seeds": 3,
+            "values": [
+              11.0,
+              11.0,
+              11.0
+            ]
+          },
+          "n_excluded_nonpositive_pred_flux": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n_seeds": 3,
+            "values": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "n_excluded_total": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n_seeds": 3,
+            "values": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "colour_error_z_minus_y": {
+          "median": {
+            "mean": 0.014210980574976162,
+            "std": 0.0016196548402006054,
+            "n_seeds": 3,
+            "values": [
+              0.013709487437818524,
+              0.012526190738029186,
+              0.016397263549080776
+            ]
+          },
+          "nmad": {
+            "mean": 0.04288678459380999,
+            "std": 0.0001403328674029024,
+            "n_seeds": 3,
+            "values": [
+              0.0427734930051844,
+              0.04308454641297574,
+              0.042802314363269846
+            ]
+          },
+          "mean": {
+            "mean": 0.08476759620592078,
+            "std": 0.0012800155316647778,
+            "n_seeds": 3,
+            "values": [
+              0.08531637569157546,
+              0.08299928864438719,
+              0.08598712428179968
+            ]
+          },
+          "std": {
+            "mean": 2.0273512321319456,
+            "std": 0.0010006931627071947,
+            "n_seeds": 3,
+            "values": [
+              2.0287599587566487,
+              2.026763903777927,
+              2.02652983386126
+            ]
+          },
+          "n": {
+            "mean": 17072.0,
+            "std": 0.0,
+            "n_seeds": 3,
+            "values": [
+              17072.0,
+              17072.0,
+              17072.0
+            ]
+          },
+          "note": {
+            "mean": NaN,
+            "std": NaN,
+            "n_seeds": 0
+          },
+          "n_nonpositive_z_flux": {
+            "mean": 0.0,
+            "std": 0.0,
+            "n_seeds": 3,
+            "values": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        }
+      }
+    },
+    "n_galaxies": {
+      "mean": 17072.0,
+      "std": 0.0,
+      "n_seeds": 3,
+      "values": [
+        17072.0,
+        17072.0,
+        17072.0
+      ]
+    }
+  },
+  "per_seed": [
+    {
+      "model": "p2",
+      "seed": 42,
+      "n_parameters": 4,
+      "parameter_breakdown": {
+        "sed_gains": 3,
+        "sed_bias": 1,
+        "residual": 0,
+        "total": 4,
+        "trainable": 4
+      },
+      "architecture": {
+        "in_channels": 4,
+        "degree": 2,
+        "ridge": 1e-08,
+        "learn_gains": true,
+        "residual": false,
+        "residual_hidden": 16,
+        "residual_kernel": 3,
+        "expected_parameters": 4
+      },
+      "hyperparameters": {
+        "lr": 0.01,
+        "weight_decay": 0.0,
+        "epochs": 20,
+        "loss": "l1",
+        "optimizer": "adam",
+        "scheduler": "cosine",
+        "batch_size": 64,
+        "grad_clip_norm": 1.0,
+        "early_stopping_patience": 5,
+        "optimiser_steps_run": 11943
+      },
+      "best_val_loss": 0.05152237618953657,
+      "best_epoch": 4,
+      "epochs_run": 9,
+      "stopped_early": true,
+      "checkpoint": "D:\\capstone project\\CapstoneProject\\Code\\baselines\\results\\checkpoints\\p2_seed42.pt",
+      "history": [
+        {
+          "epoch": 1,
+          "total_epochs": 20,
+          "train_loss": 0.0522950508329279,
+          "val_loss": 0.05153331455927509,
+          "lr": 0.01
+        },
+        {
+          "epoch": 2,
+          "total_epochs": 20,
+          "train_loss": 0.05188391752367012,
+          "val_loss": 0.0515883072251593,
+          "lr": 0.009938441702975689
+        },
+        {
+          "epoch": 3,
+          "total_epochs": 20,
+          "train_loss": 0.05189409226280186,
+          "val_loss": 0.0516059381692712,
+          "lr": 0.009755282581475769
+        },
+        {
+          "epoch": 4,
+          "total_epochs": 20,
+          "train_loss": 0.05189039447564511,
+          "val_loss": 0.05152237618953657,
+          "lr": 0.00945503262094184
+        },
+        {
+          "epoch": 5,
+          "total_epochs": 20,
+          "train_loss": 0.05188958419552852,
+          "val_loss": 0.051539000241892105,
+          "lr": 0.009045084971874739
+        },
+        {
+          "epoch": 6,
+          "total_epochs": 20,
+          "train_loss": 0.051879757531015334,
+          "val_loss": 0.05178807322769912,
+          "lr": 0.008535533905932738
+        },
+        {
+          "epoch": 7,
+          "total_epochs": 20,
+          "train_loss": 0.05188343118660056,
+          "val_loss": 0.051539761243638266,
+          "lr": 0.007938926261462366
+        },
+        {
+          "epoch": 8,
+          "total_epochs": 20,
+          "train_loss": 0.051874386131224456,
+          "val_loss": 0.051589599004321134,
+          "lr": 0.007269952498697735
+        },
+        {
+          "epoch": 9,
+          "total_epochs": 20,
+          "train_loss": 0.05186887759471084,
+          "val_loss": 0.05154815481614266,
+          "lr": 0.006545084971874738
+        }
+      ],
+      "physics": {
+        "degree": 2,
+        "terms": [
+          "log_lambda^0",
+          "log_lambda^1",
+          "log_lambda^2"
+        ],
+        "gains": [
+          1.0061308145523071,
+          0.5359103083610535,
+          0.04851929470896721
+        ],
+        "bias": -0.0007199524552561343,
+        "departs_from_pure_physics": [
+          false,
+          true,
+          true
+        ]
+      },
+      "metrics": {
+        "pixel": {
+          "mae": 0.32790361596216194,
+          "rmse": 1.0526687989006924,
+          "n_valid_pixels": 69926912,
+          "n_invalid_pixels": 0,
+          "psnr_mean": 37.985728984515276,
+          "psnr_std": 6.653401597045175,
+          "ssim_mean": 0.8786223196956549,
+          "ssim_std": 0.20132261514482505,
+          "n_galaxies_scored": 17072,
+          "n_galaxies_skipped": 0,
+          "n_galaxies_with_filled_pixels_for_ssim": 0
+        },
+        "photometry": {
+          "aperture": {
+            "radius_px": 15.0,
+            "center": [
+              32.0,
+              32.0
+            ],
+            "n_pixels": 709
+          },
+          "nonpositive_flux_handling": "exclude",
+          "relative_flux_error": {
+            "median": 0.012614855064243688,
+            "nmad": 0.03987454231883024,
+            "mean": 0.04212065793838755,
+            "std": 0.5295660147800406,
+            "n": 17072
+          },
+          "delta_mag": {
+            "median": -0.013650104689496345,
+            "nmad": 0.04270336299438533,
+            "mean": -0.03390902150044632,
+            "std": 0.12941903188283382,
+            "n": 17061,
+            "outlier_percent": 1.2308774397749254,
+            "outlier_threshold": 0.5,
+            "zeropoint": 27.0,
+            "n_excluded_nonpositive_true_flux": 11,
+            "n_excluded_nonpositive_pred_flux": 0,
+            "n_excluded_total": 11
+          },
+          "colour_error_z_minus_y": {
+            "median": 0.013650104689496345,
+            "nmad": 0.04270336299438533,
+            "mean": 0.03390902150044632,
+            "std": 0.12941903188283382,
+            "n": 17061,
+            "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+            "n_nonpositive_z_flux": 0
+          },
+          "delta_mag_by_brightness": {
+            "split_on": "median true aperture flux",
+            "median_true_flux": 4024.4992852807045,
+            "faint_half": {
+              "median": -0.03876064178686178,
+              "nmad": 0.05677822151035562,
+              "mean": -0.07083514014842164,
+              "std": 0.17142955943670557,
+              "n": 8531
+            },
+            "bright_half": {
+              "median": 0.000362577834307487,
+              "nmad": 0.03068757053704259,
+              "mean": 0.003021426118062167,
+              "std": 0.037167728440520145,
+              "n": 8530
+            }
+          }
+        },
+        "magnitude_handling_comparison": {
+          "exclude": {
+            "delta_mag": {
+              "median": -0.013650104689496345,
+              "nmad": 0.04270336299438533,
+              "mean": -0.03390902150044632,
+              "std": 0.12941903188283382,
+              "n": 17061,
+              "outlier_percent": 1.2308774397749254,
+              "outlier_threshold": 0.5,
+              "zeropoint": 27.0,
+              "n_excluded_nonpositive_true_flux": 11,
+              "n_excluded_nonpositive_pred_flux": 0,
+              "n_excluded_total": 11
+            },
+            "colour_error_z_minus_y": {
+              "median": 0.013650104689496345,
+              "nmad": 0.04270336299438533,
+              "mean": 0.03390902150044632,
+              "std": 0.12941903188283382,
+              "n": 17061,
+              "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+              "n_nonpositive_z_flux": 0
+            }
+          },
+          "clamp": {
+            "delta_mag": {
+              "median": -0.013709487437818524,
+              "nmad": 0.0427734930051844,
+              "mean": -0.08531637569157544,
+              "std": 2.0287599587566487,
+              "n": 17072,
+              "outlier_percent": 1.2945173383317714,
+              "outlier_threshold": 0.5,
+              "zeropoint": 27.0,
+              "n_excluded_nonpositive_true_flux": 11,
+              "n_excluded_nonpositive_pred_flux": 0,
+              "n_excluded_total": 0
+            },
+            "colour_error_z_minus_y": {
+              "median": 0.013709487437818524,
+              "nmad": 0.0427734930051844,
+              "mean": 0.08531637569157546,
+              "std": 2.0287599587566487,
+              "n": 17072,
+              "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+              "n_nonpositive_z_flux": 0
+            }
+          }
+        },
+        "n_galaxies": 17072
+      }
+    },
+    {
+      "model": "p2",
+      "seed": 123,
+      "n_parameters": 4,
+      "parameter_breakdown": {
+        "sed_gains": 3,
+        "sed_bias": 1,
+        "residual": 0,
+        "total": 4,
+        "trainable": 4
+      },
+      "architecture": {
+        "in_channels": 4,
+        "degree": 2,
+        "ridge": 1e-08,
+        "learn_gains": true,
+        "residual": false,
+        "residual_hidden": 16,
+        "residual_kernel": 3,
+        "expected_parameters": 4
+      },
+      "hyperparameters": {
+        "lr": 0.01,
+        "weight_decay": 0.0,
+        "epochs": 20,
+        "loss": "l1",
+        "optimizer": "adam",
+        "scheduler": "cosine",
+        "batch_size": 64,
+        "grad_clip_norm": 1.0,
+        "early_stopping_patience": 5,
+        "optimiser_steps_run": 11943
+      },
+      "best_val_loss": 0.05153855210892967,
+      "best_epoch": 4,
+      "epochs_run": 9,
+      "stopped_early": true,
+      "checkpoint": "D:\\capstone project\\CapstoneProject\\Code\\baselines\\results\\checkpoints\\p2_seed123.pt",
+      "history": [
+        {
+          "epoch": 1,
+          "total_epochs": 20,
+          "train_loss": 0.052312449766175585,
+          "val_loss": 0.05157193285065578,
+          "lr": 0.01
+        },
+        {
+          "epoch": 2,
+          "total_epochs": 20,
+          "train_loss": 0.051902259213635143,
+          "val_loss": 0.05163063361907183,
+          "lr": 0.009938441702975689
+        },
+        {
+          "epoch": 3,
+          "total_epochs": 20,
+          "train_loss": 0.051903698023495676,
+          "val_loss": 0.05174758496569164,
+          "lr": 0.009755282581475769
+        },
+        {
+          "epoch": 4,
+          "total_epochs": 20,
+          "train_loss": 0.05189312848781138,
+          "val_loss": 0.05153855210892967,
+          "lr": 0.00945503262094184
+        },
+        {
+          "epoch": 5,
+          "total_epochs": 20,
+          "train_loss": 0.051888354950792914,
+          "val_loss": 0.051618704064957686,
+          "lr": 0.009045084971874739
+        },
+        {
+          "epoch": 6,
+          "total_epochs": 20,
+          "train_loss": 0.051882653007987035,
+          "val_loss": 0.05168136098046801,
+          "lr": 0.008535533905932738
+        },
+        {
+          "epoch": 7,
+          "total_epochs": 20,
+          "train_loss": 0.05188398093220967,
+          "val_loss": 0.05153921153396368,
+          "lr": 0.007938926261462366
+        },
+        {
+          "epoch": 8,
+          "total_epochs": 20,
+          "train_loss": 0.05187236937640211,
+          "val_loss": 0.051837987335982605,
+          "lr": 0.007269952498697735
+        },
+        {
+          "epoch": 9,
+          "total_epochs": 20,
+          "train_loss": 0.05186847521563446,
+          "val_loss": 0.05161272094988111,
+          "lr": 0.006545084971874738
+        }
+      ],
+      "physics": {
+        "degree": 2,
+        "terms": [
+          "log_lambda^0",
+          "log_lambda^1",
+          "log_lambda^2"
+        ],
+        "gains": [
+          1.007128119468689,
+          0.5422223210334778,
+          0.0692492127418518
+        ],
+        "bias": -0.0015227345284074545,
+        "departs_from_pure_physics": [
+          false,
+          true,
+          true
+        ]
+      },
+      "metrics": {
+        "pixel": {
+          "mae": 0.32800223256001426,
+          "rmse": 1.0500751250641043,
+          "n_valid_pixels": 69926912,
+          "n_invalid_pixels": 0,
+          "psnr_mean": 37.98935966080524,
+          "psnr_std": 6.648100741031265,
+          "ssim_mean": 0.8793295362578893,
+          "ssim_std": 0.2002056328656444,
+          "n_galaxies_scored": 17072,
+          "n_galaxies_skipped": 0,
+          "n_galaxies_with_filled_pixels_for_ssim": 0
+        },
+        "photometry": {
+          "aperture": {
+            "radius_px": 15.0,
+            "center": [
+              32.0,
+              32.0
+            ],
+            "n_pixels": 709
+          },
+          "nonpositive_flux_handling": "exclude",
+          "relative_flux_error": {
+            "median": 0.011538996059483638,
+            "nmad": 0.04000139115223646,
+            "mean": 0.03877563249666801,
+            "std": 0.49264955174593045,
+            "n": 17072
+          },
+          "delta_mag": {
+            "median": -0.012486235235016352,
+            "nmad": 0.04302760090352212,
+            "mean": -0.03163350783499701,
+            "std": 0.12352381017124203,
+            "n": 17061,
+            "outlier_percent": 1.0843444112302913,
+            "outlier_threshold": 0.5,
+            "zeropoint": 27.0,
+            "n_excluded_nonpositive_true_flux": 11,
+            "n_excluded_nonpositive_pred_flux": 0,
+            "n_excluded_total": 11
+          },
+          "colour_error_z_minus_y": {
+            "median": 0.012486235235016352,
+            "nmad": 0.04302760090352212,
+            "mean": 0.03163350783499701,
+            "std": 0.12352381017124203,
+            "n": 17061,
+            "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+            "n_nonpositive_z_flux": 0
+          },
+          "delta_mag_by_brightness": {
+            "split_on": "median true aperture flux",
+            "median_true_flux": 4024.4992852807045,
+            "faint_half": {
+              "median": -0.0372607050621383,
+              "nmad": 0.05741404525138678,
+              "mean": -0.0666740988052804,
+              "std": 0.16335863981251747,
+              "n": 8531
+            },
+            "bright_half": {
+              "median": 0.000927315417715846,
+              "nmad": 0.030800161020154603,
+              "mean": 0.003411191059198485,
+              "std": 0.03705078332349404,
+              "n": 8530
+            }
+          }
+        },
+        "magnitude_handling_comparison": {
+          "exclude": {
+            "delta_mag": {
+              "median": -0.012486235235016352,
+              "nmad": 0.04302760090352212,
+              "mean": -0.03163350783499701,
+              "std": 0.12352381017124203,
+              "n": 17061,
+              "outlier_percent": 1.0843444112302913,
+              "outlier_threshold": 0.5,
+              "zeropoint": 27.0,
+              "n_excluded_nonpositive_true_flux": 11,
+              "n_excluded_nonpositive_pred_flux": 0,
+              "n_excluded_total": 11
+            },
+            "colour_error_z_minus_y": {
+              "median": 0.012486235235016352,
+              "nmad": 0.04302760090352212,
+              "mean": 0.03163350783499701,
+              "std": 0.12352381017124203,
+              "n": 17061,
+              "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+              "n_nonpositive_z_flux": 0
+            }
+          },
+          "clamp": {
+            "delta_mag": {
+              "median": -0.012526190738029186,
+              "nmad": 0.04308454641297574,
+              "mean": -0.08299928864438719,
+              "std": 2.026763903777927,
+              "n": 17072,
+              "outlier_percent": 1.1480787253983131,
+              "outlier_threshold": 0.5,
+              "zeropoint": 27.0,
+              "n_excluded_nonpositive_true_flux": 11,
+              "n_excluded_nonpositive_pred_flux": 0,
+              "n_excluded_total": 0
+            },
+            "colour_error_z_minus_y": {
+              "median": 0.012526190738029186,
+              "nmad": 0.04308454641297574,
+              "mean": 0.08299928864438719,
+              "std": 2.026763903777927,
+              "n": 17072,
+              "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+              "n_nonpositive_z_flux": 0
+            }
+          }
+        },
+        "n_galaxies": 17072
+      }
+    },
+    {
+      "model": "p2",
+      "seed": 2026,
+      "n_parameters": 4,
+      "parameter_breakdown": {
+        "sed_gains": 3,
+        "sed_bias": 1,
+        "residual": 0,
+        "total": 4,
+        "trainable": 4
+      },
+      "architecture": {
+        "in_channels": 4,
+        "degree": 2,
+        "ridge": 1e-08,
+        "learn_gains": true,
+        "residual": false,
+        "residual_hidden": 16,
+        "residual_kernel": 3,
+        "expected_parameters": 4
+      },
+      "hyperparameters": {
+        "lr": 0.01,
+        "weight_decay": 0.0,
+        "epochs": 20,
+        "loss": "l1",
+        "optimizer": "adam",
+        "scheduler": "cosine",
+        "batch_size": 64,
+        "grad_clip_norm": 1.0,
+        "early_stopping_patience": 5,
+        "optimiser_steps_run": 15924
+      },
+      "best_val_loss": 0.05152435859303866,
+      "best_epoch": 7,
+      "epochs_run": 12,
+      "stopped_early": true,
+      "checkpoint": "D:\\capstone project\\CapstoneProject\\Code\\baselines\\results\\checkpoints\\p2_seed2026.pt",
+      "history": [
+        {
+          "epoch": 1,
+          "total_epochs": 20,
+          "train_loss": 0.05231648466824228,
+          "val_loss": 0.051634218780073654,
+          "lr": 0.01
+        },
+        {
+          "epoch": 2,
+          "total_epochs": 20,
+          "train_loss": 0.051893754471332036,
+          "val_loss": 0.05154191312004826,
+          "lr": 0.009938441702975689
+        },
+        {
+          "epoch": 3,
+          "total_epochs": 20,
+          "train_loss": 0.051894243559557955,
+          "val_loss": 0.05154161889161637,
+          "lr": 0.009755282581475769
+        },
+        {
+          "epoch": 4,
+          "total_epochs": 20,
+          "train_loss": 0.051911137868968185,
+          "val_loss": 0.051552482519243194,
+          "lr": 0.00945503262094184
+        },
+        {
+          "epoch": 5,
+          "total_epochs": 20,
+          "train_loss": 0.051882910858713424,
+          "val_loss": 0.051690369149419796,
+          "lr": 0.009045084971874739
+        },
+        {
+          "epoch": 6,
+          "total_epochs": 20,
+          "train_loss": 0.05188698285647416,
+          "val_loss": 0.05155303262507738,
+          "lr": 0.008535533905932738
+        },
+        {
+          "epoch": 7,
+          "total_epochs": 20,
+          "train_loss": 0.05188013221886074,
+          "val_loss": 0.05152435859303866,
+          "lr": 0.007938926261462366
+        },
+        {
+          "epoch": 8,
+          "total_epochs": 20,
+          "train_loss": 0.051889309318513016,
+          "val_loss": 0.051553389321623455,
+          "lr": 0.007269952498697735
+        },
+        {
+          "epoch": 9,
+          "total_epochs": 20,
+          "train_loss": 0.05186230664582924,
+          "val_loss": 0.05156096729185822,
+          "lr": 0.006545084971874738
+        },
+        {
+          "epoch": 10,
+          "total_epochs": 20,
+          "train_loss": 0.05186213741041074,
+          "val_loss": 0.0515678383326575,
+          "lr": 0.005782172325201155
+        },
+        {
+          "epoch": 11,
+          "total_epochs": 20,
+          "train_loss": 0.0518534546654837,
+          "val_loss": 0.051534907711642,
+          "lr": 0.005
+        },
+        {
+          "epoch": 12,
+          "total_epochs": 20,
+          "train_loss": 0.05184530880029883,
+          "val_loss": 0.051712126332098866,
+          "lr": 0.004217827674798847
+        }
+      ],
+      "physics": {
+        "degree": 2,
+        "terms": [
+          "log_lambda^0",
+          "log_lambda^1",
+          "log_lambda^2"
+        ],
+        "gains": [
+          1.0093436241149902,
+          0.5307116508483887,
+          0.037166014313697815
+        ],
+        "bias": -0.0006909632938914001,
+        "departs_from_pure_physics": [
+          false,
+          true,
+          true
+        ]
+      },
+      "metrics": {
+        "pixel": {
+          "mae": 0.32788558149001135,
+          "rmse": 1.0579207622800049,
+          "n_valid_pixels": 69926912,
+          "n_invalid_pixels": 0,
+          "psnr_mean": 37.944606161431565,
+          "psnr_std": 6.654864752367832,
+          "ssim_mean": 0.8795586807515231,
+          "ssim_std": 0.19992749636837742,
+          "n_galaxies_scored": 17072,
+          "n_galaxies_skipped": 0,
+          "n_galaxies_with_filled_pixels_for_ssim": 0
+        },
+        "photometry": {
+          "aperture": {
+            "radius_px": 15.0,
+            "center": [
+              32.0,
+              32.0
+            ],
+            "n_pixels": 709
+          },
+          "nonpositive_flux_handling": "exclude",
+          "relative_flux_error": {
+            "median": 0.015102946713340924,
+            "nmad": 0.03989774917884252,
+            "mean": 0.04151554389500271,
+            "std": 0.4889220357493241,
+            "n": 17072
+          },
+          "delta_mag": {
+            "median": -0.016336875023540642,
+            "nmad": 0.04279167028284182,
+            "mean": -0.034627749567229235,
+            "std": 0.12380460686592841,
+            "n": 17061,
+            "outlier_percent": 1.0608991266631498,
+            "outlier_threshold": 0.5,
+            "zeropoint": 27.0,
+            "n_excluded_nonpositive_true_flux": 11,
+            "n_excluded_nonpositive_pred_flux": 0,
+            "n_excluded_total": 11
+          },
+          "colour_error_z_minus_y": {
+            "median": 0.016336875023540642,
+            "nmad": 0.04279167028284182,
+            "mean": 0.034627749567229235,
+            "std": 0.12380460686592841,
+            "n": 17061,
+            "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+            "n_nonpositive_z_flux": 0
+          },
+          "delta_mag_by_brightness": {
+            "split_on": "median true aperture flux",
+            "median_true_flux": 4024.4992852807045,
+            "faint_half": {
+              "median": -0.040372118136904334,
+              "nmad": 0.05643924404338798,
+              "mean": -0.06917694223409142,
+              "std": 0.16390556568011352,
+              "n": 8531
+            },
+            "bright_half": {
+              "median": -0.002779327717544078,
+              "nmad": 0.030689190800296112,
+              "mean": -7.450658469683657e-05,
+              "std": 0.037430750435222544,
+              "n": 8530
+            }
+          }
+        },
+        "magnitude_handling_comparison": {
+          "exclude": {
+            "delta_mag": {
+              "median": -0.016336875023540642,
+              "nmad": 0.04279167028284182,
+              "mean": -0.034627749567229235,
+              "std": 0.12380460686592841,
+              "n": 17061,
+              "outlier_percent": 1.0608991266631498,
+              "outlier_threshold": 0.5,
+              "zeropoint": 27.0,
+              "n_excluded_nonpositive_true_flux": 11,
+              "n_excluded_nonpositive_pred_flux": 0,
+              "n_excluded_total": 11
+            },
+            "colour_error_z_minus_y": {
+              "median": 0.016336875023540642,
+              "nmad": 0.04279167028284182,
+              "mean": 0.034627749567229235,
+              "std": 0.12380460686592841,
+              "n": 17061,
+              "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+              "n_nonpositive_z_flux": 0
+            }
+          },
+          "clamp": {
+            "delta_mag": {
+              "median": -0.016397263549080776,
+              "nmad": 0.042802314363269846,
+              "mean": -0.08598712428179968,
+              "std": 2.02652983386126,
+              "n": 17072,
+              "outlier_percent": 1.1246485473289598,
+              "outlier_threshold": 0.5,
+              "zeropoint": 27.0,
+              "n_excluded_nonpositive_true_flux": 11,
+              "n_excluded_nonpositive_pred_flux": 0,
+              "n_excluded_total": 0
+            },
+            "colour_error_z_minus_y": {
+              "median": 0.016397263549080776,
+              "nmad": 0.042802314363269846,
+              "mean": 0.08598712428179968,
+              "std": 2.02652983386126,
+              "n": 17072,
+              "note": "Same measured z flux on both sides, so this equals -delta_mag exactly.",
+              "n_nonpositive_z_flux": 0
+            }
+          }
+        },
+        "n_galaxies": 17072
+      }
+    }
+  ]
+}
