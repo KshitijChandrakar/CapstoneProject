@@ -54,6 +54,7 @@ class Config:
     b3: dict[str, Any]
     p1: dict[str, Any]
     p2: dict[str, Any]
+    m1: dict[str, Any]
     root: Path = PROJECT_ROOT
 
     # -- convenient accessors ---------------------------------------------
@@ -89,9 +90,11 @@ class Config:
     def model_config(self, name: str) -> dict[str, Any]:
         """One model's config block by name, with a clear error if absent."""
         table = {"b0": self.b0, "b1": self.b1, "b2": self.b2, "b3": self.b3,
-                 "p1": self.p1, "p2": self.p2}
+                 "p1": self.p1, "p2": self.p2,
+                 "m1": self.m1}
         files = {"b0": "b0_baseline", "b1": "b1_baseline", "b2": "b2_unet",
-                 "b3": "b3_unet_film_nll", "p1": "p1_psf", "p2": "p2_sed"}
+                 "b3": "b3_unet_film_nll", "p1": "p1_psf", "p2": "p2_sed",
+                 "m1": "m1_metadata"}
         key = name.lower()
         if key not in table:
             raise ConfigError(f"Unknown model {name!r}; expected one of {list(table)}.")
@@ -200,6 +203,7 @@ def load_config(config_dir: Path | str | None = None) -> Config:
         b3=_read_yaml_optional(d / "b3_unet_film_nll.yaml"),
         p1=_read_yaml_optional(d / "p1_psf.yaml"),
         p2=_read_yaml_optional(d / "p2_sed.yaml"),
+        m1=_read_yaml_optional(d / "m1_metadata.yaml"),
     )
     _validate(cfg)
     return cfg

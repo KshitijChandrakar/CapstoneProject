@@ -1,0 +1,48 @@
+# M1 -- catalogue-metadata neural network. No pixels.
+#
+# Answers one question the image ladder cannot: how much of the y band is
+# already present in the catalogue? 59 features -- magnitudes, morphology,
+# redshift -- and never an image.
+#
+# Read the result beside the image models' sigma(mag) with care. Both are
+# "how wrong is the y brightness, in magnitudes", on the same 17,072 test
+# galaxies, but M1 predicts a catalogue magnitude directly while the image
+# models measure aperture photometry on a predicted image. A few per cent
+# between them is estimator, not skill.
+
+model:
+  # Deliberately plain. The finding is about the catalogue's information
+  # content, and an elaborate architecture would muddy it: "the catalogue
+  # already contains this" is a weaker claim if it took a large model to get
+  # the information out.
+  hidden: [128, 64]
+  dropout: 0.1
+  expected_parameters: 16001
+
+features:
+  # Every y_* column is measured FROM the y image, so the whole prefix is
+  # excluded -- including it would be a lookup, not a prediction.
+  exclude_prefixes: ["y_"]
+  # Sky position predicts nothing causal about a spectrum, and survey splits
+  # are spatially clustered, so coordinates would let the model memorise
+  # patches of sky and inflate the test score.
+  exclude_coordinates: true
+  standardise: true     # per column, train split only
+
+training:
+  loss: l1              # matches the magnitude metric the result is reported in
+  optimizer: adam
+  lr: 1.0e-3
+  weight_decay: 1.0e-5
+  epochs: 60
+  batch_size: 512
+  scheduler: cosine
+  early_stopping_patience: 10
+  grad_clip_norm: 1.0
+
+evaluation:
+  outlier_dmag_threshold: 0.5
+  # Printed beside M1. The catalogue analogue of B0: y = z magnitude minus the
+  # median z-y colour, zero parameters. M1 must beat it to have learned
+  # anything, and showing it stops a mediocre network looking impressive.
+  report_catalogue_baseline: true
