@@ -8,7 +8,7 @@ error bars, and nothing in metrics.py or photometry.py would notice.
 Three things are measured here, and they answer different questions:
 
 * **NLL** -- one number combining accuracy and honesty. The headline score,
-  and the only metric on which B3 can be compared to the physics models P1-P3
+  and the only metric on which B3 can be compared to the physics models P1 and P2
   that also output uncertainty.
 * **Calibration** -- coverage at several levels, plus the standardised
   residual's spread. This catches a model that is simply over- or

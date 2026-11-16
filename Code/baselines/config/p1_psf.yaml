@@ -14,9 +14,14 @@ model:
   # bin boundary, inherited rather than invented, and it is where the measured
   # y-z width difference steps from +0.05 to +0.10 px.
   z_edges: [0.0, 0.36, 0.4]
-  # Half-width of the blur kernel in pixels. 4 covers +-3 sigma for the
-  # ~1.2 px kernels this window implies, with room if training grows them.
-  kernel_radius: 4
+  # Half-width of the blur kernel, px. It must cover at least 3 sigma: a
+  # Gaussian truncated nearer than that loses enough tail that renormalising
+  # leaves a kernel measurably narrower than the sigma it claims, so the model
+  # would report a width it is not applying -- and that width is the result.
+  # 8 supports sigma up to 2.67 px; 4 would support only 1.33, which training
+  # could outgrow. Construction refuses a radius too small for the initial
+  # sigmas, and the run reports afterwards if a fitted sigma outgrew it.
+  kernel_radius: 8
   # Typical z-band width proxy, px, used to turn script 07's *difference* in
   # width into a kernel sigma via quadrature. Script 07 reports 7.86 and 7.07
   # for the two bins here.

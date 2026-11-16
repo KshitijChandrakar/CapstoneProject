@@ -1,5 +1,5 @@
 # Global configuration for the B0 / B1 baselines.
-# Everything that later models (B2, B3, P1-P3) should reuse lives here.
+# Everything that later models (B2, B3, P1, P2) should reuse lives here.
 
 project:
   name: "hsc_band_prediction_z0_0.4"

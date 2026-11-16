@@ -1,4 +1,4 @@
-"""Checks on the physics layer that P1-P3 are built from.
+"""Checks on the physics layer that P1 and P2 are built from.
 
     python tests/test_physics.py
 

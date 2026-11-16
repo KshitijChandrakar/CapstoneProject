@@ -1,7 +1,7 @@
 # Baseline B3 -- U-Net + FiLM(redshift) + heteroscedastic NLL.
 #
 # This is the model that matters. It is the CAPACITY-MATCHED CONTROL for the
-# physics models P1-P3: the same size, the same conditioning on redshift, the
+# physics models P1 and P2: the same size, the same conditioning on redshift, the
 # same per-pixel uncertainty output -- but no physics. Per sir's slide 6, a
 # physics model that beats a random baseline has proved nothing; it has to beat
 # this.

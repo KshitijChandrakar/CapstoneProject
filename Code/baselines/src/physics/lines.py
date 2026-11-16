@@ -1,6 +1,12 @@
 """Which spectral features sit inside which filter, at a given redshift.
 
-This module exists because of a measurement and a failure.
+**Not part of the P1/P2 deliverable.** The coursework specifies two physics
+models, P1 (PSF-aware) and P2 (SED extrapolation). This module is kept because
+it encodes script 05's emission-line result and reproduces the crossing windows
+the results section quotes -- it is analysis support, and the starting point if
+a line-aware model is ever wanted. Nothing in P1 or P2 imports it.
+
+It exists because of a measurement and a failure.
 
 **The measurement** (script 05): refitting B0 independently per redshift bin
 showed the z->y relation really does change with redshift, and it changes in
@@ -19,7 +25,8 @@ the rest-frame wavelength mapping, the line list, and the filter edges from
 85k galaxies before redshift means anything. A model given "Ha is currently
 inside the z filter and outside y" is handed the physics directly.
 
-That is what this module computes, and it is the central hypothesis P3 tests.
+That is what this module computes: the physically meaningful
+parameterisation of redshift, as opposed to the raw scalar FiLM could not use.
 """
 
 from __future__ import annotations
@@ -100,8 +107,8 @@ def feature_matrix(redshift, features: tuple[str, ...] = CONFIRMED_FEATURES,
     """Per-galaxy physical conditioning vector, shape ``(n, len(features) * 5)``.
 
     One soft indicator per (feature, filter) pair: "how far inside filter b is
-    feature f for this galaxy". This is what P3 is conditioned on in place of
-    the raw redshift that FiLM could not use.
+    feature f for this galaxy". The physically meaningful form of
+    redshift, as opposed to the raw scalar FiLM could not use.
 
     Only the features script 05 confirmed are included by default. Passing the
     4000 A break explicitly is allowed -- it is an ablation, not the default.

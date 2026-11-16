@@ -1,7 +1,7 @@
 """Baseline B3 -- U-Net + FiLM(redshift) + heteroscedastic Gaussian NLL.
 
 This is the model the project is built around. It is the **capacity-matched
-control** for the physics models P1-P3: same size, same conditioning on
+control** for the physics models P1 and P2: same size, same conditioning on
 redshift, same per-pixel error bars -- and no physics at all. Per sir's
 slide 6, a physics model that beats a random baseline has proved nothing; it
 has to beat this.

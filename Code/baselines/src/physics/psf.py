@@ -150,17 +150,23 @@ def gaussian_kernel_2d(sigma: float, radius: int | None = None) -> np.ndarray:
     return np.outer(k, k)
 
 
-def blur(image: np.ndarray, sigma: float) -> np.ndarray:
+def blur(image: np.ndarray, sigma: float,
+         radius: int | None = None) -> np.ndarray:
     """Convolve a 2-D image with a Gaussian, edges handled by reflection.
 
     Reflection rather than zero padding: a galaxy cutout's border is sky, not
     vacuum, and zero padding would pull the edges down and bias the aperture
     photometry that every metric in this project is scored on.
+
+    ``radius`` defaults to ceil(3 sigma). It is exposed so a caller can match
+    another implementation's kernel size exactly -- without that, comparing
+    this against the torch blur in P1 compares two different truncations and
+    the difference looks like a bug in one of them.
     """
     img = np.asarray(image, dtype=np.float64)
     if img.ndim != 2:
         raise ValueError(f"expected a 2-D image, got shape {img.shape}")
-    k = gaussian_kernel_1d(sigma)
+    k = gaussian_kernel_1d(sigma, radius)
     if k.size == 1:
         return img.copy()
     pad = k.size // 2

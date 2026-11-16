@@ -118,17 +118,58 @@ class LearnableGaussianBlur(nn.Module):
     comparable to script 07's measurement.
     """
 
-    def __init__(self, init_sigmas, radius: int = 4) -> None:
+    #: A Gaussian truncated closer than this many sigma loses enough mass that,
+    #: after renormalising, the kernel is measurably narrower than the sigma it
+    #: claims. At 3.0 the lost tail is ~0.3%; at 1.6 it is ~11%.
+    MIN_RADIUS_IN_SIGMA: float = 3.0
+
+    def __init__(self, init_sigmas, radius: int = 8) -> None:
         super().__init__()
         sig = torch.tensor([max(float(s), 1e-3) for s in init_sigmas],
                            dtype=torch.float32)
         self.log_sigma = nn.Parameter(torch.log(sig))
         self.radius = int(radius)
+        if self.radius < 1:
+            raise ValueError(f"kernel radius must be >= 1, got {radius}")
+        widest = float(sig.max())
+        if widest > self.max_supported_sigma:
+            raise ValueError(
+                f"initial sigma {widest:.3f} px needs a kernel radius of at "
+                f"least {math.ceil(self.MIN_RADIUS_IN_SIGMA * widest)}, but "
+                f"radius is {self.radius} (supports sigma up to "
+                f"{self.max_supported_sigma:.3f}). A kernel truncated this "
+                "close to its centre is renormalised into something narrower "
+                "than the sigma it reports, which would make P1's fitted "
+                "width uninterpretable -- and the fitted width is the result."
+            )
         self.register_buffer(
             "offsets",
             torch.arange(-self.radius, self.radius + 1, dtype=torch.float32),
             persistent=False,
         )
+
+    @property
+    def max_supported_sigma(self) -> float:
+        """Widest blur this kernel size can represent without silent truncation."""
+        return self.radius / self.MIN_RADIUS_IN_SIGMA
+
+    def truncation_report(self) -> dict:
+        """Whether any fitted width has outgrown the kernel it is drawn on.
+
+        Training moves sigma, and nothing stops it moving past what the fixed
+        kernel size can represent. Past that point the model keeps reporting a
+        sigma it is not actually applying, so this is checked and printed after
+        every run rather than assumed.
+        """
+        fitted = [float(v) for v in self.sigmas.detach().cpu()]
+        limit = self.max_supported_sigma
+        return {
+            "fitted_sigma_px": fitted,
+            "max_supported_sigma_px": limit,
+            "kernel_radius_px": self.radius,
+            "truncated": [f > limit for f in fitted],
+            "any_truncated": any(f > limit for f in fitted),
+        }
 
     @property
     def sigmas(self) -> torch.Tensor:
@@ -166,7 +207,7 @@ class P1PSF(nn.Module):
     """Spectral mixing followed by a redshift-dependent, learnable PSF blur."""
 
     def __init__(self, in_channels: int = len(INPUT_BAND_IDX),
-                 z_edges=DEFAULT_Z_EDGES, radius: int = 4,
+                 z_edges=DEFAULT_Z_EDGES, radius: int = 8,
                  z_width_px: float = TYPICAL_Z_WIDTH_PX,
                  learn_blur: bool = True) -> None:
         super().__init__()
@@ -187,7 +228,14 @@ class P1PSF(nn.Module):
                              dtype=redshift.dtype)
         if edges.numel() == 0:
             return torch.zeros_like(redshift, dtype=torch.long)
-        return torch.bucketize(redshift, edges)
+        # right=True gives half-open bins, edges[i-1] <= z < edges[i], which is
+        # the convention used everywhere else in this project: the dataset is
+        # z_min <= z < z_max, and psf.measured_difference looks up bins the
+        # same way. The default (right=False) is (lo, hi], so a galaxy sitting
+        # exactly on an edge would have been given the neighbouring bin's blur
+        # width -- a silent disagreement between the model and the measurement
+        # it is supposed to be testing.
+        return torch.bucketize(redshift, edges, right=True)
 
     def forward(self, x: torch.Tensor, cond: torch.Tensor | None = None):
         mixed = self.mix(x)
@@ -231,6 +279,7 @@ class P1PSF(nn.Module):
                 for f, m in zip(fitted, self.initial_sigmas)
             ],
             "collapsed": [f < 0.1 * m for f, m in zip(fitted, self.initial_sigmas)],
+            "truncation": self.blur.truncation_report(),
         }
 
     def mixing_weights(self) -> dict:
@@ -247,7 +296,7 @@ def build_p1(model_cfg: dict) -> P1PSF:
     model = P1PSF(
         in_channels=int(model_cfg.get("in_channels", len(INPUT_BAND_IDX))),
         z_edges=edges,
-        radius=int(model_cfg.get("kernel_radius", 4)),
+        radius=int(model_cfg.get("kernel_radius", 8)),
         z_width_px=float(model_cfg.get("z_width_px", TYPICAL_Z_WIDTH_PX)),
         learn_blur=bool(model_cfg.get("learn_blur", True)),
     )

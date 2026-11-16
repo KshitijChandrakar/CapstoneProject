@@ -1,6 +1,6 @@
 """Subaru HSC filter wavelengths and the geometry of the prediction problem.
 
-Everything physics-informed in P1-P3 starts here: the five filters are not
+Everything physics-informed in P1 and P2 starts here: the five filters are not
 interchangeable channels, they are samples of a spectrum at known wavelengths,
 and *y* sits at the red end just past *z*.
 
