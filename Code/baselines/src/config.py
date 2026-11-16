@@ -52,6 +52,8 @@ class Config:
     b1: dict[str, Any]
     b2: dict[str, Any]
     b3: dict[str, Any]
+    p1: dict[str, Any]
+    p2: dict[str, Any]
     root: Path = PROJECT_ROOT
 
     # -- convenient accessors ---------------------------------------------
@@ -86,7 +88,10 @@ class Config:
 
     def model_config(self, name: str) -> dict[str, Any]:
         """One model's config block by name, with a clear error if absent."""
-        table = {"b0": self.b0, "b1": self.b1, "b2": self.b2, "b3": self.b3}
+        table = {"b0": self.b0, "b1": self.b1, "b2": self.b2, "b3": self.b3,
+                 "p1": self.p1, "p2": self.p2}
+        files = {"b0": "b0_baseline", "b1": "b1_baseline", "b2": "b2_unet",
+                 "b3": "b3_unet_film_nll", "p1": "p1_psf", "p2": "p2_sed"}
         key = name.lower()
         if key not in table:
             raise ConfigError(f"Unknown model {name!r}; expected one of {list(table)}.")
@@ -94,7 +99,7 @@ class Config:
         if not block:
             raise ConfigError(
                 f"Config for {key.upper()} is missing. Expected "
-                f"config/{'b2_unet' if key == 'b2' else 'b3_unet_film_nll'}.yaml."
+                f"config/{files[key]}.yaml."
             )
         return block
 
@@ -193,6 +198,8 @@ def load_config(config_dir: Path | str | None = None) -> Config:
         b1=_read_yaml(d / "b1_baseline.yaml"),
         b2=_read_yaml_optional(d / "b2_unet.yaml"),
         b3=_read_yaml_optional(d / "b3_unet_film_nll.yaml"),
+        p1=_read_yaml_optional(d / "p1_psf.yaml"),
+        p2=_read_yaml_optional(d / "p2_sed.yaml"),
     )
     _validate(cfg)
     return cfg
@@ -234,6 +241,37 @@ def _validate(cfg: Config) -> None:
                 f"{name.upper()}.model.depth {m['depth']} needs an image size "
                 f"divisible by {2 ** int(m['depth'])}, but image_size is {size}."
             )
+    if cfg.p1:
+        m = cfg.p1["model"]
+        edges = list(m.get("z_edges", []))
+        if len(edges) < 2 or any(b <= a for a, b in zip(edges, edges[1:])):
+            raise ConfigError(
+                f"P1.model.z_edges must be two or more increasing values, got "
+                f"{edges}."
+            )
+        zmin, zmax = float(ds["z_min"]), float(ds["z_max"])
+        if edges[0] > zmin or edges[-1] < zmax:
+            raise ConfigError(
+                f"P1.model.z_edges {edges} do not span the dataset's "
+                f"[{zmin}, {zmax}). Galaxies outside the edges would all be "
+                "forced into the end bins and silently share a blur width."
+            )
+        radius = int(m.get("kernel_radius", 8))
+        if radius < 1:
+            raise ConfigError(f"P1.model.kernel_radius must be >= 1, got {radius}.")
+
+    if cfg.p2:
+        m = cfg.p2["model"]
+        degree = int(m.get("degree", 2))
+        n_in = len(ds["input_bands"])
+        if degree < 1 or degree > n_in - 1:
+            raise ConfigError(
+                f"P2.model.degree must be between 1 and {n_in - 1} for "
+                f"{n_in} input bands, got {degree}. A degree of {n_in - 1} or "
+                "more interpolates the inputs exactly, so the extrapolation "
+                "to y would ride entirely on fitted noise."
+            )
+
     if cfg.b3:
         unc = cfg.b3["uncertainty"]
         if unc["logvar_min"] >= unc["logvar_max"]:

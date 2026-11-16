@@ -35,9 +35,16 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 #: Display order of the ladder, with the file each model writes.
+#: Ordered by parameter count, not by name, because the "what each rung
+#: bought" table reads consecutive pairs. The two physics models sit between
+#: B1 and B2 deliberately: that is where their parameter counts put them, and
+#: the whole argument is about what a handful of informed parameters buys
+#: against two million uninformed ones.
 LADDER: tuple[tuple[str, str, str], ...] = (
     ("b0", "B0 (Copy-z)", "b0_metrics.json"),
+    ("p2", "P2 (SED)", "p2_metrics.json"),
     ("b1", "B1 (Linear 1x1)", "b1_metrics.json"),
+    ("p1", "P1 (PSF)", "p1_metrics.json"),
     ("b2", "B2 (U-Net)", "b2_metrics.json"),
     ("b3", "B3 (U-Net+FiLM+NLL)", "b3_metrics.json"),
 )
